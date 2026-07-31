@@ -20,7 +20,7 @@ Each release represents a stable milestone in the evolution of the repository.
 
 ---
 
-## [0.1.0] - 2026-07-31
+## [0.1.0] - 2026-08-01
 
 ### Added
 
