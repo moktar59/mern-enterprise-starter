@@ -78,6 +78,7 @@ Project documentation is treated as a first-class deliverable.
 - `PHILOSOPHY.md` — Engineering philosophy and guiding principles
 - `DESIGN.md` — High-level architecture and design decisions
 - `ROADMAP.md` — Development roadmap and milestones
+- `ARCHITECTURE.md` — Detailed architectural principles, boundaries, and structure
 
 ### Community
 
