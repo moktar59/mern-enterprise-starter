@@ -178,6 +178,24 @@ Infrastructure, adapters, and plugins exist to support business capabilities rat
 
 ---
 
+## Execution Context
+
+The runtime architecture uses an explicit Execution Context model to represent the identity and trusted metadata of an independent unit of work.
+
+Execution contexts are created at execution boundaries and propagated through the application execution flow. Internal application components do not create new execution contexts.
+
+The Execution Context architecture is defined separately in:
+
+`docs/architecture/execution-context.md`
+
+The implementation decision and its rationale are recorded in:
+
+`docs/architecture/decisions/ADR-001-execution-context.md`
+
+The detailed document defines the execution context contract, lifecycle, propagation model, concurrency semantics, and integration rules.
+
+---
+
 # Application Lifecycle
 
 Application startup follows a deterministic lifecycle.
