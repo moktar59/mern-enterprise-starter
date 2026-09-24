@@ -67,7 +67,9 @@ AsyncLocalStorage
     ↓
 Private runtime implementation
 ```
+The Execution Context abstraction intentionally does not own database transactions, distributed tracing state, cancellation state, or domain-event state.
 
+These concerns remain owned by their respective subsystems and may integrate with Execution Context without becoming part of the context itself.
 The architectural abstraction is therefore independent from the Node.js propagation mechanism.
 
 ---
@@ -584,6 +586,12 @@ The following invariants are part of this decision:
 20. Missing context must remain distinct from anonymous execution.
 21. Generic context bags are prohibited.
 22. Application code must not directly depend on `AsyncLocalStorage`.
+23. Async propagation does not define business execution identity.
+24. Independent asynchronous work must establish a new execution.
+25. ExecutionContext does not own transaction state.
+26. ExecutionContext does not own tracing state.
+27. ExecutionContext does not own cancellation state.
+28. Domain events remain independent from ExecutionContext.
 
 ---
 
@@ -682,7 +690,9 @@ The design introduces:
 * the need to explicitly handle independent asynchronous work
 * additional design considerations for worker threads, detached jobs, and similar boundaries
 
-These costs are accepted because execution context is a foundational capability used across multiple future backend features.
+These costs are accepted because execution context is a foundational capability used across multiple future backend features. The separation between execution identity and asynchronous propagation means developers must explicitly establish new execution contexts for independent asynchronous work.
+
+Runtime propagation alone must not be interpreted as business execution identity.
 
 ---
 
