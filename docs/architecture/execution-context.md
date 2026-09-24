@@ -1,154 +1,515 @@
-# Execution Architecture
+# Execution Context
 
-This document defines how a logical execution is created, represented, propagated, and completed within the application.
+## 1. Purpose
 
-The execution model provides a consistent foundation for HTTP requests, background jobs, scheduled jobs, message consumers, CLI commands, event handlers, and other externally initiated executions.
+The Execution Context provides a consistent representation of the identity and trusted metadata associated with an independent unit of work.
 
-The architecture separates:
+It allows application components to access execution-scoped information without requiring that information to be explicitly passed through every application-layer function.
 
-* **Execution Context** — information associated with the current execution.
-* **Execution Scope** — controlled propagation and access to the current context.
-* **Execution Boundary** — where an execution begins and its context is established.
-* **Execution Lifecycle** — the stages an execution passes through from entry to completion.
+The Execution Context is an architectural concept. Its runtime propagation mechanism is an implementation detail and must remain behind the appropriate infrastructure boundary.
+
+This document defines the architectural model, contracts, lifecycle, propagation semantics, ownership rules, security model, and integration boundaries for Execution Context within the application.
 
 ---
 
-# 1. Execution Context
+## 2. Problem Statement
 
-`ExecutionContext` is a foundational runtime abstraction.
+Application execution frequently crosses multiple layers and asynchronous operations.
 
-It represents information associated with the current logical execution.
+A single execution may pass through:
 
-Typical information may include:
+```text
+HTTP Request
+    │
+    ▼
+Middleware
+    │
+    ▼
+Controller
+    │
+    ▼
+Application Service
+    │
+    ├── Repository
+    ├── External Service
+    └── Background Operation
+```
 
-* Execution ID
-* Correlation ID
-* Causation ID
-* Principal
-* Tenant
-* Locale
-* Request metadata
-* Trusted execution metadata
+Multiple executions may occur concurrently and may follow the same application path.
 
-The context is designed to be:
+Without an explicit execution-scoped model, components may have to pass execution metadata through unrelated function parameters, or they may depend on global mutable state.
 
-* Immutable
-* Explicit
-* Execution-scoped
-* Propagated across asynchronous execution
-* Safe to consume from infrastructure
-* Independent of HTTP-specific objects
+Both approaches create architectural problems.
+
+Explicitly passing every piece of execution metadata can cause unrelated application interfaces to become polluted with infrastructure concerns.
+
+Global mutable state can cause execution data to leak between concurrent operations.
+
+The application therefore requires an explicit model that:
+
+* identifies an independent execution
+* carries trusted execution-scoped metadata
+* remains isolated between concurrent executions
+* supports asynchronous execution
+* has clear ownership and lifecycle rules
+* does not couple application code to a specific runtime propagation mechanism
+
+The Execution Context addresses these requirements.
+
+---
+
+## 3. Architectural Model
+
+An Execution Context belongs to an independent execution.
+
+The high-level model is:
+
+```text
+Execution Boundary
+        │
+        │ creates
+        ▼
+ExecutionContext
+        │
+        │ propagated through execution
+        ▼
+Application Components
+        │
+        ├── Application Logic
+        ├── Infrastructure
+        └── Observability Integrations
+```
+
+The Execution Context is not a general-purpose dependency container.
+
+It is not:
+
+* application state
+* a service locator
+* a transaction container
+* a logging container
+* a tracing implementation
+* a cancellation mechanism
+* a replacement for explicit business parameters
+
+The context exists specifically to represent metadata that belongs to the execution itself.
+
+The architecture separates the conceptual model from the runtime mechanism:
+
+```text
+Execution Context
+        │
+        ▼
+Context Contract
+        │
+        ▼
+Infrastructure Implementation
+        │
+        ▼
+Runtime Propagation Mechanism
+```
+
+The underlying runtime mechanism may change without changing the architectural meaning of Execution Context.
+
+---
+
+## 4. Execution Boundary
+
+An execution boundary is the point at which an independent unit of work enters the application runtime.
+
+The execution boundary is responsible for establishing the execution environment and creating the initial Execution Context.
+
+Examples include:
+
+* HTTP request handling
+* background job processing
+* message consumption
+* scheduled task execution
+* explicitly initiated independent asynchronous work
+
+The boundary determines when a new execution begins.
+
+Internal application calls do not automatically constitute new execution boundaries.
+
+For example:
+
+```text
+HTTP Request
+    │
+    ▼
+Controller
+    │
+    ▼
+Application Service
+    │
+    ▼
+Repository
+```
+
+All of these operations belong to the same execution unless the architecture explicitly defines otherwise.
+
+Execution boundaries therefore establish the ownership point for context creation.
+
+Only the component responsible for an execution boundary may create the initial Execution Context for that execution.
+
+---
+
+## 5. Execution Lifecycle
+
+An Execution Context follows the lifecycle of the execution that owns it.
+
+The lifecycle is:
+
+```text
+Create
+  │
+  ▼
+Initialize
+  │
+  ▼
+Enrich
+  │
+  ▼
+Execute
+  │
+  ▼
+Complete
+  │
+  ▼
+Release
+```
+
+### Create
+
+The execution boundary creates the initial Execution Context.
+
+### Initialize
+
+Initial execution metadata is established.
+
+This may include:
+
+* execution identity
+* correlation information
+* execution source
+* trusted boundary metadata
+
+### Enrich
+
+Additional trusted information becomes available during execution.
+
+For example, authentication may establish the principal associated with the execution.
+
+Enrichment updates the existing execution context. It does not create a new execution.
+
+### Execute
+
+Application processing occurs within the context.
+
+Application components may read context information required for their responsibilities.
+
+### Complete
+
+The execution reaches a successful or unsuccessful terminal state.
+
+### Release
+
+The context is no longer associated with the completed execution.
+
+The lifecycle of the context must never outlive the lifecycle of its owning execution.
+
+---
+
+## 6. Execution Identity
+
+Every independent execution must have an Execution Identity.
+
+The Execution Identity provides a stable identifier for the lifetime of that execution.
 
 Conceptually:
 
 ```text
-                 ExecutionContext
-                        │
-        ┌───────────────┼────────────────┐
-        │               │                │
-   executionId    correlationId      principal
-                                      │
-                                    tenant
+Execution
+    │
+    └── executionId
 ```
 
-Execution context represents execution metadata. It is not a container for arbitrary business state, dependencies, secrets, or application data.
+The identifier is not a business identifier.
+
+It exists to identify the execution itself.
+
+Execution Identity may be used for:
+
+* operational diagnostics
+* structured logging
+* error correlation
+* audit metadata
+* tracing integration
+* debugging concurrent execution behavior
+
+An Execution Identity must not be interpreted as authentication or authorization by itself.
+
+A valid execution identifier does not establish who initiated the execution or what that execution is permitted to do.
 
 ---
 
-## 1.1 Context Creation
+## 7. ExecutionContext
 
-Execution contexts are created through a dedicated factory.
+`ExecutionContext` is the primary architectural representation of execution-scoped state.
 
-```ts
-ExecutionContextFactory.create(input)
-```
-
-Context creation establishes the initial trusted execution identity for a logical execution.
-
-Creation is different from enrichment.
-
-The component responsible for establishing an execution boundary owns initial context creation.
-
-Internal application services should not independently create a new context for an execution that is already in progress.
-
----
-
-## 1.2 Context Enrichment
-
-Trusted infrastructure may derive a new context containing additional trusted information.
-
-The context remains immutable.
-
-Conceptually:
-
-```ts
-const enriched = context.withPrincipal(principal);
-```
-
-produces a new context rather than modifying the existing context.
-
-Typical enrichment may include:
+Conceptually, it contains information such as:
 
 ```text
-Initial Context
-      │
-      ├── Request Metadata
-      │
-      ├── Principal
-      │
-      ├── Tenant
-      │
-      └── Locale
+ExecutionContext
+├── executionId
+├── correlationId
+├── source
+├── principal
+└── tenant
 ```
 
-Enrichment must use explicit contracts.
+The actual implementation may contain additional metadata when justified by the architecture.
 
-Security-sensitive information such as principal and tenant identity must have controlled write semantics and must not be arbitrarily overwritten later in the execution lifecycle.
+The context should remain intentionally small.
+
+Every field must have a clear relationship to the execution.
+
+Application state that belongs to a particular business operation must not be placed into the Execution Context merely for convenience.
+
+The context is therefore a controlled architectural contract rather than an arbitrary key-value store.
 
 ---
 
-# 2. Execution Context Scope
+## 8. ExecutionContextCreationInput
 
-`ExecutionContextScope` provides controlled access to the context associated with the current logical execution.
-
-The application depends on the scope abstraction rather than on a runtime-specific propagation mechanism.
+`ExecutionContextCreationInput` represents the trusted input required to establish an initial Execution Context.
 
 Conceptually:
 
-```ts
-ExecutionContextScope.run(context, operation)
+```text
+ExecutionContextCreationInput
+├── executionId
+├── correlationId
+├── source
+└── initial trusted metadata
 ```
 
-establishes the supplied context for the duration of the logical operation.
+The creation input belongs to the execution boundary.
 
-A scope may provide:
+The boundary is responsible for determining which information is available and trustworthy at creation time.
 
-```ts
-interface ExecutionContextScope {
-  run<T>(
-    context: ExecutionContext,
-    operation: () => T
-  ): T;
+External input must not automatically become trusted context data.
 
-  getCurrent(): ExecutionContext | undefined;
+For example, a value supplied by an HTTP client may be used as a correlation identifier only according to the application's validation and trust rules.
 
-  requireCurrent(): ExecutionContext;
-}
-```
+`ExecutionContextCreationInput` is not intended to expose every request property.
 
-The exact interface may evolve during implementation, but the architectural responsibility remains stable.
+It should contain only information required to establish execution identity and trusted initial metadata.
 
 ---
 
-## 2.1 Scope Ownership
+## 9. ExecutionSource
 
-The execution boundary establishes the initial scope.
+`ExecutionSource` identifies the type of boundary from which the execution originated.
 
-Application services consume the current context through the application-owned abstraction.
+Examples may include:
 
-Business modules must not directly manage the lifetime of the execution scope.
+```text
+HTTP
+QUEUE
+EVENT
+SCHEDULE
+CLI
+INTERNAL
+```
+
+The exact enumeration is an application-level contract and should be expanded only when a new execution boundary requires a distinct source.
+
+Execution source provides contextual information about the execution.
+
+It must not be used as a substitute for authorization or authentication.
+
+For example:
+
+```text
+source = HTTP
+```
+
+does not indicate that the caller is authenticated.
+
+---
+
+## 10. Principal
+
+`Principal` represents the authenticated or otherwise trusted identity associated with an execution.
+
+A Principal is established only after the appropriate authentication or identity-verification process has succeeded.
 
 Conceptually:
+
+```text
+Principal
+├── principalId
+├── principalType
+└── trusted identity metadata
+```
+
+The exact shape is defined by the authentication architecture.
+
+An unauthenticated execution may have no Principal.
+
+For example:
+
+```text
+ExecutionContext
+├── executionId
+├── source
+└── principal = undefined
+```
+
+After successful authentication:
+
+```text
+ExecutionContext
+├── executionId
+├── source
+└── principal
+       └── authenticated identity
+```
+
+The existence of a Principal does not itself grant permissions.
+
+Authorization remains the responsibility of the authorization architecture.
+
+---
+
+## 11. TenantContext
+
+`TenantContext` represents the trusted tenant or organizational scope associated with an execution.
+
+Conceptually:
+
+```text
+TenantContext
+└── tenantId
+```
+
+Tenant information must be established through an appropriate trusted resolution mechanism.
+
+An externally supplied tenant identifier must not automatically be treated as trusted tenant context.
+
+Tenant resolution may depend on:
+
+* authenticated identity
+* domain or host information
+* validated request metadata
+* application-specific tenant resolution rules
+
+The Execution Context carries the resolved tenant identity but does not perform tenant authorization itself.
+
+The authorization layer remains responsible for determining whether the Principal may operate within the resolved tenant.
+
+---
+
+## 12. ExecutionContextFactory
+
+`ExecutionContextFactory` is responsible for creating an Execution Context from a valid `ExecutionContextCreationInput`.
+
+Conceptually:
+
+```text
+ExecutionContextCreationInput
+             │
+             ▼
+   ExecutionContextFactory
+             │
+             ▼
+       ExecutionContext
+```
+
+The factory owns construction rules.
+
+It does not own:
+
+* HTTP request handling
+* authentication
+* authorization
+* business logic
+* persistence
+* logging implementation
+
+The factory must establish a valid initial context according to the Execution Context contract.
+
+Context creation must occur only through an execution boundary or a component explicitly responsible for creating a new independent execution.
+
+---
+
+## 13. ExecutionContextScope
+
+`ExecutionContextScope` represents the lifetime and propagation scope of an Execution Context.
+
+A scope establishes which asynchronous operations belong to the execution.
+
+Conceptually:
+
+```text
+ExecutionContextScope
+        │
+        ├── operation A
+        ├── operation B
+        ├── async operation C
+        └── operation D
+```
+
+All operations belonging to the same scope observe the same execution context.
+
+A scope must not allow one concurrent execution to observe another execution's context.
+
+The scope is an infrastructure concern.
+
+Application modules consume the context through its contract rather than managing the underlying scope mechanism directly.
+
+---
+
+## 14. AsyncLocalStorage
+
+Node.js `AsyncLocalStorage` may be used to implement Execution Context propagation.
+
+`AsyncLocalStorage` is not the Execution Context itself.
+
+The architectural distinction is:
+
+```text
+ExecutionContext
+    = application-level architectural concept
+
+AsyncLocalStorage
+    = Node.js runtime implementation mechanism
+```
+
+Application and business modules must not directly depend on `AsyncLocalStorage`.
+
+The dependency must remain behind the execution infrastructure abstraction.
+
+This allows the propagation mechanism to change without requiring changes throughout the application.
+
+`AsyncLocalStorage` must also be used in a manner that preserves isolation between concurrent executions.
+
+---
+
+## 15. Context Creation and Enrichment
+
+Context creation and context enrichment are separate operations.
+
+### Creation
+
+Creation establishes the initial execution context at the execution boundary.
+
+### Enrichment
+
+Enrichment adds trusted information to the existing context as the execution progresses.
+
+For example:
 
 ```text
 Execution Boundary
@@ -157,637 +518,620 @@ Execution Boundary
 Create Context
         │
         ▼
-Establish Scope
+Authenticate
+        │
+        ▼
+Enrich Principal
+        │
+        ▼
+Resolve Tenant
+        │
+        ▼
+Enrich TenantContext
         │
         ▼
 Application Execution
-        │
-        ▼
-Scope Ends
 ```
+
+Enrichment does not create a new execution.
+
+Only explicitly authorized components may enrich the context.
+
+Enrichment must follow the trust model defined by this architecture.
 
 ---
 
-## 2.2 Deliberate Scope Restrictions
+## 16. Context Immutability
 
-The public scope abstraction should not encourage arbitrary mutable operations such as:
+Execution Context should be immutable from the perspective of ordinary consumers.
 
-```ts
-set()
-clear()
-enterWith()
-```
+Consumers may read context information but must not arbitrarily mutate it.
 
-The objective is to prevent execution context from becoming uncontrolled mutable global state.
+Changes to context must occur through controlled context operations.
 
-Context lifetime and ownership should remain explicit.
+This provides:
 
----
+* predictable state transitions
+* explicit ownership
+* reduced accidental mutation
+* stronger concurrent execution guarantees
+* easier testing
 
-# 3. Asynchronous Context Propagation
+The complete context must not be replaced by an arbitrary application component.
 
-The execution context must remain isolated across concurrent asynchronous executions.
-
-For Node.js, `AsyncLocalStorage` may provide the underlying runtime mechanism.
-
-However:
-
-> **AsyncLocalStorage is infrastructure, not the application contract.**
-
-The application depends on:
-
-```text
-ExecutionContext
-ExecutionContextFactory
-ExecutionContextScope
-```
-
-rather than directly depending on Node.js `AsyncLocalStorage`.
-
-Conceptually:
-
-```text
-Application
-    │
-    ▼
-ExecutionContextScope
-    │
-    ▼
-AsyncLocalStorage
-    │
-    ▼
-Node.js Runtime
-```
-
-This keeps the application contract independent of the underlying propagation mechanism.
+Context enrichment must be explicit.
 
 ---
 
-## 3.1 Isolation
+## 17. Context Conflict Rules
 
-Concurrent executions must not observe one another's context.
+Context enrichment may encounter information that conflicts with information already present in the context.
 
-For example:
+Conflicts must not be resolved through silent overwriting.
+
+Examples include:
 
 ```text
-Request A ──────► Context A
-                    │
-                    └── async work A
-
-Request B ──────► Context B
-                    │
-                    └── async work B
+Existing tenantId
+        ≠
+New tenantId
 ```
 
-Context A must never become visible to Request B, and vice versa.
+or:
 
-Isolation is an architectural requirement, not merely an implementation detail.
+```text
+Existing principal
+        ≠
+New principal
+```
+
+The architecture must define whether a field is:
+
+* immutable after creation
+* enrichable once
+* enrichable under controlled replacement
+* invalid when conflicting
+
+Identity-related fields should generally be treated as immutable once established.
+
+If trusted sources produce conflicting identity information, the execution should fail explicitly rather than silently replacing the existing value.
+
+This prevents context mutation from becoming a mechanism for changing execution identity.
 
 ---
 
-# 4. Execution Boundary
+## 18. Security and Trust Model
 
-An execution boundary defines where a logical execution begins and where its execution context is established.
+Execution Context contains trusted and potentially security-sensitive metadata.
 
-Typical execution boundaries include:
+Trust must therefore be established explicitly.
 
-* HTTP requests
-* Background jobs
-* Scheduled jobs
-* Message consumers
-* CLI commands
-* Event handlers
-* Other externally initiated executions
-
-The boundary is responsible for establishing the execution foundation before application execution begins.
-
-Conceptually:
-
-```text
-External Trigger
-      │
-      ▼
-Execution Boundary
-      │
-      ├── normalize input
-      ├── create context
-      ├── establish scope
-      └── execute operation
-                │
-                ▼
-           Application
-```
-
-Internal application services normally consume the current execution context rather than creating a new one.
-
----
-
-## 4.1 Boundary Responsibilities
-
-An execution boundary may be responsible for:
-
-1. Receiving an external trigger.
-2. Translating the external input into an application-level input.
-3. Creating the initial execution context.
-4. Establishing the execution scope.
-5. Performing trusted context enrichment.
-6. Invoking the application operation.
-7. Translating the result or error back to the external protocol.
-8. Completing the execution scope.
-
-The boundary must not become a location for business rules.
-
-Adapters translate protocols; business capabilities remain inside the application modules.
-
----
-
-# 5. Execution Input and Execution Context
-
-`ExecutionInput` and `ExecutionContext` represent different concerns.
-
-### ExecutionInput
-
-Describes **what is being executed**.
-
-Examples:
-
-```text
-Create User
-Authenticate Credentials
-Process Payment
-Send Notification
-```
-
-### ExecutionContext
-
-Describes **the environment in which the execution occurs**.
-
-Examples:
-
-```text
-Execution ID
-Correlation ID
-Principal
-Tenant
-Locale
-```
-
-Conceptually:
+The architecture distinguishes between:
 
 ```text
 External Input
       │
       ▼
-Execution Boundary
+Validation / Verification
       │
-      ├───────────────┐
-      ▼               ▼
-ExecutionInput   ExecutionContext
-      │               │
-      └───────┬───────┘
-              ▼
-       Application Execution
+      ▼
+Trusted Context Data
 ```
 
-External transport objects such as Express `Request` and `Response` must not become application execution contracts.
+External input is not trusted merely because it has been placed into the context.
+
+Security-sensitive values must not be stored unnecessarily.
+
+In particular, the context must not contain:
+
+* passwords
+* raw authentication credentials
+* access tokens when unnecessary
+* refresh tokens
+* secrets
+
+The context must not bypass:
+
+* input validation
+* authentication
+* authorization
+* tenant isolation
+* security policy enforcement
+
+The Execution Context provides trusted execution metadata to those systems; it does not replace them.
 
 ---
 
-# 6. Execution Lifecycle
+## 19. Async and Concurrency Semantics
 
-Every externally initiated execution follows a controlled lifecycle.
+Execution Context must remain associated with the correct execution across asynchronous operations.
 
-The conceptual lifecycle is:
+For concurrent executions:
 
 ```text
-RECEIVED
-   │
-   ▼
-NORMALIZED
-   │
-   ▼
-CONTEXT CREATED
-   │
-   ▼
-CONTEXT ENRICHED
-   │
-   ▼
-SCOPED
-   │
-   ▼
-EXECUTING
-   │
-   ├──────────────► SUCCEEDED
-   │
-   └──────────────► FAILED
-                         │
-                         ▼
-                     FINALIZED
+Execution A ───────► Context A
+Execution B ───────► Context B
+Execution C ───────► Context C
 ```
 
-The exact implementation may vary by execution boundary, but the ownership model remains consistent.
+No execution may observe another execution's context.
+
+This requirement applies to asynchronous operations including:
+
+* Promises
+* `async` / `await`
+* timers
+* I/O operations
+* framework callbacks
+* database operations
+* external service calls
+
+Asynchronous scheduling must not change execution identity.
+
+An asynchronous operation remains part of the current execution unless it explicitly represents a new execution boundary.
 
 ---
 
-## 6.1 Execution Lifecycle Responsibilities
+## 20. Independent Asynchronous Work
 
-### Received
+Independent asynchronous work represents a new execution.
 
-An external trigger enters through an execution boundary.
+Examples include:
 
-### Normalized
+* background jobs
+* scheduled tasks
+* independently consumed messages
+* work submitted to a separate execution system
+* explicitly detached execution
 
-The boundary translates protocol-specific input into an application-level `ExecutionInput`.
+Such work must establish a new Execution Context.
 
-### Context Created
+Selected metadata may be intentionally propagated when required.
 
-The boundary creates the initial `ExecutionContext`.
+For example:
 
-### Context Enriched
+```text
+Parent Execution
+    │
+    ├── executionId = A
+    └── correlationId = C
+            │
+            │ enqueue
+            ▼
+      Background Job
+            │
+            ├── executionId = B
+            └── correlationId = C
+```
 
-Trusted execution metadata may be added through controlled derivation.
+The background job receives a new execution identity.
 
-### Scoped
+It must not implicitly inherit the complete parent context.
 
-The context is established for the logical execution.
-
-### Executing
-
-The application operation executes using the normalized input and current execution context.
-
-### Succeeded / Failed
-
-The execution completes either successfully or with an error.
-
-### Finalized
-
-The boundary translates the result or error into the appropriate external representation and completes the execution scope.
+This distinction preserves independent execution lifecycle and isolation.
 
 ---
 
-# 7. HTTP Execution
+## 21. Queue and Event Executions
 
-HTTP is one execution boundary.
+Each queue message or event handler invocation represents an independent execution unless the architecture explicitly defines otherwise.
 
-A typical HTTP execution follows:
+A worker receiving a message should therefore establish a new Execution Context.
+
+Conceptually:
+
+```text
+Message
+   │
+   ▼
+Queue Boundary
+   │
+   ▼
+Create ExecutionContext
+   │
+   ▼
+Process Message
+   │
+   ▼
+Complete Execution
+```
+
+Correlation metadata may be propagated from the producer when required for observability.
+
+Execution identity must be newly established for the consumer execution.
+
+A message payload must not be treated as trusted context metadata without appropriate validation.
+
+---
+
+## 22. Worker Threads
+
+Worker threads represent a separate execution environment.
+
+Execution Context must not be assumed to propagate automatically across worker-thread boundaries.
+
+When work is transferred to a worker thread, the worker must establish its own Execution Context according to the execution-boundary contract.
+
+Explicit metadata may be transferred when required.
+
+The receiving worker must validate and establish that metadata within its own execution context.
+
+The worker must not implicitly share mutable context state with the originating execution.
+
+---
+
+## 23. Database Transactions
+
+Database transactions are not part of the Execution Context.
+
+A transaction may exist within an execution:
+
+```text
+ExecutionContext
+       │
+       └── Application Operation
+                │
+                └── Database Transaction
+```
+
+but the two concepts have different lifecycles and responsibilities.
+
+An Execution Context identifies and describes the execution.
+
+A database transaction controls database consistency and atomicity.
+
+A transaction must therefore not be stored in the Execution Context merely to make it globally accessible.
+
+Transaction propagation must follow the database and application transaction architecture.
+
+---
+
+## 24. Logging
+
+Logging may consume Execution Context metadata to provide execution correlation.
+
+For example:
+
+```text
+{
+  executionId,
+  correlationId,
+  message
+}
+```
+
+The logging infrastructure may automatically attach appropriate context metadata to structured logs.
+
+Business modules should not need to know how context metadata reaches the logging system.
+
+Sensitive context data must not be logged automatically.
+
+Logging remains an infrastructure concern.
+
+---
+
+## 25. Distributed Tracing
+
+Distributed tracing is related to Execution Context but is not the same architectural concept.
+
+Tracing may use execution metadata to correlate operations.
+
+For example:
+
+```text
+Execution Context
+       │
+       └── correlation metadata
+                │
+                ▼
+        Tracing Integration
+                │
+                ▼
+          Trace / Span
+```
+
+Trace identifiers and span state should not be treated as arbitrary Execution Context fields merely because both concepts are execution-related.
+
+The tracing infrastructure owns tracing-specific state.
+
+The Execution Context may provide integration points for correlation without becoming a tracing implementation.
+
+---
+
+## 26. Cancellation and Timeouts
+
+Cancellation and timeout state are not inherently part of Execution Context.
+
+A request may have:
+
+* a timeout
+* an abort signal
+* a cancellation condition
+
+without those concepts becoming properties of the Execution Context itself.
+
+Cancellation must be propagated through the appropriate cancellation mechanism.
+
+Timeout enforcement must remain the responsibility of the component or infrastructure layer that owns the relevant operation.
+
+Execution Context may provide execution identity for diagnostics related to cancellation, but it must not become the cancellation mechanism.
+
+---
+
+## 27. Graceful Shutdown
+
+Graceful shutdown must respect active execution lifecycles.
+
+When shutdown begins:
+
+```text
+Shutdown Signal
+      │
+      ▼
+Stop Accepting New Executions
+      │
+      ▼
+Allow Active Executions to Complete
+      │
+      ▼
+Release Execution Contexts
+      │
+      ▼
+Terminate Process
+```
+
+New execution boundaries should stop accepting work according to the application's shutdown policy.
+
+Existing executions should be allowed to complete within configured limits.
+
+Execution Context itself does not control shutdown.
+
+It provides execution identity and metadata that may assist shutdown diagnostics and operational visibility.
+
+---
+
+## 28. Testing Strategy
+
+The Execution Context architecture must be tested at both contract and integration levels.
+
+Tests should verify:
+
+### Context Creation
+
+* a context is created at a valid execution boundary
+* required execution identity exists
+* invalid creation input is rejected
+
+### Context Access
+
+* the current context can be accessed inside an execution
+* context access fails explicitly outside a required execution scope
+
+### Isolation
+
+* concurrent executions receive independent contexts
+* one execution cannot observe another execution's context
+
+### Enrichment
+
+* authorized enrichment succeeds
+* unauthorized mutation is prevented
+* conflicting identity information is rejected
+
+### Async Propagation
+
+* context remains available across supported asynchronous operations
+* context remains associated with the correct execution
+
+### Independent Execution
+
+* background work receives a new execution identity
+* explicitly propagated metadata is preserved according to contract
+* the parent context is not implicitly shared
+
+### Lifecycle
+
+* context exists for the lifetime of its execution
+* completed executions do not retain active context scope
+
+Tests must verify architectural behavior rather than implementation details whenever possible.
+
+---
+
+## 29. Dependency Rules
+
+Execution Context follows the project's dependency ownership principles.
+
+The dependency direction is:
+
+```text
+Execution Boundary
+        │
+        ▼
+Execution Infrastructure
+        │
+        ▼
+Execution Context Contract
+        ▲
+        │
+Application Components
+```
+
+The following rules apply:
+
+1. Business modules must not depend directly on `AsyncLocalStorage`.
+2. Business modules must not create Execution Contexts.
+3. Business modules must not manage context lifecycle.
+4. Context creation belongs to execution-boundary infrastructure.
+5. Context propagation belongs to execution infrastructure.
+6. Context access occurs through the defined contract.
+7. Context enrichment is controlled by the context API.
+8. Runtime-specific implementation details must remain behind infrastructure boundaries.
+9. Execution Context must not become a service locator.
+10. Dependencies must have a clear owner.
+
+The architecture must remain compatible with the project's modular-monolith dependency rules.
+
+---
+
+## 30. Architectural Invariants
+
+The following invariants are mandatory.
+
+1. Every independent execution has exactly one active Execution Context.
+2. An Execution Context belongs to one execution.
+3. Execution Context creation occurs only at an execution boundary.
+4. Internal application components do not create execution contexts.
+5. Context identity cannot be silently replaced.
+6. Concurrent executions remain isolated.
+7. Asynchronous operations belonging to an execution retain that execution's context.
+8. Independent asynchronous work establishes a new execution context.
+9. Parent execution context is never implicitly shared with an independent execution.
+10. Context enrichment does not create a new execution.
+11. Context consumers cannot arbitrarily mutate the complete context.
+12. External input is not trusted merely because it exists in the context.
+13. Authentication establishes Principal identity.
+14. Authorization determines permissions.
+15. Tenant resolution establishes trusted tenant context.
+16. Database transactions are separate from Execution Context.
+17. Distributed tracing is separate from Execution Context.
+18. Cancellation and timeout mechanisms are separate from Execution Context.
+19. `AsyncLocalStorage` is an implementation mechanism, not the architectural contract.
+20. Business modules do not depend directly on runtime propagation mechanisms.
+21. Context lifetime does not exceed execution lifetime.
+22. Execution Context does not become a general-purpose application state container.
+
+Any implementation that violates these invariants requires an explicit architectural decision.
+
+---
+
+## 31. Integration Examples
+
+### HTTP Execution
 
 ```text
 HTTP Request
      │
      ▼
-HTTP Boundary
+HTTP Execution Boundary
      │
      ▼
-Normalize ExecutionInput
+Create Execution Context
      │
-     ▼
-Create ExecutionContext
-     │
-     ▼
-Establish ExecutionContextScope
-     │
-     ▼
-Request Metadata Enrichment
+     ├── executionId
+     ├── correlationId
+     └── source = HTTP
      │
      ▼
 Authentication
      │
      ▼
-Principal Enrichment
+Enrich Principal
      │
      ▼
 Tenant Resolution
      │
      ▼
-Tenant Enrichment
-     │
-     ▼
-Controller / Application Entry
+Enrich TenantContext
      │
      ▼
 Application Service
      │
      ▼
-Domain / Infrastructure
+Response
      │
      ▼
-Response Translation
-     │
-     ▼
-Execution Scope Ends
+Execution Complete
 ```
 
-The HTTP boundary owns HTTP-specific concerns.
-
-Business logic remains independent of Express or other HTTP framework abstractions.
-
----
-
-# 8. Background Execution
-
-Background work represents a separate execution boundary.
-
-A background job must not assume that it is still executing inside the originating HTTP request.
-
-Conceptually:
+### Background Job
 
 ```text
-HTTP Request
+Queue Message
      │
-     └── enqueue job
-             │
-             ▼
-        Queue / Broker
-             │
-             ▼
-        Job Consumer
-             │
-             ▼
-    Create ExecutionContext
-             │
-             ▼
-    Establish ExecutionScope
-             │
-             ▼
-        Execute Job
+     ▼
+Queue Execution Boundary
+     │
+     ▼
+Create New Execution Context
+     │
+     ├── new executionId
+     ├── propagated correlationId
+     └── source = QUEUE
+     │
+     ▼
+Process Job
+     │
+     ▼
+Execution Complete
 ```
 
-The job receives its own execution context.
-
-Selected metadata from the originating execution may be propagated when appropriate, such as correlation information.
-
-The execution itself remains independent.
-
-This prevents accidental coupling between the HTTP request lifecycle and detached background work.
-
----
-
-# 9. Other Execution Boundaries
-
-The same execution model applies to other externally initiated executions.
-
-Examples include:
+### Internal Application Call
 
 ```text
-Scheduled Job
-     │
-     ▼
-Execution Boundary
-     │
-     ▼
-Create Context
-     │
-     ▼
-Establish Scope
-     │
-     ▼
-Execute
+Execution Context A
+       │
+       ▼
+Controller
+       │
+       ▼
+Application Service
+       │
+       ▼
+Domain Logic
+       │
+       ▼
+Repository
 ```
 
-```text
-Message Consumer
-     │
-     ▼
-Execution Boundary
-     │
-     ▼
-Create Context
-     │
-     ▼
-Establish Scope
-     │
-     ▼
-Execute
-```
+No new Execution Context is created merely because execution crosses application layers.
+
+### Independent Asynchronous Work
 
 ```text
-CLI Command
-     │
-     ▼
-Execution Boundary
-     │
-     ▼
-Create Context
-     │
-     ▼
-Establish Scope
-     │
-     ▼
-Execute
-```
-
-Each boundary may have protocol-specific translation, but all follow the same execution model.
-
----
-
-# 10. Authentication and Principal Context
-
-Authentication establishes identity.
-
-Authorization determines whether that identity may perform an operation.
-
-These concerns remain separate.
-
-Conceptually:
-
-```text
-Credentials
+Execution A
     │
-    ▼
-Authentication
-    │
-    ▼
-Principal
-    │
-    ▼
-ExecutionContext
-    │
-    ▼
-Authorization
-    │
-    ▼
-Permission Decision
+    └── Initiates independent work
+                │
+                ▼
+          Execution Boundary
+                │
+                ▼
+          Execution Context B
 ```
 
-The principal represents the actor performing the execution.
+The independent work receives its own execution identity.
 
-The principal is not necessarily the complete User domain entity.
-
-This prevents infrastructure-level identity from becoming coupled to the User module's persistence model.
-
-Authentication may enrich the execution context with a principal.
-
-The presence of a principal does not imply that every operation is authorized.
-
-Authorization remains an explicit application decision.
+Only explicitly permitted metadata may cross the boundary.
 
 ---
 
-# 11. Tenant Context
+## 32. Future Considerations
 
-In a multi-tenant system, tenant identity represents the security boundary within which an execution operates.
+The Execution Context architecture is intentionally designed to allow future integration without changing its core contract.
 
-Tenant resolution should occur before tenant-scoped business operations.
+Potential future considerations include:
 
-Conceptually:
+* distributed execution propagation
+* additional execution sources
+* richer tenant models
+* advanced observability integrations
+* execution-level metrics
+* workflow execution
+* saga or orchestration metadata
+* platform-level request correlation
+* additional runtime environments
 
-```text
-Request
-   │
-   ▼
-Tenant Resolution
-   │
-   ▼
-Validated Tenant
-   │
-   ▼
-ExecutionContext
-   │
-   ▼
-Tenant-scoped Use Case
-```
+Future capabilities must not be added to the Execution Context merely because they are associated with an execution.
 
-Tenant identity should be treated as trusted execution metadata only after the appropriate validation and authorization rules have been applied.
+Each proposed addition must first answer:
 
-Tenant context must not be treated as arbitrary request metadata.
+1. Does this information fundamentally belong to the execution?
+2. Does the information require execution-wide availability?
+3. Does adding it preserve context simplicity?
+4. Does it introduce coupling to another infrastructure concern?
+5. Does it require a separate architectural abstraction?
 
----
+If a capability has its own lifecycle, ownership, or semantics, it should normally remain a separate architectural concern and integrate with Execution Context through an explicit boundary.
 
-# 12. Context Propagation Rules
-
-The following rules govern execution context propagation.
-
-### Rule 1 — One Root Context per Execution
-
-Each independent logical execution establishes its own root execution context.
-
-### Rule 2 — Boundaries Create Contexts
-
-Root contexts are created by execution boundaries.
-
-### Rule 3 — Internal Services Do Not Create Root Contexts
-
-An application service executing within an established execution must use the current context.
-
-### Rule 4 — Context Is Immutable
-
-Context enrichment produces a derived context rather than mutating the existing context.
-
-### Rule 5 — Propagation Is Controlled
-
-Context propagation must occur through the execution scope abstraction.
-
-### Rule 6 — Runtime Mechanisms Remain Hidden
-
-Application and business modules must not depend directly on `AsyncLocalStorage`.
-
-### Rule 7 — Detached Work Gets Its Own Context
-
-Background or otherwise independent asynchronous work establishes a new execution context.
-
-### Rule 8 — Selected Metadata May Cross Boundaries
-
-Correlation information and other explicitly approved metadata may be propagated into a new execution.
-
-### Rule 9 — No Arbitrary Context Replacement
-
-An active execution must not allow arbitrary components to replace its execution context.
-
----
-
-# 13. Execution Context Invariants
-
-The following invariants are architectural requirements.
-
-### Immutability
-
-An established context is never mutated in place.
-
-### Isolation
-
-Concurrent executions must not observe one another's context.
-
-### Explicit Creation
-
-Every externally initiated execution establishes an execution context.
-
-### Controlled Enrichment
-
-Trusted infrastructure enriches context through explicit contracts.
-
-### Security Identity Integrity
-
-Principal and tenant information must not be arbitrarily overwritten.
-
-### No Fabricated Context
-
-Infrastructure must not silently create a fake execution context merely because a caller forgot to establish one.
-
-### Detached Execution
-
-Independent background or asynchronous work establishes its own execution boundary.
-
-### Transport Independence
-
-Execution context and application execution contracts must not depend on HTTP-specific objects.
-
----
-
-# 14. Architectural Boundaries
-
-The execution architecture preserves the existing architectural boundaries:
-
-```text
-                 Execution Boundary
-                        │
-             ┌──────────┴──────────┐
-             ▼                     ▼
-      ExecutionInput       ExecutionContext
-             │                     │
-             └──────────┬──────────┘
-                        ▼
-                  Application
-                        │
-             ┌──────────┴──────────┐
-             ▼                     ▼
-        Business Modules     Infrastructure
-```
-
-The execution model does not introduce a new business layer.
-
-It provides the runtime foundation through which external executions enter and interact with the existing architecture.
-
----
-
-# 15. Summary
-
-The execution architecture is based on four fundamental concepts:
-
-```text
-ExecutionContext
-        │
-        ▼
-ExecutionContextScope
-        │
-        ▼
-Execution Boundary
-        │
-        ▼
-Execution Lifecycle
-```
-
-The model provides:
-
-* Explicit execution identity
-* Controlled context propagation
-* Concurrent execution isolation
-* Clear boundary ownership
-* Transport-independent application contracts
-* Independent background execution
-* Separation of authentication and authorization
-* Explicit tenant context
-* Infrastructure isolation
-
-The central architectural principle is:
-
-> **Every externally initiated execution establishes an explicit execution boundary and execution context, while the application remains independent of the runtime mechanism used to propagate that context.**
+The Execution Context should remain small, stable, and focused on execution identity and trusted execution-scoped metadata.
