@@ -227,12 +227,20 @@ The application loads configuration required for startup.
 
 Configuration includes environment-specific settings such as:
 
-- Database configuration
-- Cache configuration
-- Authentication configuration
-- External service configuration
+* Database configuration
+* Cache configuration
+* Authentication configuration
+* External service configuration
 
-Configuration must be immutable after application startup.
+Configuration is loaded, parsed, normalized, and validated before application composition begins.
+
+Validated application configuration is immutable for the lifetime of an application instance.
+
+The Composition Root distributes only the configuration required by each dependency.
+
+Configuration sources and secret-management mechanisms must not leak into business modules.
+
+Configuration validation is distinct from infrastructure connectivity and initialization.
 
 ---
 
