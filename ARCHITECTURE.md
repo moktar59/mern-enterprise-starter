@@ -360,6 +360,20 @@ The Composition Root serves as the authoritative description of how the applicat
 
 Developers should be able to understand the application's runtime composition by reading this location.
 
+## Dependency Injection & Resolution
+
+Dependencies are explicitly declared and supplied externally. Constructor injection is the default mechanism.
+
+Dependency creation and wiring are owned by the Composition Root. Business and application modules must not construct their own infrastructure dependencies or resolve dependencies through a container.
+
+Manual composition is the default dependency-resolution strategy. The architecture may adopt an established DI container in the future when dependency-graph complexity or lifecycle requirements justify it, provided the container remains isolated to composition infrastructure.
+
+Application-lifetime dependencies are the default. Execution-scoped dependencies are introduced only when execution isolation or resource ownership requires them. Execution Scope represents a logical execution such as an HTTP request, background job, message, or other supported execution model.
+
+Dependency resolution must not bypass module boundaries. Business and application code must remain independent of DI frameworks and containers.
+
+Dependency resolution should occur during composition or startup whenever practical rather than on performance-sensitive execution paths.
+
 ---
 
 ## Composition Principles
