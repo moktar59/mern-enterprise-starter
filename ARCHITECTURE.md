@@ -805,64 +805,71 @@ They never redefine its architecture.
 The following invariants define the architectural laws of the system.
 
 These rules are expected to remain stable throughout the lifetime of the project.
-
 ## Invariant 1
 
-Business modules own business capabilities.
+Each business module owns a cohesive business capability.
 
-No other architectural component may own business logic.
+The module owns the business rules, application behavior, data, persistence structures, and infrastructure adapters required to implement that capability.
 
 ---
 
 ## Invariant 2
 
-Every module exposes exactly one public capability contract.
+A module exposes only explicitly defined public capability contracts.
 
-All remaining implementation details remain private.
+All other implementation details remain private.
 
 ---
 
 ## Invariant 3
 
-Modules communicate exclusively through capability contracts.
+Modules may depend only on the public capabilities of other modules.
 
-Direct access to another module's repositories, services, models, or utilities is prohibited.
+Direct access to another module's repositories, persistence structures, database models, internal services, infrastructure adapters, or utilities is prohibited.
 
 ---
 
 ## Invariant 4
 
-Business modules never depend directly on infrastructure technologies.
+Each business module owns the data required to implement its capabilities.
 
-Technology dependencies belong to infrastructure and application composition.
+A shared physical database does not imply shared logical data ownership.
 
 ---
 
 ## Invariant 5
 
-Adapters translate protocols.
+A module normally owns the transaction boundary for its data and business invariants.
 
-Adapters never implement business rules.
+Cross-module atomic transactions are exceptional and require explicit architectural justification.
 
 ---
 
 ## Invariant 6
 
-Infrastructure provides technical capabilities.
+Module dependency cycles are prohibited.
 
-Infrastructure never contains business rules.
+Cycles must be resolved through architectural redesign rather than dependency-resolution mechanisms.
 
 ---
 
 ## Invariant 7
 
-Application composition occurs exactly once during startup.
+Performance optimizations must preserve module ownership and public boundaries wherever practical.
 
-Modules remain immutable after composition.
+Bulk capabilities, caching, asynchronous processing, and projections may be introduced when justified by actual requirements.
 
 ---
 
 ## Invariant 8
+
+Application composition occurs exactly once during startup.
+
+Modules do not create or locate their own dependencies.
+
+---
+
+## Invariant 9
 
 Every dependency has a single owner.
 
@@ -870,7 +877,63 @@ Ownership must remain explicit throughout the application.
 
 ---
 
-## Invariant 9
+## Invariant 10
+
+Frameworks and infrastructure technologies support the architecture.
+
+The architecture does not depend on a specific framework or infrastructure implementation.
+
+---
+
+## Invariant 11
+
+Complexity must be justified.
+
+Architectural abstractions are introduced only when supported by demonstrated application needs.
+
+---
+
+## Invariant 12
+
+Module boundaries represent logical ownership and dependency boundaries rather than deployment boundaries.
+
+Physical separation is an evolutionary option and is not required for module validity.
+
+---
+
+## Invariant 13
+
+Adapters translate protocols.
+
+Adapters never implement business rules.
+
+---
+
+## Invariant 14
+
+Infrastructure provides technical capabilities.
+
+Infrastructure never contains business rules.
+
+---
+
+## Invariant 15
+
+Application composition occurs exactly once during startup.
+
+Modules remain immutable after composition.
+
+---
+
+## Invariant 16
+
+Every dependency has a single owner.
+
+Ownership must remain explicit throughout the application.
+
+---
+
+## Invariant 17
 
 Frameworks support the architecture.
 
@@ -878,7 +941,7 @@ The architecture never depends on a framework.
 
 ---
 
-## Invariant 10
+## Invariant 18
 
 Complexity must be justified.
 
