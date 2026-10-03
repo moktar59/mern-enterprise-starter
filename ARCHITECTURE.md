@@ -416,154 +416,86 @@ Application composition should remain understandable by reading the composition 
 
 # Module Architecture
 
-Business modules are the fundamental building blocks of the application.
+Business modules are the fundamental architectural units of the application.
 
-Each module encapsulates a single business capability together with the implementation required to provide that capability.
+A module represents a cohesive business capability with clearly defined ownership, public contracts, private implementation, data ownership, and business invariants.
 
-Modules are autonomous, independently evolvable, and isolated from the internal implementation details of other modules.
+Module boundaries are architectural dependency boundaries. They are not merely directory structures or deployment boundaries.
+
+A module owns the business rules, application behavior, domain concepts, data access requirements, and infrastructure adapters required to implement its capabilities.
+
+---
+
+## Module Ownership
+
+Each module owns a cohesive business capability and the responsibilities required to implement that capability.
 
 A module owns:
 
 - Business rules
-- Use cases
-- Internal services
+- Application behavior
+- Domain concepts
+- Data required to implement its capabilities
+- Persistence structures for its owned data
+- Infrastructure adapters required by its implementation
+- Public capability contracts
+
+A module does not own unrelated business capabilities merely because they are technically convenient to place together.
+
+Shared infrastructure does not imply shared business ownership.
+
+---
+
+## Capability Contracts
+
+A module exposes its capabilities through explicit public contracts.
+
+Consumers may depend only on these public capabilities and must not depend on the module's private implementation.
+
+Capability contracts should expose the smallest stable capability required by consumers.
+
+They must not expose:
+
 - Repository implementations
-- Domain models
-- Internal utilities
-- Tests
-
-A module exposes exactly one public runtime artifact:
-
-**Its Capability Contract.**
-
-Everything else remains private.
-
----
-
-## Module Responsibilities
-
-A module is responsible for:
-
-- Implementing one business capability.
-- Protecting its internal implementation.
-- Publishing a stable capability contract.
-- Enforcing its own business invariants.
-- Coordinating its internal components.
-
-A module is **not** responsible for:
-
-- Creating dependencies.
-- Creating other modules.
-- Managing application startup.
-- Knowing transport protocols.
-- Choosing infrastructure implementations.
-
----
-
-## Capability Contract
-
-A Capability Contract is the only public interface of a module.
-
-Consumers communicate exclusively through capability contracts.
-
-Capability contracts expose business operations rather than implementation details.
-
-Examples include:
-
-```
-
-authentication.authenticate()
-
-authentication.refreshSession()
-
-users.create()
-
-inventory.reserve()
-
-payments.capture()
-
-```
-
-Capability contracts must never expose:
-
-- Repositories
-- Internal services
 - Database models
-- Utility functions
+- Persistence structures
+- Internal application services
+- Infrastructure implementations
 - Framework abstractions
+- Database sessions or transaction handles
+- Internal utilities
 
-Capability contracts define **what** the module can do, not **how** it is implemented.
-
----
-
-# Internal Module Structure
-
-The internal organization of a module is private to the module itself.
-
-A typical module consists of:
-
-```
-
-Module
-
-├── Capability Contract
-
-├── Use Cases
-
-├── Domain Logic
-
-├── Internal Services
-
-├── Repository Implementations
-
-├── Domain Models
-
-├── Internal Utilities
-
-└── Tests
-
-```
-
-Consumers must never depend on anything except the capability contract.
+Capability contracts define **what** a module provides, not **how** it implements that capability.
 
 ---
 
-# Module Communication
+## Module Encapsulation
 
-Modules communicate directly through published capability contracts.
+Everything outside the public capability surface is private to the owning module.
 
-Example:
+Other modules must never access:
 
-```
-
-Orders
-
-↓
-
-Inventory Capability
-
-↓
-
-Inventory Module
-
-```
-
-Modules must never communicate through:
-
-- Repository implementations
 - Internal services
-- Database access
-- Shared utility functions
+- Repository implementations
+- Domain implementation details
+- Database collections or tables owned by another module
+- Persistence models
+- Infrastructure adapters
+- Internal utilities
 
-Communication must always occur through stable business capabilities.
+Directory structure alone does not establish encapsulation.
+
+The architecture relies on explicit dependency rules and controlled public surfaces.
 
 ---
 
-## Synchronous Communication
+## Module Communication
 
-Direct capability invocation is the default communication model.
+Modules communicate through explicit public capabilities or intentional asynchronous contracts.
 
-Business workflows requiring immediate results should use synchronous communication.
+### Synchronous Communication
+
+Synchronous capability invocation is the default for interactions requiring an immediate result.
 
 Examples include:
 
@@ -571,29 +503,169 @@ Examples include:
 - Authorization
 - Stock reservation
 - Payment authorization
+- Reading another module's owned capability data
 
-Synchronous communication provides:
+Modules must not bypass capability contracts for performance or convenience.
 
-- Explicit execution flow
-- Simplicity
-- Predictable debugging
-- Strong consistency
+When high-volume access is required, public capabilities may provide appropriate bulk operations rather than exposing persistence access.
+
+### Asynchronous Communication
+
+Asynchronous events may be used when:
+
+- Immediate results are unnecessary
+- Independent processing is beneficial
+- Consumers should remain decoupled
+- Eventual consistency is acceptable
+
+Events are public contracts owned by the module that defines the business capability or state transition.
+
+Reliable asynchronous workflows may use mechanisms such as transactional outbox, retries, idempotent processing, and compensation when justified by business requirements.
+
+Events must not become an implicit replacement for understandable application workflows.
 
 ---
 
-## Asynchronous Communication
+## Module Dependencies
 
-Asynchronous communication should be introduced only when immediate execution is unnecessary.
+Module dependencies must follow capability ownership and explicit use-case requirements.
 
-Typical examples include:
+A module may depend only on another module's public capabilities.
 
-- Email delivery
-- Audit logging
-- Analytics
-- Notifications
-- Cache invalidation
+Dependency cycles are prohibited.
 
-Asynchronous communication complements direct capability communication rather than replacing it.
+Cycles must be resolved through responsibility reassignment, capability redesign, or application-level orchestration rather than dependency-resolution mechanisms.
+
+Application-level orchestration may coordinate multiple module capabilities for a cross-module use case without taking ownership of their internal business rules.
+
+---
+
+## Data Ownership
+
+Each business module owns the data required to implement its capabilities.
+
+A shared physical database does not imply shared logical data ownership.
+
+A module must not directly access another module's:
+
+- Collections or tables
+- Persistence models
+- Repositories
+- Database queries
+- Transaction state
+
+A module may retain references to identities owned by another module without owning that entity's data.
+
+Cross-module reads and writes must use the owning module's public capabilities or explicitly designed cross-module contracts.
+
+Logical data ownership must remain independent from physical database deployment so that modules may evolve toward separate data stores when justified.
+
+---
+
+## Transaction Boundaries
+
+A module normally owns the transaction boundary for the data and business invariants it owns.
+
+Cross-module workflows must be coordinated explicitly.
+
+Cross-module atomic transactions are exceptional and require explicit architectural justification.
+
+They must not expose transaction infrastructure through public module contracts or become the normal mechanism for module communication.
+
+Repeated requirements for cross-module atomicity should trigger a reassessment of module boundaries, data ownership, and consistency boundaries.
+
+---
+
+## Consistency and Reliability
+
+Business consistency requirements determine the appropriate coordination mechanism.
+
+The architecture does not require all cross-module operations to use one universal consistency model.
+
+Depending on the use case, coordination may use:
+
+- Local transactions
+- Synchronous capability calls
+- Asynchronous events
+- Transactional outbox
+- Idempotent processing
+- Retries
+- Compensation
+
+Reliability mechanisms should be introduced only when their consistency and operational benefits justify their complexity.
+
+---
+
+## Scalability and Performance
+
+Module boundaries must remain efficient under expected workload.
+
+Performance problems must be solved without bypassing ownership wherever practical.
+
+Preferred optimization strategies include:
+
+- Bulk capability operations
+- Caching
+- Parallel execution of independent operations
+- Asynchronous processing
+- Owned read models or projections when justified
+
+CQRS and projections must not be introduced merely because module boundaries exist.
+
+Optimization should progress from the simplest boundary-preserving mechanism to more specialized mechanisms only when actual requirements justify them.
+
+---
+
+## Internal Module Structure
+
+Modules do not require identical internal structures.
+
+Internal organization should reflect the complexity and responsibilities of the capability being implemented.
+
+A simple module may require only a small implementation and public contract.
+
+A complex module may require explicit separation of:
+
+- Application behavior
+- Domain logic
+- Persistence
+- Infrastructure adapters
+- Public contracts
+
+Architectural consistency does not require identical folder structures.
+
+Structure must be introduced when it provides meaningful separation rather than merely following a universal template.
+
+---
+
+## Module Evolution
+
+Module boundaries should support independent evolution without requiring premature physical separation.
+
+Logical module ownership may remain inside a modular monolith while physical deployment evolves independently.
+
+Future extraction into separate processes or services is an architectural option, not a requirement.
+
+A module should not be considered healthy merely because it can theoretically be extracted.
+
+Extraction readiness is supported by:
+
+- Clear ownership
+- Private persistence
+- Explicit public contracts
+- Controlled dependencies
+- Limited synchronous dependency depth
+- Explicit consistency boundaries
+
+---
+
+## Architectural Principle
+
+The module architecture follows this principle:
+
+> A module is an independently owned business capability with a private implementation boundary. Its business rules, data, persistence, transactions, and infrastructure remain under its ownership, while other modules interact only through explicit public capabilities or intentional asynchronous contracts.
+
+Performance and scalability optimizations must preserve these ownership boundaries unless an explicit architectural decision changes them.
 
 ---
 
