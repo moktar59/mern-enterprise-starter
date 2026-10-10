@@ -119,7 +119,7 @@ without changing business capabilities.
 
 Each module owns its own business capability.
 
-Communication between modules occurs exclusively through published capability contracts.
+Communication between modules occurs through explicit public capability contracts or intentional asynchronous contracts.
 
 Internal implementation details remain private to the owning module.
 
@@ -562,9 +562,41 @@ Logical data ownership must remain independent from physical database deployment
 
 ---
 
+## Workflow Boundaries
+
+Cross-module workflows coordinate multiple business capabilities through
+their public capabilities or intentional asynchronous contracts.
+
+A workflow may own:
+
+- Sequencing
+- Coordination
+- Recovery
+- Compensation
+
+A workflow must not own:
+
+- Another module's business rules
+- Another module's data
+- Another module's persistence
+- Another module's internal implementation
+
+Workflow boundaries and transaction boundaries are independent.
+
+A workflow may span multiple transaction boundaries, while each transaction
+remains scoped to the consistency requirements it protects.
+
+Long-running workflows require explicit state and recovery semantics.
+
+---
+
 ## Transaction Boundaries
 
 A module normally owns the transaction boundary for the data and business invariants it owns.
+
+Module ownership, transaction ownership, and workflow ownership are separate architectural concerns.
+
+A module owns its business capability and data; a transaction protects the atomic consistency boundary required by an operation; and a workflow coordinates multiple capabilities across one or more transaction boundaries.
 
 Cross-module workflows must be coordinated explicitly.
 
@@ -599,6 +631,8 @@ Reliability mechanisms should be introduced only when their consistency and oper
 ## Scalability and Performance
 
 Module boundaries must remain efficient under expected workload.
+
+Performance evaluation must consider interaction frequency, concurrency, payload size, latency, failure behavior, and shared resource capacity rather than module call count alone.
 
 Performance problems must be solved without bypassing ownership wherever practical.
 
@@ -805,7 +839,10 @@ They never redefine its architecture.
 The following invariants define the architectural laws of the system.
 
 These rules are expected to remain stable throughout the lifetime of the project.
-## Invariant 1
+
+---
+
+## Invariant 1 — Capability Ownership
 
 Each business module owns a cohesive business capability.
 
@@ -813,23 +850,23 @@ The module owns the business rules, application behavior, data, persistence stru
 
 ---
 
-## Invariant 2
+## Invariant 2 — Public Boundaries
 
 A module exposes only explicitly defined public capability contracts.
 
-All other implementation details remain private.
+All other implementation details remain private to the owning module.
 
 ---
 
-## Invariant 3
+## Invariant 3 — Dependency Direction and Acyclicity
 
 Modules may depend only on the public capabilities of other modules.
 
-Direct access to another module's repositories, persistence structures, database models, internal services, infrastructure adapters, or utilities is prohibited.
+Module dependency cycles are prohibited and must be resolved through architectural redesign rather than dependency-resolution mechanisms.
 
 ---
 
-## Invariant 4
+## Invariant 4 — Data Ownership
 
 Each business module owns the data required to implement its capabilities.
 
@@ -837,39 +874,53 @@ A shared physical database does not imply shared logical data ownership.
 
 ---
 
-## Invariant 5
+## Invariant 5 — Persistence Encapsulation
 
-A module normally owns the transaction boundary for its data and business invariants.
+A module must not directly access another module's persistence structures, repositories, database models, queries, or transaction state.
+
+Cross-module data access must use the owning module's public capabilities or explicitly designed cross-module contracts.
+
+---
+
+## Invariant 6 — Transaction Boundary Ownership
+
+A module normally owns the transaction boundary for the data and business invariants it owns.
 
 Cross-module atomic transactions are exceptional and require explicit architectural justification.
 
 ---
 
-## Invariant 6
+## Invariant 7 — Explicit Module Communication
 
-Module dependency cycles are prohibited.
+Modules communicate only through explicitly defined public capability contracts or intentional asynchronous contracts.
 
-Cycles must be resolved through architectural redesign rather than dependency-resolution mechanisms.
+Communication mechanisms must not bypass module ownership or private implementation boundaries.
 
 ---
 
-## Invariant 7
+## Invariant 8 — Workflow Ownership
+
+Cross-module workflows may coordinate capabilities, sequencing, recovery, and compensation, but must not own another module's business rules, data, persistence, or internal implementation.
+
+---
+
+## Invariant 9 — Boundary-Preserving Performance
 
 Performance optimizations must preserve module ownership and public boundaries wherever practical.
 
-Bulk capabilities, caching, asynchronous processing, and projections may be introduced when justified by actual requirements.
+Bulk capabilities, caching, asynchronous processing, parallel execution, and projections may be introduced when justified by actual requirements.
 
 ---
 
-## Invariant 8
+## Invariant 10 — Composition Once
 
 Application composition occurs exactly once during startup.
 
-Modules do not create or locate their own dependencies.
+Modules do not create or locate their own dependencies and remain immutable after composition.
 
 ---
 
-## Invariant 9
+## Invariant 11 — Dependency Ownership
 
 Every dependency has a single owner.
 
@@ -877,7 +928,7 @@ Ownership must remain explicit throughout the application.
 
 ---
 
-## Invariant 10
+## Invariant 12 — Framework Independence
 
 Frameworks and infrastructure technologies support the architecture.
 
@@ -885,67 +936,27 @@ The architecture does not depend on a specific framework or infrastructure imple
 
 ---
 
-## Invariant 11
+## Invariant 13 — Infrastructure and Adapter Separation
 
-Complexity must be justified.
+Infrastructure provides technical capabilities, while adapters translate external protocols.
 
-Architectural abstractions are introduced only when supported by demonstrated application needs.
+Neither infrastructure nor adapters may contain business rules.
 
 ---
 
-## Invariant 12
+## Invariant 14 — Progressive Complexity
+
+Architectural complexity must be justified.
+
+Abstractions and mechanisms are introduced only when supported by demonstrated application needs.
+
+---
+
+## Invariant 15 — Deployment Independence
 
 Module boundaries represent logical ownership and dependency boundaries rather than deployment boundaries.
 
 Physical separation is an evolutionary option and is not required for module validity.
-
----
-
-## Invariant 13
-
-Adapters translate protocols.
-
-Adapters never implement business rules.
-
----
-
-## Invariant 14
-
-Infrastructure provides technical capabilities.
-
-Infrastructure never contains business rules.
-
----
-
-## Invariant 15
-
-Application composition occurs exactly once during startup.
-
-Modules remain immutable after composition.
-
----
-
-## Invariant 16
-
-Every dependency has a single owner.
-
-Ownership must remain explicit throughout the application.
-
----
-
-## Invariant 17
-
-Frameworks support the architecture.
-
-The architecture never depends on a framework.
-
----
-
-## Invariant 18
-
-Complexity must be justified.
-
-Architectural abstractions are introduced only when supported by demonstrated application needs.
 
 ---
 
@@ -995,15 +1006,25 @@ When an architectural principle changes, the architecture document must be updat
 
 | **Area**                  | **Decision**                       | **Rationale**                                                                     |
 | :------------------------ | :--------------------------------- | :-------------------------------------------------------------------------------- |
-| **Architecture Style**    | Composition-First Modular Monolith | Build a scalable, maintainable application without unnecessary complexity.        |
-| **Business Organization** | Capability-Oriented Modules        | Organize code around business capabilities instead of technical layers.           |
-| **Runtime Composition**   | Explicit Composition Root          | Assemble the application in a single location during startup.                     |
-| **Dependency Strategy**   | Explicit Composition               | Keep dependencies visible, predictable, and easy to trace.                        |
-| **Module Communication**  | Capability Contracts               | Prevent tight coupling by exposing only public contracts.                         |
+| **Architecture Style**    | Composition-First Modular Monolith | Build a scalable, maintainable application without unnecessary complexity.   
+     |
+| **Business Organization** | Capability-Oriented Modules        | Organize code around business capabilities instead of technical layers. 
+          |
+| **Runtime Composition**   | Explicit Composition Root          | Assemble the application in a single location during startup.     
+                |
+| **Dependency Strategy**   | Explicit Composition               | Keep dependencies visible, predictable, and easy to trace.      
+                  |
+| **Module Communication**  | Explicit Capability and Asynchronous Contracts | Preserve module boundaries while supporting synchronous and asynchronous interaction. |
+                        |
 | **Infrastructure**        | Replaceable Through Composition    | Allow infrastructure implementations to change without affecting business logic.  |
-| **Adapters**              | Protocol Translators               | Isolate external protocols and keep business rules framework-agnostic.            |
-| **Plugin Strategy**       | Extension Through Composition      | Add new capabilities without modifying existing modules.                          |
-| **Public Module API**     | Capability Contracts               | Define a stable and minimal public interface for every module.                    |
+
+| **Adapters**              | Protocol Translators               | Isolate external protocols and keep business rules framework-agnostic.    
+        |
+| **Plugin Strategy**       | Extension Through Composition      | Add new capabilities without modifying existing modules.      
+
+                    |
+| **Public Module API**     | Capability Contracts               | Define a stable and minimal public interface for every module.  
+                  |
 | **Framework Role**        | Supporting Infrastructure          | Treat frameworks as implementation details rather than architectural foundations. |
 
 ---
