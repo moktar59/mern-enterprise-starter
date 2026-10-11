@@ -1,4 +1,4 @@
-# ADR-0007 — Module Boundaries and Module Architecture
+# ADR-0004 — Module Boundaries and Module Architecture
 
 **Status:** Accepted
 

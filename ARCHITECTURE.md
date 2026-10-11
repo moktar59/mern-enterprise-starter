@@ -190,7 +190,7 @@ The Execution Context architecture is defined separately in:
 
 The implementation decision and its rationale are recorded in:
 
-`docs/architecture/decisions/ADR-001-execution-context.md`
+`docs/architecture/decisions/ADR-0001-execution-context.md`
 
 The detailed document defines the execution context contract, lifecycle, propagation model, concurrency semantics, and integration rules.
 
