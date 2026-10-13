@@ -8,7 +8,7 @@ The format is based on **Keep a Changelog**, and this project follows **Semantic
 
 Project releases are aligned with the milestones defined in `ROADMAP.md`.
 
-Each release represents a stable milestone in the evolution of the repository.
+Each release represents a stable milestone in the evolution of the repository. Patch releases may be issued between milestones for backward-compatible corrections, including material documentation corrections. Existing tags remain immutable.
 
 ---
 
@@ -27,12 +27,13 @@ These changes follow the existing `v0.1.0` tag and are not part of that tagged s
 - Clarified the distinction between current repository contents and capabilities planned for later roadmap phases.
 - Aligned project metadata, documentation navigation, design terminology, and Phase 1 deliverables.
 - Removed empty architecture placeholders where no documented content or inbound references existed.
+- Defined release handling for post-tag corrections, including documentation fixes that materially affect the accuracy of a release snapshot.
 
 ---
 
 ## [0.1.0] - 2026-08-01
 
-> Historical entry for the existing `v0.1.0` tagged snapshot. Architecture documentation added after that tag belongs under Unreleased until included in a later release.
+> Historical entry for the existing `v0.1.0` tagged snapshot. Changes merged after that tag belong under Unreleased until included in a later release.
 
 ### Added
 
@@ -80,16 +81,18 @@ These changes follow the existing `v0.1.0` tag and are not part of that tagged s
 
 * Added the MIT License to clearly define the project's licensing terms.
 
-
 ---
 
 ### Maintaining the Changelog
 
 The changelog should summarize **notable changes**, not every commit.
 
-When preparing a new release:
+When preparing a release:
 
-1. Record new changes under the **Unreleased** section.
-2. Move those entries into a new version section when the release is published.
-3. Create a fresh **Unreleased** section for future development.
+1. Review the release scope and select the appropriate milestone or patch version.
+2. Verify that the README, roadmap, and release notes accurately describe the tagged snapshot.
+3. Move the included changes from **Unreleased** into the new version section and record the release date.
+4. Create a fresh **Unreleased** section for future development.
+5. Create the tag and GitHub Release only after the release snapshot has been reviewed and approved.
 
+Never rewrite an existing version's changelog entry to include changes that were merged after its tag.

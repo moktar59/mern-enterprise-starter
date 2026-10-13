@@ -47,18 +47,29 @@ Each completed phase results in:
 * A reviewed and merged pull request.
 * Updated documentation.
 * A dedicated Git tag.
-* A GitHub Release.
+* A GitHub Release for that exact tagged snapshot.
 * A stable foundation for the following phase.
 
-Version numbers progress incrementally until the first stable release.
+Version numbers progress incrementally until the first stable release. The phase table defines the planned milestone versions; it does not prohibit patch releases between milestones.
 
-| Phase    | Release |
-| -------- | ------- |
-| Phase 1  | v0.1.0  |
-| Phase 2  | v0.2.0  |
-| Phase 3  | v0.3.0  |
-| ...      | ...     |
-| Phase 16 | v1.0.0  |
+## Release and Tagging Rules
+
+* **Milestone releases** deliver the planned scope of a roadmap phase. Phase 1 targets `v0.1.0`; Phase 2 targets `v0.2.0`, and so on.
+* **Patch releases** may be used between milestones for backward-compatible corrections that materially affect the accuracy, usability, or integrity of a released snapshot, including documentation corrections. A patch release does not replace or rewrite the original tag.
+* **Tags are immutable release records.** Never move an existing version tag to a different commit to make the historical snapshot appear corrected.
+* **A GitHub Release must match its tag.** Before publishing, verify that the tagged snapshot's README, changelog, and stated capabilities accurately describe that snapshot.
+* **Post-tag changes remain under `[Unreleased]`** until they are included in a subsequent release. Do not describe changes merged after a tag as part of that earlier version.
+* A release is not published merely because a phase is listed in the roadmap. The scope must be reviewed and the tagged snapshot must be ready.
+
+The existing `v0.1.0` tag is retained as a historical snapshot. Documentation changes merged after it are not retroactively part of `v0.1.0`. The next release version must be chosen based on the scope and review of the proposed release, not by moving the existing tag.
+
+| Phase    | Planned milestone release |
+| -------- | ------------------------- |
+| Phase 1  | v0.1.0                    |
+| Phase 2  | v0.2.0                    |
+| Phase 3  | v0.3.0                    |
+| ...      | ...                       |
+| Phase 16 | v1.0.0                    |
 
 ---
 
