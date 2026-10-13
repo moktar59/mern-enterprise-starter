@@ -42,8 +42,6 @@ The project is developed incrementally through documented phases, demonstrating 
 
 Development is organized into sixteen incremental phases.
 
-## Roadmap
-
 - [x] Phase 01 — Documentation
 - [ ] Phase 02 — Core Backend
 - [ ] Phase 03 — API Design
@@ -69,8 +67,6 @@ For detailed milestones, see **ROADMAP.md**.
 
 Project documentation is treated as a first-class deliverable.
 
-## Documentation
-
 ### Project
 
 - `README.md` — Project overview and getting started
@@ -95,7 +91,6 @@ Project documentation is treated as a first-class deliverable.
 
 ---
 
-## Repository Structure
 ## Repository Structure
 
 ```text

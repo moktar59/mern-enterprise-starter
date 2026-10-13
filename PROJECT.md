@@ -2,7 +2,7 @@
 
 > **Project Name:** mern-enterprise-starter
 > **Status:** Active Development
-> **Current Version:** v0.0.0
+> **Current Version:** v0.1.0
 > **Current Phase:** Phase 1 – Documentation
 > **Project Type:** Open Source
 > **License:** MIT
