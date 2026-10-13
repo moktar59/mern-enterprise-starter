@@ -92,4 +92,3 @@ When preparing a new release:
 2. Move those entries into a new version section when the release is published.
 3. Create a fresh **Unreleased** section for future development.
 
-```
