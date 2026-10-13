@@ -80,7 +80,6 @@ These changes follow the existing `v0.1.0` tag and are not part of that tagged s
 
 * Added the MIT License to clearly define the project's licensing terms.
 
-```
 
 ---
 
@@ -94,4 +93,3 @@ When preparing a new release:
 2. Move those entries into a new version section when the release is published.
 3. Create a fresh **Unreleased** section for future development.
 
-```
