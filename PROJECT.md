@@ -2,7 +2,7 @@
 
 > **Project Name:** mern-enterprise-starter
 > **Status:** Active Development
-> **Current Version:** v0.1.0
+> **Current Version:** v0.1.0 (latest tag; post-tag documentation changes are unreleased)
 > **Current Phase:** Phase 1 – Documentation
 > **Project Type:** Open Source
 > **License:** MIT
@@ -11,7 +11,7 @@
 
 # Executive Summary
 
-**mern-enterprise-starter** is an opinionated enterprise-grade MERN starter designed to provide a production-ready foundation for building modern web applications.
+**mern-enterprise-starter** is an opinionated enterprise-grade MERN starter in active development. The current repository establishes its documentation and architectural foundation; a runnable application and production capabilities will be implemented in later phases.
 
 Rather than being only a boilerplate, this project serves as both a reusable starting point for real-world applications and a practical reference for software architecture, engineering practices, and technical decision-making.
 
@@ -96,7 +96,9 @@ When trade-offs are necessary, maintainability and clarity take precedence over 
 
 # Scope
 
-## Version 1.0 Includes
+## Planned Version 1.0 Scope
+
+The following capabilities are planned for the initial stable release. They are not claims about the current implementation.
 
 * Production-ready Express API
 * React-based administrative application
@@ -205,14 +207,20 @@ Supporting directories contain documentation, Docker resources, automation scrip
 
 | Document        | Purpose                                         |
 | --------------- | ----------------------------------------------- |
-| README.md       | Project introduction and getting started        |
+| README.md       | Project introduction and current implementation status |
 | PROJECT.md      | Product charter and project definition          |
 | PHILOSOPHY.md   | Engineering values, principles, and trade-offs  |
-| DESIGN.md       | High-level architecture and system organization |
+| DESIGN.md       | High-level structural design and design principles      |
+| ARCHITECTURE.md | Authoritative runtime architecture and invariants       |
+| docs/architecture/ | Detailed architecture specifications                  |
+| docs/adr/       | Architecture Decision Records and ADR template        |
+| docs/decisions/decision-register.md | Index of architectural decisions        |
 | ROADMAP.md      | Development phases and future direction         |
 | CONTRIBUTING.md | Contribution workflow and standards             |
 | CHANGELOG.md    | Release history                                 |
 | SECURITY.md     | Security policy and vulnerability reporting     |
+| CODE_OF_CONDUCT.md | Community participation standards             |
+| LICENSE         | MIT licensing terms                             |
 
 ---
 
@@ -220,6 +228,6 @@ Supporting directories contain documentation, Docker resources, automation scrip
 
 | Item              | Status                  |
 | ----------------- | ----------------------- |
-| Current Version   | v0.0.0                  |
+| Current Version   | v0.1.0 (latest tag)      |
 | Current Phase     | Phase 1 – Documentation |
 | Repository Status | Active Development      |

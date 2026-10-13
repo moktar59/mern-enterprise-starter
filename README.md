@@ -2,7 +2,7 @@
 
 > **An opinionated, enterprise-grade MERN starter for building production-ready applications.**
 
-MERN Enterprise Starter is an open-source starter kit designed to help developers build scalable, maintainable, and production-ready MERN applications using modern engineering practices.
+MERN Enterprise Starter is an open-source project being developed as both a reusable MERN starter and a practical reference for software architecture and engineering decisions. The repository is currently in its documentation foundation phase; the planned application capabilities are not yet implemented.
 
 Unlike traditional boilerplates that focus only on project setup, this repository emphasizes **software architecture, engineering decisions, documentation, and long-term maintainability**.
 
@@ -14,27 +14,23 @@ Starting a new MERN application often involves repeating the same setup and maki
 
 This project provides a well-structured foundation that enables developers and teams to focus on building features instead of rebuilding infrastructure.
 
-The project is developed incrementally through documented phases, demonstrating how an experienced engineering team evolves a production-ready application.
+The project is developed incrementally through documented phases, with architectural decisions and implementation scope made explicit before each capability is built.
 
 ---
 
-## Features
+## Current Status
 
-- Express.js + TypeScript
-- Opinionated project architecture
-- API design conventions
-- Docker development environment
-- MongoDB integration
-- Structured logging
-- Authentication & Authorization
-- Redis caching
-- Background jobs
-- File upload support
-- Security hardening
-- Testing strategy
-- CI/CD pipeline
-- Monitoring & observability
-- Comprehensive documentation
+**Phase 1 — Documentation Foundation**
+
+Currently available:
+
+- Project vision, engineering philosophy, design principles, and roadmap
+- Runtime architecture principles and invariants
+- Architecture Decision Records (ADRs) and a decision register
+- Architecture guidance for execution context, module interaction, workflows, eventing, reliability, performance, and observability
+- Contribution, security, and repository governance documentation
+
+The API, admin, and web applications are planned repository areas, not yet a runnable implementation. Docker, database integration, authentication, caching, jobs, uploads, automated testing, CI/CD, and monitoring remain roadmap items.
 
 ---
 
@@ -74,13 +70,18 @@ Project documentation is treated as a first-class deliverable.
 - `PHILOSOPHY.md` — Engineering philosophy and guiding principles
 - `DESIGN.md` — High-level architecture and design decisions
 - `ROADMAP.md` — Development roadmap and milestones
-- `ARCHITECTURE.md` — Detailed architectural principles, boundaries, and structure
+- `ARCHITECTURE.md` — Authoritative runtime architecture, principles, and invariants
+- `docs/architecture/` — Detailed architecture specifications
+- `docs/adr/` — Architecture Decision Records and ADR template
+- `docs/decisions/decision-register.md` — Index of accepted and proposed decisions
 
 ### Community
 
 - `CONTRIBUTING.md` — Contribution guidelines
 - `CHANGELOG.md` — Release history
 - `SECURITY.md` — Security policy
+- `CODE_OF_CONDUCT.md` — Community participation standards
+- `LICENSE` — MIT license
 
 ### Technical Documentation
 

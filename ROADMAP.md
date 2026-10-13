@@ -97,17 +97,14 @@ Establish the engineering foundation of the repository before implementation beg
 
 ## Deliverables
 
-* README.md
-* PROJECT.md
-* PHILOSOPHY.md
-* DESIGN.md
-* ROADMAP.md
-* CONTRIBUTING.md
-* ADR template
-* Repository standards
-* GitHub templates
-* Release strategy
-* Branching strategy
+* README.md, PROJECT.md, PHILOSOPHY.md, DESIGN.md, and ROADMAP.md
+* Authoritative runtime architecture and architectural invariants (`ARCHITECTURE.md`)
+* Architecture specifications under `docs/architecture/`
+* Architecture Decision Records and ADR template under `docs/adr/`
+* Decision register under `docs/decisions/`
+* Contribution, security, license, and community governance documentation
+* Repository standards and GitHub issue/PR templates
+* Release strategy, branching strategy, and versioning documentation
 
 ## Learning Outcomes
 
