@@ -941,7 +941,6 @@ This document complements the following project documents:
 - `docs/architecture/module-interaction-performance.md` — Defines performance, concurrency, and scalability considerations for module interactions.
 - `docs/architecture/observability-and-resilience.md` — Defines observability, operational diagnostics, and resilience mechanisms.
 
-Verify these paths against the actual repository before committing the document.
 
 ## Closing Principle
 

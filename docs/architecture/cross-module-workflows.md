@@ -814,7 +814,7 @@ The following rules summarize the workflow architecture:
 This document complements the following architecture references:
 
 - `ARCHITECTURE.md` — Overall runtime architecture, principles, and invariants.
-- `docs/architecture/decisions/ADR-0007-module-boundaries-and-architecture.md` — Module ownership, boundaries, communication, and transaction decisions; verify the actual filename and ADR identifier in the repository.
+- `docs/architecture/adr/ADR-0004-module-boundaries-and-architecture.md` — Module ownership, boundaries, communication, and transaction decisions.
 - `docs/architecture/execution-context.md` — Execution identity, context propagation, and execution-boundary semantics.
 - `docs/architecture/eventing-and-reliable-delivery.md` — Event contracts, outbox, delivery guarantees, and asynchronous event processing.
 - `docs/architecture/failure-handling-and-idempotency.md` — Failure classification, retries, idempotency, reconciliation, and replay safety.

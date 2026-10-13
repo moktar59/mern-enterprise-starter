@@ -1,4 +1,4 @@
-# ADR-006: Dependency Injection & Dependency Resolution
+# ADR-0003: Dependency Injection & Dependency Resolution
 
 **Status:** Accepted
 

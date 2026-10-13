@@ -4,7 +4,7 @@
 
 This document defines the runtime architecture of the MERN Enterprise Starter.
 
-It serves the architectural building blocks, their responsibilities, interactions, composition model, and governing principles.
+It defines the architectural building blocks, their responsibilities and interactions, the composition model, and the governing principles.
 
 The objective of this document is to establish a stable architectural foundation before implementation begins, ensuring that future development remains consistent, maintainable, and scalable.
 
@@ -348,6 +348,8 @@ These responsibilities belong exclusively to the composition process.
 
 The Composition Root is the single location responsible for constructing the application.
 
+Modules do not create or locate their own dependencies. The dependency graph remains fixed after composition; runtime business state may change according to each module's responsibilities.
+
 Its responsibilities include:
 
 - Creating infrastructure implementations
@@ -396,9 +398,9 @@ Dependencies are connected deliberately rather than discovered automatically.
 
 ### Single Composition
 
-Application composition occurs exactly once.
+Application composition occurs exactly once during startup.
 
-Business modules remain immutable after composition.
+Modules do not create or locate their own dependencies. The dependency graph remains fixed after composition; runtime business state may change according to each module's responsibilities.
 
 ---
 
@@ -916,7 +918,7 @@ Bulk capabilities, caching, asynchronous processing, parallel execution, and pro
 
 Application composition occurs exactly once during startup.
 
-Modules do not create or locate their own dependencies and remain immutable after composition.
+Modules do not create or locate their own dependencies. The dependency graph remains fixed after composition; runtime business state may change according to each module's responsibilities.
 
 ---
 
