@@ -24,6 +24,7 @@ These changes follow the existing `v0.1.0` tag and are not part of that tagged s
 
 ### Changed
 
+- Corrected documentation navigation, release-policy references, and handbook filenames while preserving empty placeholders.
 - Clarified the distinction between current repository contents and capabilities planned for later roadmap phases.
 - Aligned project metadata, documentation navigation, design terminology, and Phase 1 deliverables.
 - Removed empty architecture placeholders where no documented content or inbound references existed.

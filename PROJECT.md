@@ -159,7 +159,7 @@ Each phase:
 * Has a clearly defined objective.
 * Produces a usable outcome.
 * Includes implementation and documentation.
-* Ends with a version tag.
+* Ends with a version tag and a GitHub Release for the exact tagged snapshot.
 * Builds upon previous phases without requiring major rewrites.
 
 ---
@@ -170,17 +170,17 @@ The project evolves through a series of planned phases covering:
 
 * Documentation
 * Core Backend
+* API Design (including API validation standards)
 * Docker Development Environment
 * Database
 * Logging
 * Authentication
 * Social Authentication & Session Management
 * Authorization
-* Validations and Sanitizations
 * Caching
 * Background Jobs
-* Security Hardening
-* API Design
+* File Upload
+* Security Hardening (including input sanitization)
 * Testing
 * CI/CD
 * Monitoring
@@ -214,6 +214,8 @@ Supporting directories contain documentation, Docker resources, automation scrip
 | ARCHITECTURE.md | Authoritative runtime architecture and invariants       |
 | docs/architecture/ | Detailed architecture specifications                  |
 | docs/adr/       | Architecture Decision Records and ADR template        |
+| docs/handbook/  | Planned engineering handbook                          |
+| docs/guides/    | Planned feature and implementation guides             |
 | docs/decisions/decision-register.md | Index of architectural decisions        |
 | ROADMAP.md      | Development phases and future direction         |
 | CONTRIBUTING.md | Contribution workflow and standards             |

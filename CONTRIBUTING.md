@@ -169,7 +169,7 @@ Note: Self-review often catches issues before they reach other reviewers and res
 
 Every contribution should be submitted through a pull request.
 
-The pull request should according to pull request template.
+Every pull request should follow the repository's pull request template.
 
 ---
 
@@ -295,7 +295,7 @@ Clear communication is considered an important part of successful collaboration.
 
 # Code of Conduct
 
-All contributors are expected to read `the CODE_OF_CONDUCT.md` file.
+All contributors are expected to read `CODE_OF_CONDUCT.md`.
 
 ---
 

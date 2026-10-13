@@ -65,7 +65,7 @@ Project documentation is treated as a first-class deliverable.
 
 ### Project
 
-- `README.md` — Project overview and getting started
+- `README.md` — Project overview and current implementation status
 - `PROJECT.md` — Vision, mission, audience, and scope
 - `PHILOSOPHY.md` — Engineering philosophy and guiding principles
 - `DESIGN.md` — High-level architecture and design decisions
@@ -106,7 +106,7 @@ docs/                       # Project documentation
 
 scripts/                    # Automation and utility scripts
 
-.github/                    # GitHub workflows and templates
+.github/                    # GitHub repository configuration and templates
 ```
 
 Additional directories will be introduced throughout the roadmap as the project evolves.
