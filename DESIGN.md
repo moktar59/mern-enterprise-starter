@@ -66,13 +66,15 @@ Good architecture improves both software quality and developer productivity.
 
 # Architectural Style
 
-The project follows a **Layered Modular Architecture**.
+The project follows a **Composition-First Modular Monolith Architecture**, with layered separation of responsibilities inside applications and modules where useful.
 
-Responsibilities are separated into well-defined layers while related functionality is organized into cohesive modules.
+These terms describe complementary aspects of the design:
 
-The architecture prioritizes separation of concerns, explicit dependencies, and maintainable boundaries over strict adherence to any single architectural pattern.
+- **Modular monolith** describes the deployment and business-capability organization: modules have explicit ownership and boundaries while running as one application.
+- **Composition-first** describes how the application and its dependencies are assembled explicitly at startup.
+- **Layering** describes separation of responsibilities, such as presentation, application, domain, and infrastructure. It is an internal structuring technique, not the primary business boundary.
 
-The objective is pragmatic engineering rather than architectural purity.
+`ARCHITECTURE.md` is the authoritative specification for runtime architecture, module boundaries, and architectural invariants. This document provides the higher-level structural design and must remain consistent with it.
 
 ---
 
@@ -237,7 +239,8 @@ This document complements the other core documentation within the repository.
 | `README.md`       | Introduces the repository and explains how to get started.  |
 | `PROJECT.md`      | Defines the project's purpose, goals, and scope.            |
 | `PHILOSOPHY.md`   | Defines the engineering values and principles.              |
-| `DESIGN.md`       | Defines the architectural structure of the repository.      |
+| `DESIGN.md`       | Explains high-level structural design and design principles. |
+| `ARCHITECTURE.md` | Defines runtime architecture, module boundaries, and invariants. |
 | `ROADMAP.md`      | Defines the planned evolution of the project.               |
 | `CONTRIBUTING.md` | Defines the contribution workflow and repository standards. |
 
