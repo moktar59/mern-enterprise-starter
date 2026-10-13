@@ -1,4 +1,4 @@
-# ADR: Introduce Execution Context as a Core Execution-Boundary Abstraction
+# ADR-0001: Introduce Execution Context as a Core Execution-Boundary Abstraction
 
 * **Status:** Accepted
 * **Date:** 2026-09-19

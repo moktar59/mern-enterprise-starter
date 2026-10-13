@@ -886,7 +886,6 @@ This document complements the following project documents:
 - `docs/architecture/execution-context.md` — Defines execution-context propagation across relevant execution boundaries.
 - `docs/architecture/observability-and-resilience.md` — Defines logging, metrics, tracing, and operational resilience.
 
-Verify these paths against the actual repository before committing the document.
 
 ## Closing Principle
 
