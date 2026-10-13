@@ -14,13 +14,25 @@ Each release represents a stable milestone in the evolution of the repository.
 
 ## [Unreleased]
 
+These changes follow the existing `v0.1.0` tag and are not part of that tagged snapshot.
+
 ### Added
 
-*No unreleased changes.*
+- Detailed architecture specifications for execution context, cross-module workflows, eventing and reliable delivery, failure handling and idempotency, module interaction performance, and observability and resilience.
+- Accepted ADRs for execution context, configuration architecture, dependency injection and resolution, and module boundaries.
+- A centralized architectural decision register and ADR index.
+
+### Changed
+
+- Clarified the distinction between current repository contents and capabilities planned for later roadmap phases.
+- Aligned project metadata, documentation navigation, design terminology, and Phase 1 deliverables.
+- Removed empty architecture placeholders where no documented content or inbound references existed.
 
 ---
 
 ## [0.1.0] - 2026-08-01
+
+> Historical entry for the existing `v0.1.0` tagged snapshot. Architecture documentation added after that tag belongs under Unreleased until included in a later release.
 
 ### Added
 
