@@ -263,7 +263,7 @@ Learn how to organize persistence for long-term maintainability.
 
 ## Objective
 
-Introduce structured logging which should not consume any run time of API calling.
+Introduce structured logging with low, measured runtime overhead and an appropriate strategy for non-blocking log delivery.
 
 ## Deliverables
 
@@ -281,7 +281,7 @@ Introduce structured logging which should not consume any run time of API callin
 
 ## Learning Outcomes
 
-Understand why logging is an architectural concern rather than an implementation detail. How can a logger be configured globally so that it does not create any latency for API.
+Understand why logging is an architectural concern rather than an implementation detail, and how to minimize request-path latency without sacrificing reliable log delivery.
 
 ## Release
 

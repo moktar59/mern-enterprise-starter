@@ -8,6 +8,7 @@ The register summarizes each decision and its current status. The corresponding 
 
 - **Proposed:** Under consideration; not yet accepted as a project decision.
 - **Accepted:** Approved and represents the current decision.
+- **Rejected:** Considered but not adopted; retain the record and rationale.
 - **Superseded:** Replaced by a later decision. The historical record is retained for traceability.
 
 ## Architectural Decisions
