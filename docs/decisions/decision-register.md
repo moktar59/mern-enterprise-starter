@@ -16,7 +16,7 @@ The register summarizes each decision and its current status. The corresponding 
 | [ADR-0001: Execution Context](../adr/ADR-0001-execution-context.md) | Define how execution context is established, propagated, and accessed across application execution boundaries. | Accepted | API Core / Execution Infrastructure |
 | [ADR-0002: Configuration Architecture](../adr/ADR-0002-configuration-architecture.md) | Establish the project's configuration architecture and ownership boundaries. | Accepted | API Core / Execution Infrastructure |
 | [ADR-0003: Dependency Injection and Resolution](../adr/ADR-0003-dependency-injection-and-resolution.md) | Define dependency registration, resolution, and lifecycle responsibilities. | Accepted | API Core / Execution Infrastructure |
-| [ADR-0004: Module Boundaries and Architecture](../adr/ADR-0004-module-boundaries-and-architecture.md) | Define module boundaries and the architectural constraints governing module interactions. | Accepted | API Core |
+| [ADR-0004: Module Boundaries and Architecture](../adr/ADR-0004-module-boundaries-and-architecture.md) | Define module boundaries and the architectural constraints governing module interactions. | Accepted | API Core / Module Architecture |
 ## Maintaining This Register
 
 - Add an entry when a new ADR is proposed or accepted.
