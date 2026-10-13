@@ -1,0 +1,63 @@
+name: Feature Request
+description: Propose a feature or improvement to the starter.
+title: "[Feature]: "
+labels:
+  - enhancement
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Propose a feature that improves the starter's usability, maintainability,
+        reliability, performance, security, or developer experience.
+
+        Prefer solving a clearly defined problem over introducing technology
+        without a demonstrated need.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or Motivation
+      description: What problem does this feature solve, and who experiences it?
+      placeholder: Describe the problem and its impact.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed_solution
+    attributes:
+      label: Proposed Solution
+      description: Describe the behavior or capability you would like to see.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: What alternatives or workarounds have you considered?
+    validations:
+      required: false
+
+  - type: textarea
+    id: architectural_impact
+    attributes:
+      label: Architectural Impact
+      description: |
+        Consider module boundaries, dependency ownership, transaction boundaries,
+        security, performance, testing, and operational complexity.
+        If you are unsure, explain what needs investigation.
+      placeholder: Describe expected impacts, trade-offs, and open questions.
+    validations:
+      required: false
+
+  - type: textarea
+    id: acceptance_criteria
+    attributes:
+      label: Acceptance Criteria
+      description: How can we determine that the feature is complete?
+      placeholder: |
+        - [ ] Expected behavior is implemented.
+        - [ ] Relevant tests are included.
+        - [ ] Documentation is updated where necessary.
+    validations:
+      required: false
