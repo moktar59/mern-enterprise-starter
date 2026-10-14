@@ -1,0 +1,20 @@
+{
+  "name": "mern-enterprise-starter",
+  "private": true,
+  "version": "0.2.0",
+  "description": "An opinionated, enterprise-grade MERN starter for building production-ready applications.",
+  "engines": {
+    "node": ">=24 <25",
+    "npm": ">=10"
+  },
+  "workspaces": [
+    "apps/api"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace @mern-enterprise-starter/api",
+    "build": "npm run build --workspace @mern-enterprise-starter/api",
+    "start": "npm run start --workspace @mern-enterprise-starter/api",
+    "test": "npm run test --workspace @mern-enterprise-starter/api",
+    "typecheck": "npm run typecheck --workspace @mern-enterprise-starter/api"
+  }
+}
