@@ -4,7 +4,6 @@ import { createServer, type Server } from "node:http";
 import { createApp } from "./app.js";
 
 let server: Server | undefined;
-let baseUrl: string;
 
 after(async () => {
   if (!server?.listening) return;
@@ -15,7 +14,7 @@ after(async () => {
 
 test("GET / returns the starter API response", async () => {
   server = createServer(createApp());
-  await new Promise<void>((resolve, reject) => {
+  const baseUrl = await new Promise<string>((resolve, reject) => {
     server?.once("error", reject);
     server?.listen(0, "127.0.0.1", () => {
       const address = server?.address();
@@ -23,8 +22,7 @@ test("GET / returns the starter API response", async () => {
         reject(new Error("Expected a TCP server address."));
         return;
       }
-      baseUrl = `http://127.0.0.1:${address.port}`;
-      resolve();
+      resolve(`http://127.0.0.1:${address.port}`);
     });
   });
 
