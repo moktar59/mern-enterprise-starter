@@ -10,7 +10,7 @@
     "dev": "tsx watch src/server.ts",
     "build": "tsc -p tsconfig.build.json",
     "start": "node dist/server.js",
-    "test": "tsx --test src",
+    "test": "tsx --test src/app.test.ts",
     "typecheck": "tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {
@@ -21,5 +21,8 @@
     "@types/node": "24.10.0",
     "tsx": "4.20.6",
     "typescript": "5.9.3"
+  },
+  "allowScripts": {
+    "esbuild@0.25.12": true
   }
 }
