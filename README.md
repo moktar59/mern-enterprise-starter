@@ -2,7 +2,7 @@
 
 > **An opinionated, enterprise-grade MERN starter for building production-ready applications.**
 
-MERN Enterprise Starter is an open-source project being developed as both a reusable MERN starter and a practical reference for software architecture and engineering decisions. The repository is currently in its documentation foundation phase; the planned application capabilities are not yet implemented.
+MERN Enterprise Starter is an open-source project being developed as both a reusable MERN starter and a practical reference for software architecture and engineering decisions. The documentation foundation is complete. Phase 2 is defining the core backend scope and acceptance criteria; the planned application capabilities are not yet implemented.
 
 Unlike traditional boilerplates that focus only on project setup, this repository emphasizes **software architecture, engineering decisions, documentation, and long-term maintainability**.
 
@@ -20,7 +20,7 @@ The project is developed incrementally through documented phases, with architect
 
 ## Current Status
 
-**Phase 1 — Documentation Foundation**
+**Phase 2 — Core Backend (scope and design baseline)**
 
 Currently available:
 
@@ -30,7 +30,7 @@ Currently available:
 - Architecture guidance for execution context, module interaction, workflows, eventing, reliability, performance, and observability
 - Contribution, security, and repository governance documentation
 
-The API, admin, and web applications are planned repository areas, not yet a runnable implementation. Docker, database integration, authentication, caching, jobs, uploads, automated testing, CI/CD, and monitoring remain roadmap items.
+The Phase 2 scope and acceptance criteria are documented in [Core Backend Scope and Acceptance Criteria](docs/architecture/core-backend-foundation.md). The API, admin, and web applications are not yet a runnable implementation; Phase 2 implementation and verification remain outstanding. Docker, database integration, authentication, caching, jobs, uploads, automated testing, CI/CD, and monitoring remain roadmap items.
 
 ---
 
