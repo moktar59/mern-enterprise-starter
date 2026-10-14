@@ -2,8 +2,8 @@
 
 > **Project Name:** mern-enterprise-starter
 > **Status:** Active Development
-> **Current Version:** v0.1.0 (latest tag; post-tag documentation changes are unreleased)
-> **Current Phase:** Phase 1 – Documentation
+> **Current Version:** v0.1.1 (latest published release; subsequent changes remain unreleased)
+> **Current Phase:** Phase 2 – Core Backend (scope and design baseline)
 > **Project Type:** Open Source
 > **License:** MIT
 
@@ -11,7 +11,7 @@
 
 # Executive Summary
 
-**mern-enterprise-starter** is an opinionated enterprise-grade MERN starter in active development. The current repository establishes its documentation and architectural foundation; a runnable application and production capabilities will be implemented in later phases.
+**mern-enterprise-starter** is an opinionated enterprise-grade MERN starter in active development. The repository has completed its documentation foundation and is defining the Phase 2 core backend baseline. The API is not yet a runnable implementation; Phase 2 implementation and verification remain outstanding.
 
 Rather than being only a boilerplate, this project serves as both a reusable starting point for real-world applications and a practical reference for software architecture, engineering practices, and technical decision-making.
 
@@ -230,6 +230,6 @@ Supporting directories contain documentation, Docker resources, automation scrip
 
 | Item              | Status                  |
 | ----------------- | ----------------------- |
-| Current Version   | v0.1.0 (latest tag)      |
-| Current Phase     | Phase 1 – Documentation |
+| Current Version   | v0.1.1 (latest published release) |
+| Current Phase     | Phase 2 – Core Backend (scope/design baseline) |
 | Repository Status | Active Development      |
