@@ -131,31 +131,46 @@ Understand how documentation guides engineering decisions and why architecture s
 
 ## Objective
 
-Build the production-ready backend foundation that all future features depend upon.
+Build a minimal, runnable, extensible backend foundation that can start successfully, serve a real HTTP request, return a real response, handle HTTP errors safely and consistently, and shut down gracefully. This phase establishes the foundation; it does not claim that the application is fully production-ready.
 
 ## Deliverables
 
-* Express application structure
-* TypeScript configuration
-* Environment configuration
-* Configuration management
-* Health check endpoint
-* Error handling foundation
-* Request lifecycle foundation
-* Application bootstrap
-* Shared utilities
-* Base middleware
+* Node.js 24, npm workspaces, native ESM, TypeScript, and Express 5 runtime/toolchain
+* Reproducible installation with a committed npm lockfile
+* Configuration loading, normalization, Zod validation, and runtime immutability
+* Explicit application composition and startup
+* HTTP adapter with a working dummy endpoint and liveness endpoint
+* HTTP request execution-context establishment and isolation
+* Centralized HTTP error boundary using the RFC 9457-based contract
+* Safe handling of unknown routes, malformed requests, validation failures, and unexpected errors
+* Bounded graceful shutdown and lifecycle-owned cleanup
+* Focused automated checks using Node.js's built-in test runner
+* API setup and operation documentation
+
+The detailed scope, configuration contract, error mappings, lifecycle policy, and measurable acceptance criteria are defined in [Core Backend Scope and Acceptance Criteria](docs/architecture/core-backend-foundation.md).
+
+## Out of Scope
+
+* MongoDB, Redis, Docker, authentication, authorization, and business features
+* Non-HTTP adapters such as queues, scheduled jobs, CLI, and event consumers
+* Logging frameworks, metrics, tracing, monitoring, or observability pipelines
+* Comprehensive success-response, pagination, resource-naming, and API-wide validation conventions, which remain in Phase 3
 
 ## Key Architectural Decisions
 
-* Modular application structure
-* Configuration strategy
-* Error handling strategy
-* Application initialization
+* Runtime and toolchain selection — [ADR-0005](docs/adr/ADR-0005-core-backend-runtime-and-toolchain.md)
+* Public HTTP error representation — [ADR-0006](docs/adr/ADR-0006-public-http-error-representation.md)
+* Configuration architecture — [ADR-0002](docs/adr/ADR-0002-configuration-architecture.md)
+* Dependency injection and resolution — [ADR-0003](docs/adr/ADR-0003-dependency-injection-and-resolution.md)
+* Execution context — [ADR-0001](docs/adr/ADR-0001-execution-context.md)
+
+## Release Gate
+
+The `v0.2.0` release requires implementation, passing acceptance criteria, accurate documentation, and explicit release review. Listing deliverables in this roadmap does not mean they have already been implemented.
 
 ## Learning Outcomes
 
-Understand how to establish a scalable backend foundation before implementing business features.
+Understand how to establish a runnable backend foundation with explicit configuration, composition, HTTP error handling, execution context, and lifecycle ownership before implementing business features.
 
 ## Release
 
@@ -172,12 +187,13 @@ Establish consistent API standards before exposing business functionality.
 ## Deliverables
 
 * API versioning
-* Standard response format
-* Error response format
-* Validation strategy
+* Success-response conventions
+* API-wide validation strategy and request validation conventions
 * Resource naming conventions
 * Pagination conventions
 * API documentation foundation
+
+The RFC 9457-based HTTP error contract is established in Phase 2; Phase 3 may refine its integration with the broader API conventions without replacing it without a documented decision.
 
 ## Key Architectural Decisions
 
