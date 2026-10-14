@@ -7,7 +7,7 @@ const environmentSchema = z.object({
   HOST: z.string().trim().min(1, {
     error: "must not be empty"
   }).optional(),
-  PORT: z.string().trim().regex(/^\\d+$/, {
+  PORT: z.string().trim().regex(/^\d+$/, {
     error: "must be an integer from 1 through 65535"
   }).transform(Number).pipe(
     z.number().int().min(1).max(65535)
