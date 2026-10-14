@@ -14,7 +14,13 @@ Each release represents a stable milestone in the evolution of the repository. P
 
 ## [Unreleased]
 
-No changes yet.
+### Added
+
+- Phase 2 core backend scope, architectural decisions, and measurable acceptance criteria.
+
+### Changed
+
+- Aligned project status and roadmap wording with the published `v0.1.1` release and Phase 2 planning baseline.
 
 ---
 
