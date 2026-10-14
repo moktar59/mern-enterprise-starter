@@ -18,9 +18,9 @@ No changes yet.
 
 ---
 
-## [0.1.1] - TBD
+## [0.1.1] - 2026-10-14
 
-> Proposed patch release covering the Phase 1 documentation changes merged after the existing `v0.1.0` tag. Replace `TBD` with the actual release date before publishing.
+> Documentation patch release covering Phase 1 improvements merged after the existing `v0.1.0` tag. The original `v0.1.0` tag remains an immutable historical snapshot.
 
 ### Added
 
