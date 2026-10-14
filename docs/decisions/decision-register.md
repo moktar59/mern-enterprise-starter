@@ -18,6 +18,8 @@ The register summarizes each decision and its current status. The corresponding 
 | [ADR-0002: Configuration Architecture](../adr/ADR-0002-configuration-architecture.md) | Establish the project's configuration architecture and ownership boundaries. | Accepted | API Core / Execution Infrastructure |
 | [ADR-0003: Dependency Injection and Resolution](../adr/ADR-0003-dependency-injection-and-resolution.md) | Define dependency registration, resolution, and lifecycle responsibilities. | Accepted | API Core / Execution Infrastructure |
 | [ADR-0004: Module Boundaries and Architecture](../adr/ADR-0004-module-boundaries-and-architecture.md) | Define module boundaries and the architectural constraints governing module interactions. | Accepted | API Core / Module Architecture |
+| [ADR-0005: Core Backend Runtime and Toolchain](../adr/ADR-0005-core-backend-runtime-and-toolchain.md) | Select the runtime, module system, package management, HTTP framework, and initial verification toolchain. | Accepted | API Core / Runtime and Toolchain |
+| [ADR-0006: Public HTTP Error Representation](../adr/ADR-0006-public-http-error-representation.md) | Define the public HTTP error representation, stable codes, status mappings, and safe boundary translation. | Accepted | API Core / HTTP Error Boundary |
 ## Maintaining This Register
 
 - Add an entry when a new ADR is proposed or accepted.
