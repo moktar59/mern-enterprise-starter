@@ -1,5 +1,5 @@
 {
-  "name": "@mern-enterprise-starter/api",
+  "name": "mern-enterprise-starter-api",
   "private": true,
   "version": "0.2.0",
   "type": "module",
