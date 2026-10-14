@@ -27,12 +27,14 @@ No changes yet.
 - Detailed architecture specifications for execution context, cross-module workflows, eventing and reliable delivery, failure handling and idempotency, module interaction performance, and observability and resilience.
 - Accepted ADRs for execution context, configuration architecture, dependency injection and resolution, and module boundaries.
 - A centralized architectural decision register and ADR index.
+- GitHub issue templates for bug reports and feature requests.
 
 ### Changed
 
 - Corrected documentation navigation, release-policy references, and handbook filenames while preserving empty placeholders.
 - Clarified the distinction between current repository contents and capabilities planned for later roadmap phases.
 - Aligned project metadata, documentation navigation, design terminology, and Phase 1 deliverables.
+- Standardized the pull request template filename and updated `.gitignore` for repository development needs.
 - Removed empty architecture placeholders where no documented content or inbound references existed.
 - Defined release handling for post-tag corrections, including documentation fixes that materially affect the accuracy of a release snapshot.
 
