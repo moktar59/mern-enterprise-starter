@@ -18,6 +18,8 @@ This directory is the canonical location for the project's ADRs.
 | [ADR-0002: Configuration Architecture](ADR-0002-configuration-architecture.md) | Establish configuration ownership and architecture. | Accepted |
 | [ADR-0003: Dependency Injection and Resolution](ADR-0003-dependency-injection-and-resolution.md) | Define dependency registration and resolution responsibilities. | Accepted |
 | [ADR-0004: Module Boundaries and Module Architecture](ADR-0004-module-boundaries-and-architecture.md) | Define module boundaries and architectural constraints. | Accepted |
+| [ADR-0005: Core Backend Runtime and Toolchain](ADR-0005-core-backend-runtime-and-toolchain.md) | Select the core backend runtime and toolchain. | Accepted |
+| [ADR-0006: Public HTTP Error Representation](ADR-0006-public-http-error-representation.md) | Define the public HTTP error response contract. | Accepted |
 
 For the complete decision overview, including status tracking and scope, see the [Decision Register](../decisions/decision-register.md).
 
