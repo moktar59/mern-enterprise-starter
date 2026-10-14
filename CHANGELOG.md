@@ -17,10 +17,13 @@ Each release represents a stable milestone in the evolution of the repository. P
 ### Added
 
 - Phase 2 core backend scope, architectural decisions, and measurable acceptance criteria.
+- Initial API runtime with TypeScript, Express, development/build commands, and an HTTP smoke test.
 
 ### Changed
 
 - Aligned project status and roadmap wording with the published `v0.1.1` release and Phase 2 planning baseline.
+- Updated the project status to reflect that Phase 2 runtime implementation has begun while remaining acceptance criteria are still outstanding.
+- Clarified that `apps/api`, `apps/admin`, and `apps/web` are independently managed applications; the API owns backend/database access, while the admin and web applications consume its public API.
 
 ---
 

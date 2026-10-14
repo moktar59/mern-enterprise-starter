@@ -2,7 +2,7 @@
 
 > **An opinionated, enterprise-grade MERN starter for building production-ready applications.**
 
-MERN Enterprise Starter is an open-source project being developed as both a reusable MERN starter and a practical reference for software architecture and engineering decisions. The documentation foundation is complete. Phase 2 is defining the core backend scope and acceptance criteria; the planned application capabilities are not yet implemented.
+MERN Enterprise Starter is an open-source project being developed as both a reusable MERN starter and a practical reference for software architecture and engineering decisions. The documentation foundation is complete, and Phase 2 implementation has begun with the initial API runtime foundation.
 
 Unlike traditional boilerplates that focus only on project setup, this repository emphasizes **software architecture, engineering decisions, documentation, and long-term maintainability**.
 
@@ -20,7 +20,7 @@ The project is developed incrementally through documented phases, with architect
 
 ## Current Status
 
-**Phase 2 — Core Backend (scope and design baseline)**
+**Phase 2 — Core Backend (implementation in progress)**
 
 Currently available:
 
@@ -29,8 +29,9 @@ Currently available:
 - Architecture Decision Records (ADRs) and a decision register
 - Architecture guidance for execution context, module interaction, workflows, eventing, reliability, performance, and observability
 - Contribution, security, and repository governance documentation
+- Initial API runtime with TypeScript, Express, development/build commands, and a smoke test
 
-The Phase 2 scope and acceptance criteria are documented in [Core Backend Scope and Acceptance Criteria](docs/architecture/core-backend-foundation.md). The API, admin, and web applications are not yet a runnable implementation; Phase 2 implementation and verification remain outstanding. Docker, database integration, authentication, caching, jobs, uploads, automated testing, CI/CD, and monitoring remain roadmap items.
+The Phase 2 scope and acceptance criteria are documented in [Core Backend Scope and Acceptance Criteria](docs/architecture/core-backend-foundation.md). Configuration validation, explicit composition, request execution-context isolation, the agreed HTTP error contract, graceful shutdown, and complete acceptance verification remain outstanding. Docker, database integration, authentication, caching, jobs, uploads, CI/CD, and monitoring remain later roadmap items.
 
 ---
 
@@ -97,8 +98,8 @@ Project documentation is treated as a first-class deliverable.
 ```text
 apps/
 ├── api/                    # Backend API (Express.js + TypeScript)
-├── admin/                  # Administrative dashboard
-└── web/                    # Public web application (React)
+├── admin/                  # React admin dashboard (API consumer)
+└── web/                    # Public web application (API consumer)
 
 docker/                     # Docker development environment
 
@@ -108,6 +109,8 @@ scripts/                    # Automation and utility scripts
 
 .github/                    # GitHub repository configuration and templates
 ```
+
+Each application is independently managed with its own dependencies, scripts, and lockfile. There is no root npm workspace or shared runtime package. The API exclusively owns backend and database access; the admin and web applications consume its public API contract.
 
 Additional directories will be introduced throughout the roadmap as the project evolves.
 
