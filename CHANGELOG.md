@@ -14,7 +14,13 @@ Each release represents a stable milestone in the evolution of the repository. P
 
 ## [Unreleased]
 
-These changes follow the existing `v0.1.0` tag and are not part of that tagged snapshot.
+No changes yet.
+
+---
+
+## [0.1.1] - TBD
+
+> Proposed patch release covering the Phase 1 documentation changes merged after the existing `v0.1.0` tag. Replace `TBD` with the actual release date before publishing.
 
 ### Added
 
