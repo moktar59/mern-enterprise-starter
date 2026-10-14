@@ -18,6 +18,7 @@ Each release represents a stable milestone in the evolution of the repository. P
 
 - Phase 2 core backend scope, architectural decisions, and measurable acceptance criteria.
 - Initial API runtime with TypeScript, Express, development/build commands, and an HTTP smoke test.
+- API configuration loading, normalization, Zod validation, runtime immutability, and focused configuration tests.
 
 ### Changed
 
