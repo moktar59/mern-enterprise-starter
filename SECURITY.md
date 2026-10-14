@@ -14,9 +14,9 @@ Potential vulnerabilities should be reported responsibly and privately to help p
 
 # Supported Versions
 
-No GitHub Release has been published yet, so there is currently no released version to list as supported. Until the first release is published, please include the affected commit SHA when reporting a vulnerability.
+Published releases are listed on the project's GitHub Releases page. Security fixes are provided for the latest published release only. Older releases are not supported unless this policy is updated.
 
-After the first GitHub Release, security fixes will be provided for the latest release only. Older releases will not be supported unless this policy is updated.
+When reporting a vulnerability, please include the affected release version or commit SHA.
 
 ---
 
