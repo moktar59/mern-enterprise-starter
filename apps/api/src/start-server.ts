@@ -1,11 +1,11 @@
 import type { Server } from "node:http";
-import { createApp } from "./app.js";
+import { composeApplication } from "./composition/compose-application.js";
 import { loadConfig } from "./config.js";
 
-/** Validates configuration before constructing the app or opening a listener. */
+/** Validates configuration before composing the app or opening a listener. */
 export function startServer(env?: NodeJS.ProcessEnv): Server {
   const config = loadConfig(env);
-  const app = createApp();
+  const app = composeApplication();
 
   const server = app.listen(config.port, config.host, () => {
     console.info(`API listening at http://${config.host}:${config.port}`);
