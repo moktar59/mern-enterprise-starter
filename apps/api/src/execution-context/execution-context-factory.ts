@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import {
   ExecutionContextConflictError,
+  ExecutionContextEnrichmentError,
   type ExecutionContext,
   type ExecutionContextCreationInput,
   type Locale,
@@ -37,7 +38,7 @@ export class DefaultExecutionContextFactory implements ExecutionContextFactory {
 
   withPrincipal(context: ExecutionContext, principal: Principal): ExecutionContext {
     if (!principal.principalId.trim()) {
-      throw new ExecutionContextConflictError("Principal identity must not be empty.");
+      throw new ExecutionContextEnrichmentError("Principal identity must not be empty.");
     }
 
     if (context.principal) {
@@ -55,7 +56,7 @@ export class DefaultExecutionContextFactory implements ExecutionContextFactory {
 
   withTenant(context: ExecutionContext, tenant: TenantContext): ExecutionContext {
     if (!tenant.id.trim()) {
-      throw new ExecutionContextConflictError("Tenant identity must not be empty.");
+      throw new ExecutionContextEnrichmentError("Tenant identity must not be empty.");
     }
 
     if (context.tenant) {
@@ -70,7 +71,7 @@ export class DefaultExecutionContextFactory implements ExecutionContextFactory {
 
   withLocale(context: ExecutionContext, locale: Locale): ExecutionContext {
     if (!locale.trim()) {
-      throw new ExecutionContextConflictError("Locale must not be empty.");
+      throw new ExecutionContextEnrichmentError("Locale must not be empty.");
     }
 
     if (context.locale !== undefined) {

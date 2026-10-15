@@ -47,7 +47,7 @@ test("isolates concurrent HTTP requests and returns each request ID", async () =
   });
 
   const [firstResponse, secondResponse] = await Promise.all([
-    fetch(baseUrl),
+    fetch(baseUrl, { headers: { "X-Request-Id": "client-supplied-id" } }),
     fetch(baseUrl)
   ]);
   const [first, second] = await Promise.all([
@@ -71,6 +71,7 @@ test("isolates concurrent HTTP requests and returns each request ID", async () =
   assert.equal(secondResponse.headers.get("x-request-id"), second.requestId);
   assert.ok(first.requestId);
   assert.ok(second.requestId);
+  assert.notEqual(first.requestId, "client-supplied-id");
   assert.ok(first.correlationId);
   assert.ok(second.correlationId);
   assert.notEqual(first.requestId, second.requestId);

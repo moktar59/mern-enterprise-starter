@@ -42,7 +42,14 @@ export interface ExecutionContextCreationInput {
   readonly requestId?: RequestId;
 }
 
-export class ExecutionContextConflictError extends Error {
+export class ExecutionContextEnrichmentError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "ExecutionContextEnrichmentError";
+  }
+}
+
+export class ExecutionContextConflictError extends ExecutionContextEnrichmentError {
   constructor(message: string) {
     super(message);
     this.name = "ExecutionContextConflictError";

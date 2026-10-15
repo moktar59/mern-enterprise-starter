@@ -286,25 +286,19 @@ The context is therefore a controlled architectural contract rather than an arbi
 
 Conceptually:
 
-```text
-ExecutionContextCreationInput
-├── executionId
-├── correlationId
-├── source
-└── initial trusted metadata
+```ts
+interface ExecutionContextCreationInput {
+  readonly source: ExecutionSource;
+  readonly requestId?: RequestId;
+  readonly correlationId?: CorrelationId;
+}
 ```
 
-The creation input belongs to the execution boundary.
+The input deliberately excludes `executionId` and `startedAt`. The factory generates both values internally so callers cannot choose or replace execution identity or its start time.
 
-The boundary is responsible for determining which information is available and trustworthy at creation time.
+The creation input belongs to the execution boundary. The boundary determines which metadata is available and trustworthy at creation time. External input must not automatically become trusted context data, and the input must not expose arbitrary request properties.
 
-External input must not automatically become trusted context data.
-
-For example, a value supplied by an HTTP client may be used as a correlation identifier only according to the application's validation and trust rules.
-
-`ExecutionContextCreationInput` is not intended to expose every request property.
-
-It should contain only information required to establish execution identity and trusted initial metadata.
+For the initial HTTP implementation, the server generates both `requestId` and `correlationId`; clients cannot override them. A future boundary may propagate a validated correlation identifier when its explicit trust rules permit it.
 
 ---
 
@@ -494,6 +488,18 @@ The dependency must remain behind the execution infrastructure abstraction.
 This allows the propagation mechanism to change without requiring changes throughout the application.
 
 `AsyncLocalStorage` must also be used in a manner that preserves isolation between concurrent executions.
+
+### Initial API Implementation
+
+The initial API implementation follows this dependency split:
+
+- `ExecutionContextFactory` creates and derives immutable contexts.
+- `ExecutionContextScope` defines `run`, `current`, and `require`.
+- `AsyncLocalStorageExecutionContextScope` is the private Node.js propagation adapter.
+- HTTP middleware creates a fresh server-owned context for each request, enters the scope, and returns the matching `X-Request-Id` response header.
+- The composition root constructs these dependencies and injects the middleware into the HTTP application.
+
+The first implementation tests factory invariants, asynchronous propagation, nested scope restoration, and concurrent request isolation. Authentication, tenant resolution, non-HTTP execution boundaries, and observability integrations remain outside this initial slice.
 
 ---
 
