@@ -3,27 +3,20 @@
   "private": true,
   "version": "0.2.0",
   "type": "module",
-  "engines": {
-    "node": ">=24 <25"
-  },
+  "engines": { "node": ">=24 <25" },
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "build": "tsc -p tsconfig.build.json",
     "start": "node dist/server.js",
-    "test": "tsx --test src/app.test.ts src/config.test.ts src/composition/compose-application.test.ts src/start-server.test.ts src/execution-context/execution-context-factory.test.ts src/infrastructure/execution-context/async-local-storage-execution-context-scope.test.ts src/http/middleware/execution-context-middleware.test.ts src/http/middleware/http-error-middleware.test.ts src/http/http-app-errors.test.ts",
+    "test": "tsx --test src/app.test.ts src/config.test.ts src/composition/compose-application.test.ts src/start-server.test.ts src/execution-context/execution-context-factory.test.ts src/infrastructure/execution-context/async-local-storage-execution-context-scope.test.ts src/http/middleware/execution-context-middleware.test.ts src/http/middleware/http-error-middleware.test.ts src/http/http-app-errors.test.ts src/lifecycle/graceful-shutdown.test.ts",
     "typecheck": "tsc --noEmit -p tsconfig.json"
   },
-  "dependencies": {
-    "express": "5.1.0",
-    "zod": "4.1.12"
-  },
+  "dependencies": { "express": "5.1.0", "zod": "4.1.12" },
   "devDependencies": {
     "@types/express": "5.0.3",
     "@types/node": "24.10.0",
     "tsx": "4.20.6",
     "typescript": "5.9.3"
   },
-  "allowScripts": {
-    "esbuild@0.25.12": true
-  }
+  "allowScripts": { "esbuild@0.25.12": true }
 }
