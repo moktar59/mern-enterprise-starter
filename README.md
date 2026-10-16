@@ -2,7 +2,7 @@
 
 > **An opinionated, enterprise-grade MERN starter for building production-ready applications.**
 
-MERN Enterprise Starter is an open-source project being developed as both a reusable MERN starter and a practical reference for software architecture and engineering decisions. The documentation foundation is complete, and the Phase 2 core backend implementation has been merged. Final acceptance verification and release review remain in progress.
+MERN Enterprise Starter is an open-source project being developed as both a reusable MERN starter and a practical reference for software architecture and engineering decisions. The documentation foundation and Phase 2 core backend implementation are complete. Phase 2 acceptance checks have passed; publication of `v0.2.0` is pending final release documentation review.
 
 Unlike traditional boilerplates that focus only on project setup, this repository emphasizes **software architecture, engineering decisions, documentation, and long-term maintainability**.
 
@@ -20,7 +20,7 @@ The project is developed incrementally through documented phases, with architect
 
 ## Current Status
 
-**Phase 2 — Core Backend (implementation merged; acceptance verification in progress)**
+**Phase 2 — Core Backend (acceptance complete; `v0.2.0` release pending)**
 
 Currently available:
 
@@ -31,7 +31,7 @@ Currently available:
 - Contribution, security, and repository governance documentation
 - API configuration validation, explicit composition, HTTP execution context, RFC 9457-based error handling, liveness endpoint, and graceful shutdown
 
-The Phase 2 implementation is merged. Final acceptance verification, documentation reconciliation, and release review remain outstanding before `v0.2.0`. See [Core Backend Scope and Acceptance Criteria](docs/architecture/core-backend-foundation.md). Docker, database integration, authentication, caching, jobs, uploads, CI/CD, and monitoring remain later roadmap items.
+Phase 2 acceptance checks have passed on `main`: a clean dependency installation, 37 passing automated tests, successful type checking and production build, HTTP smoke tests, and manual graceful-shutdown verification. The `v0.2.0` release remains unpublished pending final documentation review and publication. See [Core Backend Scope and Acceptance Criteria](docs/architecture/core-backend-foundation.md). Docker, database integration, authentication, caching, jobs, uploads, CI/CD, and monitoring remain later roadmap items.
 
 ---
 
@@ -40,7 +40,7 @@ The Phase 2 implementation is merged. Final acceptance verification, documentati
 Development is organized into sixteen incremental phases.
 
 - [x] Phase 01 — Documentation
-- [ ] Phase 02 — Core Backend
+- [x] Phase 02 — Core Backend (accepted; `v0.2.0` release pending)
 - [ ] Phase 03 — API Design
 - [ ] Phase 04 — Docker Development Environment
 - [ ] Phase 05 — Database

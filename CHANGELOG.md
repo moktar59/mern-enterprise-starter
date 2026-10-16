@@ -26,7 +26,7 @@ Each release represents a stable milestone in the evolution of the repository. P
 ### Changed
 
 - Aligned project status and roadmap wording with the published `v0.1.1` release and Phase 2 planning baseline.
-- Updated project status to reflect that Phase 2 implementation is merged while final acceptance verification and release review remain outstanding.
+- Updated project status to reflect that Phase 2 acceptance checks have passed and `v0.2.0` release preparation remains in progress.
 - Clarified that `apps/api`, `apps/admin`, and `apps/web` are independently managed applications; the API owns backend/database access, while the admin and web applications consume its public API.
 
 ---

@@ -2,8 +2,8 @@
 
 > **Project Name:** mern-enterprise-starter
 > **Status:** Active Development
-> **Current Version:** v0.1.1 (latest published release; subsequent changes remain unreleased)
-> **Current Phase:** Phase 2 – Core Backend (implementation merged; acceptance verification in progress)
+> **Current Version:** v0.1.1 (latest published release; `v0.2.0` release candidate pending publication)
+> **Current Phase:** Phase 2 – Core Backend (acceptance complete; `v0.2.0` release pending)
 > **Project Type:** Open Source
 > **License:** MIT
 
@@ -11,7 +11,7 @@
 
 # Executive Summary
 
-**mern-enterprise-starter** is an opinionated enterprise-grade MERN starter in active development. The documentation foundation is complete, and the Phase 2 core backend implementation has been merged. The API now has configuration validation, explicit composition, HTTP execution context, a documented HTTP error contract, a liveness endpoint, and graceful shutdown. Final acceptance verification and release review remain outstanding; this phase does not claim full production readiness.
+**mern-enterprise-starter** is an opinionated enterprise-grade MERN starter in active development. The documentation foundation is complete, and the Phase 2 core backend has passed its final acceptance checks based on verification on `main`: 37 automated tests passed, type checking and production build succeeded, HTTP smoke tests passed, and manual graceful-shutdown verification succeeded. The `v0.2.0` release is pending final documentation review and publication. This phase does not claim full production readiness.
 
 Rather than being only a boilerplate, this project serves as both a reusable starting point for real-world applications and a practical reference for software architecture, engineering practices, and technical decision-making.
 
@@ -231,5 +231,5 @@ Supporting directories contain documentation, Docker resources, automation scrip
 | Item              | Status                  |
 | ----------------- | ----------------------- |
 | Current Version   | v0.1.1 (latest published release) |
-| Current Phase     | Phase 2 – Core Backend (implementation merged; acceptance verification in progress) |
+| Current Phase     | Phase 2 – Core Backend (acceptance complete; `v0.2.0` release pending) |
 | Repository Status | Active Development      |
