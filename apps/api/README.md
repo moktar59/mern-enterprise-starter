@@ -55,9 +55,9 @@ The response includes `type`, `title`, `status`, `code`, and `requestId`. Valida
 
 ## Graceful Shutdown
 
-The process registers `SIGINT` and `SIGTERM` handlers only after the HTTP listener starts. Shutdown stops accepting new connections, allows in-flight requests up to 10 seconds to complete, and then force-closes remaining connections. Repeated signals share the same shutdown operation, and registered cleanup tasks run at most once. Cleanup tasks run sequentially; a failing task is reported without preventing later tasks from running. Cleanup must be registered before shutdown begins.
+The process registers `SIGINT` and `SIGTERM` handlers only after the HTTP listener starts. Shutdown stops accepting new connections, allows in-flight requests up to 10 seconds to complete, and then force-closes remaining connections. Repeated signals share the same shutdown operation, and registered cleanup tasks run at most once. Cleanup tasks run sequentially; a failing task is reported without preventing later tasks from running.
 
-The lifecycle implementation is available through `createApplicationLifecycle`; application-owned resources can register cleanup tasks with its `registerCleanup` method. Importing application or composition modules does not start the listener or install process signal handlers.
+Application-owned resources can register cleanup through the optional `configureLifecycle` callback passed to `startServer`. Register cleanup before startup completes; registration after shutdown begins is rejected. The lifecycle implementation is available through `createApplicationLifecycle` for focused testing. Importing application and composition modules does not start the listener or install process signal handlers.
 
 The API owns its backend implementation, dependencies, database integration, and persistence models. The admin and web applications are independent frontend API consumers; they do not import API internals or access its database directly.
 
