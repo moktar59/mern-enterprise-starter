@@ -57,4 +57,4 @@ The API owns its backend implementation, dependencies, database integration, and
 
 The composition root creates an execution-context factory and scope, then injects HTTP middleware into the application. Every HTTP request receives server-generated `executionId`, `requestId`, and `correlationId` values. The `X-Request-Id` response header matches the request's context identifier. The context is available through the `ExecutionContextScope` abstraction and propagates across asynchronous work without exposing `AsyncLocalStorage` to application code.
 
-This is the execution-context slice of Phase 2, not the completed Phase 2 foundation. The stable HTTP error contract, liveness endpoint, and graceful shutdown remain to be implemented.
+The execution-context, HTTP error-contract, and liveness slices are now implemented. Graceful shutdown remains to be implemented before the Phase 2 foundation is complete.
