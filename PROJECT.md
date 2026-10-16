@@ -3,7 +3,7 @@
 > **Project Name:** mern-enterprise-starter
 > **Status:** Active Development
 > **Current Version:** v0.1.1 (latest published release; subsequent changes remain unreleased)
-> **Current Phase:** Phase 2 – Core Backend (scope and design baseline)
+> **Current Phase:** Phase 2 – Core Backend (implementation merged; acceptance verification in progress)
 > **Project Type:** Open Source
 > **License:** MIT
 
@@ -11,7 +11,7 @@
 
 # Executive Summary
 
-**mern-enterprise-starter** is an opinionated enterprise-grade MERN starter in active development. The repository has completed its documentation foundation and is defining the Phase 2 core backend baseline. The API is not yet a runnable implementation; Phase 2 implementation and verification remain outstanding.
+**mern-enterprise-starter** is an opinionated enterprise-grade MERN starter in active development. The documentation foundation is complete, and the Phase 2 core backend implementation has been merged. The API now has configuration validation, explicit composition, HTTP execution context, a documented HTTP error contract, a liveness endpoint, and graceful shutdown. Final acceptance verification and release review remain outstanding; this phase does not claim full production readiness.
 
 Rather than being only a boilerplate, this project serves as both a reusable starting point for real-world applications and a practical reference for software architecture, engineering practices, and technical decision-making.
 
@@ -231,5 +231,5 @@ Supporting directories contain documentation, Docker resources, automation scrip
 | Item              | Status                  |
 | ----------------- | ----------------------- |
 | Current Version   | v0.1.1 (latest published release) |
-| Current Phase     | Phase 2 – Core Backend (scope/design baseline) |
+| Current Phase     | Phase 2 – Core Backend (implementation merged; acceptance verification in progress) |
 | Repository Status | Active Development      |
