@@ -61,4 +61,4 @@ Application-owned resources can register cleanup through the optional `configure
 
 The API owns its backend implementation, dependencies, database integration, and persistence models. The admin and web applications are independent frontend API consumers; they do not import API internals or access its database directly.
 
-The configuration, composition, execution-context, HTTP error-contract, liveness, and graceful-shutdown slices are implemented for Phase 2. The Phase 2 release gate still requires local verification of all acceptance criteria before the `v0.2.0` tag is created and published.
+The configuration, composition, execution-context, HTTP error-contract, liveness, and graceful-shutdown slices are implemented for Phase 2. Acceptance criteria have been verified on `main`; `v0.2.0` remains unpublished pending final documentation review and release approval.
