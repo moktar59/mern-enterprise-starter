@@ -19,11 +19,14 @@ Each release represents a stable milestone in the evolution of the repository. P
 - Phase 2 core backend scope, architectural decisions, and measurable acceptance criteria.
 - Initial API runtime with TypeScript, Express, development/build commands, and an HTTP smoke test.
 - API configuration loading, normalization, Zod validation, runtime immutability, and focused configuration tests.
+- HTTP execution context with server-generated execution, request, and correlation identifiers, asynchronous propagation, and request-ID response headers.
+- RFC 9457-based HTTP error handling with stable error codes, malformed-request handling, safe unexpected-error responses, and the liveness endpoint.
+- Graceful HTTP shutdown with a bounded connection-drain period, force-closing of remaining connections, idempotent shutdown, and lifecycle cleanup registration.
 
 ### Changed
 
 - Aligned project status and roadmap wording with the published `v0.1.1` release and Phase 2 planning baseline.
-- Updated the project status to reflect that Phase 2 runtime implementation has begun while remaining acceptance criteria are still outstanding.
+- Updated project status to reflect that Phase 2 implementation is merged while final acceptance verification and release review remain outstanding.
 - Clarified that `apps/api`, `apps/admin`, and `apps/web` are independently managed applications; the API owns backend/database access, while the admin and web applications consume its public API.
 
 ---
