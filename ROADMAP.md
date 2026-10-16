@@ -135,8 +135,8 @@ Build a minimal, runnable, extensible backend foundation that can start successf
 
 ## Deliverables
 
-* Node.js 24, npm workspaces, native ESM, TypeScript, and Express 5 runtime/toolchain
-* Reproducible installation with a committed npm lockfile
+* Node.js 24, independently managed npm application packages, native ESM, TypeScript, and Express 5 runtime/toolchain
+* Reproducible installation with a committed lockfile owned by each application
 * Configuration loading, normalization, Zod validation, and runtime immutability
 * Explicit application composition and startup
 * HTTP adapter with a working dummy endpoint and liveness endpoint
