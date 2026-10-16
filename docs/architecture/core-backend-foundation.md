@@ -10,7 +10,7 @@ Phase 2 delivers a complete foundation for the capabilities included in this pha
 
 ### Included
 
-- Node.js 24 runtime, npm workspaces, native ESM, TypeScript, and Express 5.
+- Node.js 24 runtime, independently managed application packages using npm, native ESM, TypeScript, and Express 5. Each application owns its package manifest, dependencies, scripts, and lockfile; no root npm workspace or shared runtime package is used.
 - Reproducible dependency installation through a committed npm lockfile.
 - Development execution and compiled JavaScript production execution.
 - Configuration loading, parsing, normalization, validation, and runtime immutability.
@@ -36,7 +36,7 @@ Phase 2 delivers a complete foundation for the capabilities included in this pha
 ## Accepted Runtime and Toolchain
 
 - **Runtime:** Node.js 24.
-- **Package management:** npm workspaces, with a committed lockfile.
+- **Package management:** independently managed applications using npm. Each application owns its package manifest, dependencies, scripts, and lockfile; there is no root npm workspace or shared runtime package. The API commits `apps/api/package-lock.json`.
 - **Module system:** native ECMAScript modules.
 - **TypeScript:** `NodeNext` module and resolution settings aligned with Node.js ESM behavior.
 - **HTTP framework:** Express 5.
@@ -48,7 +48,7 @@ Phase 2 delivers a complete foundation for the capabilities included in this pha
 - **Execution context:** the existing Execution Context abstraction; `AsyncLocalStorage` remains a private propagation mechanism.
 - **HTTP errors:** RFC 9457 Problem Details with the documented project extensions in this document.
 
-The accepted architecture decisions in ADR-0001 through ADR-0004 remain authoritative for execution context, configuration architecture, dependency injection, and module boundaries. The runtime/toolchain and HTTP error representation are recorded in ADR-0005 and ADR-0006.
+The accepted architecture decisions in ADR-0001 through ADR-0004 remain authoritative for execution context, configuration architecture, dependency injection, and module boundaries. The runtime/toolchain and HTTP error representation are recorded in ADR-0005 and ADR-0006. Application packages are managed independently; ADR-0005 reflects this repository-level package-management choice.
 
 ## Configuration Contract
 
