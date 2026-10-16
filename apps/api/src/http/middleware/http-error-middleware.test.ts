@@ -60,12 +60,13 @@ test("validation errors return RFC 9457 details without sensitive input", async 
 test("unexpected errors return a sanitized internal error", async () => {
   const response = await requestFor(new Error("secret database credentials"));
   assert.equal(response.status, 500);
-  assert.deepEqual(await response.json(), {
+  const body = await response.text();
+  assert.deepEqual(JSON.parse(body), {
     type: "about:blank",
     title: "Internal Server Error",
     status: 500,
     code: "INTERNAL_ERROR",
     requestId: "test-request-id"
   });
-  assert.doesNotMatch(await response.clone().text(), /secret database credentials/);
+  assert.doesNotMatch(body, /secret database credentials/);
 });
