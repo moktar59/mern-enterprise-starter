@@ -53,8 +53,12 @@ Errors use RFC 9457 Problem Details with the `application/problem+json` media ty
 
 The response includes `type`, `title`, `status`, `code`, and `requestId`. Validation errors may also include an `errors` array containing stable field and error codes. The HTTP status and `status` member agree. Unexpected exception messages, stack traces, and internal details are not returned to clients.
 
+## Graceful Shutdown
+
+The process registers `SIGINT` and `SIGTERM` handlers only after the HTTP listener starts. Shutdown stops accepting new connections, allows in-flight requests up to 10 seconds to complete, and then force-closes remaining connections. Repeated signals share the same shutdown operation, and registered cleanup tasks run at most once. Cleanup tasks run sequentially; a failing task is reported without preventing later tasks from running. Cleanup must be registered before shutdown begins.
+
+The lifecycle implementation is available through `createApplicationLifecycle`; application-owned resources can register cleanup tasks with its `registerCleanup` method. Importing application or composition modules does not start the listener or install process signal handlers.
+
 The API owns its backend implementation, dependencies, database integration, and persistence models. The admin and web applications are independent frontend API consumers; they do not import API internals or access its database directly.
 
-The composition root creates an execution-context factory and scope, then injects HTTP middleware into the application. Every HTTP request receives server-generated `executionId`, `requestId`, and `correlationId` values. The `X-Request-Id` response header matches the request's context identifier. The context is available through the `ExecutionContextScope` abstraction and propagates across asynchronous work without exposing `AsyncLocalStorage` to application code.
-
-The execution-context, HTTP error-contract, and liveness slices are now implemented. Graceful shutdown remains to be implemented before the Phase 2 foundation is complete.
+The configuration, composition, execution-context, HTTP error-contract, liveness, and graceful-shutdown slices are implemented for Phase 2. The Phase 2 release gate still requires local verification of all acceptance criteria before the `v0.2.0` tag is created and published.
