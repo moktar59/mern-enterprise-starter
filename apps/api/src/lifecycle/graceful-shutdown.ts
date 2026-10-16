@@ -55,21 +55,19 @@ export function createApplicationLifecycle(
     if (!server.listening) return Promise.resolve();
 
     return new Promise<void>((resolve, reject) => {
-      let timer: NodeJS.Timeout | undefined;
+      const timer = setTimeout(() => {
+        server.closeAllConnections();
+      }, timeoutMs);
+      timer.unref();
 
       try {
         server.close((error) => {
-          if (timer) clearTimeout(timer);
+          clearTimeout(timer);
           if (error) reject(error);
           else resolve();
         });
-
-        timer = setTimeout(() => {
-          server.closeAllConnections();
-        }, timeoutMs);
-        timer.unref();
       } catch (error) {
-        if (timer) clearTimeout(timer);
+        clearTimeout(timer);
         reject(error);
       }
     });
