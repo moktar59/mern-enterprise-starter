@@ -2,7 +2,7 @@
 
 > **An opinionated, enterprise-grade MERN starter for building production-ready applications.**
 
-MERN Enterprise Starter is an open-source project being developed as both a reusable MERN starter and a practical reference for software architecture and engineering decisions. The documentation foundation is complete, and Phase 2 implementation has begun with the initial API runtime foundation.
+MERN Enterprise Starter is an open-source project being developed as both a reusable MERN starter and a practical reference for software architecture and engineering decisions. The documentation foundation is complete, and the Phase 2 core backend implementation has been merged. Final acceptance verification and release review remain in progress.
 
 Unlike traditional boilerplates that focus only on project setup, this repository emphasizes **software architecture, engineering decisions, documentation, and long-term maintainability**.
 
@@ -20,7 +20,7 @@ The project is developed incrementally through documented phases, with architect
 
 ## Current Status
 
-**Phase 2 — Core Backend (implementation in progress)**
+**Phase 2 — Core Backend (implementation merged; acceptance verification in progress)**
 
 Currently available:
 
@@ -29,9 +29,9 @@ Currently available:
 - Architecture Decision Records (ADRs) and a decision register
 - Architecture guidance for execution context, module interaction, workflows, eventing, reliability, performance, and observability
 - Contribution, security, and repository governance documentation
-- Initial API runtime with TypeScript, Express, development/build commands, and a smoke test
+- API configuration validation, explicit composition, HTTP execution context, RFC 9457-based error handling, liveness endpoint, and graceful shutdown
 
-The Phase 2 scope and acceptance criteria are documented in [Core Backend Scope and Acceptance Criteria](docs/architecture/core-backend-foundation.md). Configuration validation, explicit composition, request execution-context isolation, the agreed HTTP error contract, graceful shutdown, and complete acceptance verification remain outstanding. Docker, database integration, authentication, caching, jobs, uploads, CI/CD, and monitoring remain later roadmap items.
+The Phase 2 implementation is merged. Final acceptance verification, documentation reconciliation, and release review remain outstanding before `v0.2.0`. See [Core Backend Scope and Acceptance Criteria](docs/architecture/core-backend-foundation.md). Docker, database integration, authentication, caching, jobs, uploads, CI/CD, and monitoring remain later roadmap items.
 
 ---
 
