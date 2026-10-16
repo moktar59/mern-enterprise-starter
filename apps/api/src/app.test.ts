@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { after, test } from "node:test";
 import { createServer, type Server } from "node:http";
-import { createApp } from "./app.js";
+import { composeApplication } from "./composition/compose-application.js";
 
 let server: Server | undefined;
 
@@ -12,8 +12,8 @@ after(async () => {
   });
 });
 
-test("GET / returns the starter API response", async () => {
-  server = createServer(createApp());
+test("GET / returns the starter API response and a request ID", async () => {
+  server = createServer(composeApplication());
   const baseUrl = await new Promise<string>((resolve, reject) => {
     server?.once("error", reject);
     server?.listen(0, "127.0.0.1", () => {
@@ -28,6 +28,7 @@ test("GET / returns the starter API response", async () => {
 
   const response = await fetch(baseUrl);
   assert.equal(response.status, 200);
+  assert.ok(response.headers.get("x-request-id"));
   assert.deepEqual(await response.json(), {
     message: "MERN Enterprise Starter API"
   });

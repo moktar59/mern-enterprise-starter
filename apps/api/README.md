@@ -42,4 +42,6 @@ The initial bootstrap response is available at `GET /` on `http://127.0.0.1:3000
 
 The API owns its backend implementation, dependencies, database integration, and persistence models. The admin and web applications are independent frontend API consumers; they do not import API internals or access its database directly.
 
-Explicit composition beyond the startup boundary, request execution context, the stable HTTP error contract, and graceful shutdown remain subsequent Phase 2 slices. This application is not yet the completed Phase 2 foundation.
+The composition root creates an execution-context factory and scope, then injects HTTP middleware into the application. Every HTTP request receives server-generated `executionId`, `requestId`, and `correlationId` values. The `X-Request-Id` response header matches the request's context identifier. The context is available through the `ExecutionContextScope` abstraction and propagates across asynchronous work without exposing `AsyncLocalStorage` to application code.
+
+This is the execution-context slice of Phase 2, not the completed Phase 2 foundation. The stable HTTP error contract, liveness endpoint, and graceful shutdown remain to be implemented.
