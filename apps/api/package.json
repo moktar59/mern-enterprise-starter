@@ -11,7 +11,8 @@
     "build": "tsc -p tsconfig.build.json",
     "start": "node dist/server.js",
     "test": "tsx --test src/app.test.ts src/config.test.ts src/composition/compose-application.test.ts src/start-server.test.ts src/execution-context/execution-context-factory.test.ts src/infrastructure/execution-context/async-local-storage-execution-context-scope.test.ts src/http/middleware/execution-context-middleware.test.ts src/http/middleware/http-error-middleware.test.ts src/http/http-app-errors.test.ts src/lifecycle/graceful-shutdown.test.ts",
-    "typecheck": "tsc --noEmit -p tsconfig.json"
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "validate:openapi": "npx --yes @redocly/cli@1.34.5 lint --extends minimal openapi/openapi.yaml"
   },
   "dependencies": {
     "express": "5.1.0",
