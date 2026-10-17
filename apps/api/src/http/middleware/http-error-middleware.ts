@@ -21,7 +21,7 @@ function sendProblem(
   const requestId = typeof requestIdValue === "string" ? requestIdValue : "unavailable";
   const problem: ProblemDetails = {
     type: "about:blank",
-    title: STATUS_CODES[status] ?? "Internal Server Error",
+    title: status === 422 ? "Unprocessable Content" : (STATUS_CODES[status] ?? "Internal Server Error"),
     status,
     code,
     requestId,
