@@ -101,7 +101,7 @@ components:
           description: Comma-separated list of methods supported by this endpoint.
           schema:
             type: string
-            example: GET
+            example: GET, HEAD
         X-Request-Id:
           $ref: '#/components/headers/RequestId'
       content:
@@ -125,7 +125,7 @@ components:
             $ref: '#/components/schemas/ProblemDetails'
           example:
             type: about:blank
-            title: Validation Failed
+            title: Unprocessable Content
             status: 422
             code: VALIDATION_FAILED
             requestId: 01JEXAMPLE
