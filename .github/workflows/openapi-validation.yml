@@ -1,27 +1,23 @@
-name: OpenAPI Contract
+name: API Contract and Runtime
 
 on:
   pull_request:
     paths:
-      - 'apps/api/openapi/**'
-      - 'apps/api/package.json'
-      - 'apps/api/package-lock.json'
+      - 'apps/api/**'
       - '.github/workflows/openapi-validation.yml'
   push:
     branches:
       - main
     paths:
-      - 'apps/api/openapi/**'
-      - 'apps/api/package.json'
-      - 'apps/api/package-lock.json'
+      - 'apps/api/**'
       - '.github/workflows/openapi-validation.yml'
 
 permissions:
   contents: read
 
 jobs:
-  validate-openapi:
-    name: Validate OpenAPI
+  validate-and-test:
+    name: Validate contract and API
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -33,5 +29,15 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 24
+          cache: npm
+          cache-dependency-path: apps/api/package-lock.json
+      - name: Install API dependencies
+        run: npm ci
       - name: Validate OpenAPI specification
         run: npm run validate:openapi
+      - name: Run API tests
+        run: npm test
+      - name: Type-check API
+        run: npm run typecheck
+      - name: Build API
+        run: npm run build
