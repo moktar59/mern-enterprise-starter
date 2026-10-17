@@ -14,20 +14,39 @@ Each release represents a stable milestone in the evolution of the repository. P
 
 ## [Unreleased]
 
+---
+
+## [0.2.0] - 2026-10-17
+
+> Core Backend Foundation milestone. Phase 2 acceptance checks were completed on `main`; this release does not claim that the full starter is production-ready.
+
 ### Added
 
-- Phase 2 core backend scope, architectural decisions, and measurable acceptance criteria.
-- Initial API runtime with TypeScript, Express, development/build commands, and an HTTP smoke test.
-- API configuration loading, normalization, Zod validation, runtime immutability, and focused configuration tests.
-- HTTP execution context with server-generated execution, request, and correlation identifiers, asynchronous propagation, and request-ID response headers.
-- RFC 9457-based HTTP error handling with stable error codes, malformed-request handling, safe unexpected-error responses, and the liveness endpoint.
-- Graceful HTTP shutdown with a bounded connection-drain period, force-closing of remaining connections, idempotent shutdown, and lifecycle cleanup registration.
+- Established the API runtime foundation with Node.js 24, TypeScript, native ESM, and Express 5.
+- Added validated, normalized, immutable startup configuration using Zod.
+- Added explicit application composition and HTTP execution context with server-generated execution, request, and correlation identifiers.
+- Added RFC 9457 Problem Details error responses, stable public error codes, request-ID propagation, and safe handling of unexpected failures.
+- Added the liveness endpoint at `GET /health/live`.
+- Added graceful HTTP shutdown with a bounded connection-drain period, force-closing of remaining connections, idempotent shutdown, and lifecycle cleanup registration.
+- Added automated coverage for configuration, composition, request context, HTTP errors, liveness, graceful shutdown, and startup failures.
 
 ### Changed
 
-- Aligned project status and roadmap wording with the published `v0.1.1` release and Phase 2 planning baseline.
-- Updated project status to reflect that Phase 2 acceptance checks have passed and `v0.2.0` release preparation remains in progress.
+- Documented the Phase 2 core backend scope, architectural decisions, acceptance criteria, and API runtime behavior.
+- Aligned project status and roadmap documentation with the completed Phase 2 acceptance checks.
 - Clarified that `apps/api`, `apps/admin`, and `apps/web` are independently managed applications; the API owns backend/database access, while the admin and web applications consume its public API.
+
+### Verification
+
+- Clean dependency installation with `npm ci`.
+- 37 automated tests passed.
+- Type checking and production build passed.
+- HTTP smoke checks passed for the root endpoint, liveness endpoint, and unknown-route error response.
+- Manual startup and graceful-shutdown checks passed.
+
+### Scope Notes
+
+This milestone establishes the core HTTP backend foundation. Database integration, Docker development environment, API versioning/design, authentication, authorization, caching, background jobs, file uploads, CI/CD, and monitoring remain outside this release and are planned in later roadmap phases.
 
 ---
 
