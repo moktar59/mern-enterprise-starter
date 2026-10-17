@@ -4,8 +4,8 @@ info:
   version: 0.3.0
   summary: Versioned HTTP API contract for Phase 3.
   description: |
-    This specification defines the initial versioned API contract. The items
-    endpoint is introduced by the following implementation pull request.
+    This specification defines the initial versioned API contract, including
+    the deterministic in-memory items endpoint and pagination conventions.
   license:
     name: MIT
     url: https://opensource.org/license/mit/
@@ -64,11 +64,27 @@ paths:
                         name: Example item 1
                       - id: item-002
                         name: Example item 2
+                      - id: item-003
+                        name: Example item 3
+                      - id: item-004
+                        name: Example item 4
+                      - id: item-005
+                        name: Example item 5
+                      - id: item-006
+                        name: Example item 6
+                      - id: item-007
+                        name: Example item 7
+                      - id: item-008
+                        name: Example item 8
+                      - id: item-009
+                        name: Example item 9
+                      - id: item-010
+                        name: Example item 10
                     pagination:
                       page: 1
                       perPage: 10
-                      totalItems: 2
-                      totalPages: 1
+                      totalItems: 23
+                      totalPages: 3
                 outOfRangePage:
                   summary: Out-of-range page
                   value:
@@ -76,8 +92,8 @@ paths:
                     pagination:
                       page: 99
                       perPage: 10
-                      totalItems: 2
-                      totalPages: 1
+                      totalItems: 23
+                      totalPages: 3
           headers:
             X-Request-Id:
               $ref: '#/components/headers/RequestId'
