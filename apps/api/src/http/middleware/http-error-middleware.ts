@@ -21,7 +21,7 @@ function sendProblem(
   const requestId = typeof requestIdValue === "string" ? requestIdValue : "unavailable";
   const problem: ProblemDetails = {
     type: "about:blank",
-    title: status === 422 ? "Unprocessable Content" : (STATUS_CODES[status] ?? "Internal Server Error"),
+    title: STATUS_CODES[status] ?? "Internal Server Error",
     status,
     code,
     requestId,
@@ -37,6 +37,12 @@ function sendProblem(
 /** Handles requests that do not match a registered route. */
 export const notFoundHandler: RequestHandler = (_request, response) => {
   sendProblem(response, 404, "ROUTE_NOT_FOUND");
+};
+
+/** Returns the supported methods for a recognized endpoint. */
+export const methodNotAllowedHandler: RequestHandler = (_request, response) => {
+  response.setHeader("Allow", "GET, HEAD");
+  sendProblem(response, 405, "METHOD_NOT_ALLOWED");
 };
 
 /** Final HTTP boundary: translate known failures and sanitize all unknown errors. */
