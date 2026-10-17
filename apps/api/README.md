@@ -47,6 +47,7 @@ Errors use RFC 9457 Problem Details with the `application/problem+json` media ty
 | Situation | Status | Code |
 |---|---:|---|
 | Unknown route | 404 | `ROUTE_NOT_FOUND` |
+| Unsupported method on a recognized endpoint | 405 | `METHOD_NOT_ALLOWED` |
 | Malformed JSON request | 400 | `MALFORMED_REQUEST` |
 | Application validation failure | 422 | `VALIDATION_FAILED` |
 | Unexpected internal failure | 500 | `INTERNAL_ERROR` |
@@ -59,9 +60,9 @@ The Phase 3 OpenAPI contract is maintained at `openapi/openapi.yaml`. It defines
 
 Run `npm run validate:openapi` from this directory to lint the specification with the pinned Redocly CLI version. The same command runs in the dedicated OpenAPI GitHub Actions workflow when contract files change.
 
-Swagger UI will be exposed by the application as `/api-docs` alongside the raw specification at `/openapi.yaml` in the API implementation pull request. Swagger UI presents the contract interactively; automated specification validation remains a separate check.
+Swagger UI is exposed at `/api-docs`, with the raw OpenAPI specification served at `/openapi.yaml`. Swagger UI presents the contract interactively; automated specification validation and API tests remain separate checks. The Swagger UI page loads its pinned UI assets from a public CDN.
 
-The initial example contract defines `GET /api/v1/items` with deterministic in-memory data and offset pagination. It does not introduce database integration or business CRUD functionality.
+The initial example contract is implemented by `GET /api/v1/items` with 23 deterministic in-memory records and offset pagination. `page` defaults to 1; `perPage` defaults to 10 and has a maximum of 500. Invalid explicitly supplied values return `422 VALIDATION_FAILED`; an out-of-range page returns 200 with an empty `records` array and accurate pagination metadata. Unsupported methods on this endpoint return `405 METHOD_NOT_ALLOWED` with an `Allow` header. The endpoint does not introduce database integration or business CRUD functionality.
 
 ## Graceful Shutdown
 

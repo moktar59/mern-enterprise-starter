@@ -39,6 +39,12 @@ export const notFoundHandler: RequestHandler = (_request, response) => {
   sendProblem(response, 404, "ROUTE_NOT_FOUND");
 };
 
+/** Returns the supported methods for a recognized endpoint. */
+export const methodNotAllowedHandler: RequestHandler = (_request, response) => {
+  response.setHeader("Allow", "GET, HEAD");
+  sendProblem(response, 405, "METHOD_NOT_ALLOWED");
+};
+
 /** Final HTTP boundary: translate known failures and sanitize all unknown errors. */
 export const httpErrorHandler: ErrorRequestHandler = (error: unknown, _request, response, _next) => {
   if (response.headersSent) {
