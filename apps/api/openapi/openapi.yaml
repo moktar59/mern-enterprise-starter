@@ -1,0 +1,243 @@
+openapi: 3.1.0
+info:
+  title: MERN Enterprise Starter API
+  version: 0.3.0
+  summary: Versioned HTTP API contract for Phase 3.
+  description: |
+    This specification defines the initial versioned API contract. The items
+    endpoint is introduced by the following implementation pull request.
+  license:
+    name: MIT
+    identifier: MIT
+servers:
+  - url: http://127.0.0.1:3000
+    description: Local development server
+tags:
+  - name: Items
+    description: Example collection used to establish API conventions.
+paths:
+  /api/v1/items:
+    get:
+      operationId: listItems
+      tags:
+        - Items
+      summary: List items
+      description: |
+        Returns a deterministic in-memory collection. Pagination defaults to
+        page 1 and 10 records per page. A page beyond the final page returns
+        200 with an empty records array and metadata calculated from the full
+        collection. Invalid explicitly supplied pagination parameters return
+        422. Filtering, sorting, and persistence are outside this contract.
+      parameters:
+        - name: page
+          in: query
+          required: false
+          description: 1-based page number. Must be a positive integer.
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          example: 2
+        - name: perPage
+          in: query
+          required: false
+          description: Number of records per page. Must be a positive integer no greater than 500.
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 500
+            default: 10
+          example: 5
+      responses:
+        '200':
+          description: Collection returned successfully, including an empty page when page is out of range.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedItems'
+              examples:
+                firstPage:
+                  summary: First page
+                  value:
+                    records:
+                      - id: item-001
+                        name: Example item 1
+                      - id: item-002
+                        name: Example item 2
+                    pagination:
+                      page: 1
+                      perPage: 10
+                      totalItems: 2
+                      totalPages: 1
+                outOfRangePage:
+                  summary: Out-of-range page
+                  value:
+                    records: []
+                    pagination:
+                      page: 99
+                      perPage: 10
+                      totalItems: 2
+                      totalPages: 1
+          headers:
+            X-Request-Id:
+              $ref: '#/components/headers/RequestId'
+        '405':
+          $ref: '#/components/responses/MethodNotAllowed'
+        '422':
+          $ref: '#/components/responses/ValidationFailed'
+        '500':
+          $ref: '#/components/responses/InternalError'
+components:
+  headers:
+    RequestId:
+      description: Server-generated identifier for correlating the request and response.
+      schema:
+        type: string
+  responses:
+    MethodNotAllowed:
+      description: The endpoint exists but does not support the HTTP method used.
+      headers:
+        Allow:
+          description: Comma-separated list of methods supported by this endpoint.
+          schema:
+            type: string
+            example: GET
+        X-Request-Id:
+          $ref: '#/components/headers/RequestId'
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+          example:
+            type: about:blank
+            title: Method Not Allowed
+            status: 405
+            code: METHOD_NOT_ALLOWED
+            requestId: 01JEXAMPLE
+    ValidationFailed:
+      description: A supplied query parameter is invalid.
+      headers:
+        X-Request-Id:
+          $ref: '#/components/headers/RequestId'
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+          example:
+            type: about:blank
+            title: Validation Failed
+            status: 422
+            code: VALIDATION_FAILED
+            requestId: 01JEXAMPLE
+            errors:
+              - field: page
+                code: INVALID_INTEGER
+    InternalError:
+      description: An unexpected server error occurred. Internal details are not exposed.
+      headers:
+        X-Request-Id:
+          $ref: '#/components/headers/RequestId'
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+          example:
+            type: about:blank
+            title: Internal Server Error
+            status: 500
+            code: INTERNAL_ERROR
+            requestId: 01JEXAMPLE
+  schemas:
+    Item:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: string
+          minLength: 1
+          example: item-001
+        name:
+          type: string
+          minLength: 1
+          example: Example item
+    Pagination:
+      type: object
+      additionalProperties: false
+      required:
+        - page
+        - perPage
+        - totalItems
+        - totalPages
+      properties:
+        page:
+          type: integer
+          minimum: 1
+        perPage:
+          type: integer
+          minimum: 1
+          maximum: 500
+        totalItems:
+          type: integer
+          minimum: 0
+        totalPages:
+          type: integer
+          minimum: 0
+    PaginatedItems:
+      type: object
+      additionalProperties: false
+      required:
+        - records
+        - pagination
+      properties:
+        records:
+          type: array
+          items:
+            $ref: '#/components/schemas/Item'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+    ProblemDetails:
+      type: object
+      description: RFC 9457 Problem Details with stable application extensions.
+      required:
+        - type
+        - title
+        - status
+        - code
+        - requestId
+      properties:
+        type:
+          type: string
+          format: uri-reference
+        title:
+          type: string
+        status:
+          type: integer
+          minimum: 400
+          maximum: 599
+        detail:
+          type: string
+        instance:
+          type: string
+          format: uri-reference
+        code:
+          type: string
+        requestId:
+          type: string
+        errors:
+          type: array
+          items:
+            type: object
+            required:
+              - field
+              - code
+            properties:
+              field:
+                type: string
+              code:
+                type: string
+              message:
+                type: string
+      additionalProperties: true
