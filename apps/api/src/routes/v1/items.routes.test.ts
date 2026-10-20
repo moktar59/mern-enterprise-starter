@@ -89,12 +89,12 @@ test("perPage=500 is accepted and returns all records", async () => {
   const response = await fetch(`${await startApp()}/api/v1/items?perPage=500`);
   const body = await response.json() as {
     records: unknown[];
-    pagination: { perPage: number; totalItems: number; totalPages: number };
+    pagination: { page: number; perPage: number; totalItems: number; totalPages: number };
   };
 
   assert.equal(response.status, 200);
   assert.equal(body.records.length, 23);
-  assert.deepEqual(body.pagination, { perPage: 500, totalItems: 23, totalPages: 1 });
+  assert.deepEqual(body.pagination, { page: 1, perPage: 500, totalItems: 23, totalPages: 1 });
 });
 
 for (const [query, field, code] of [
