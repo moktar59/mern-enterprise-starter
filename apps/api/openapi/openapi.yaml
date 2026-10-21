@@ -2,10 +2,10 @@ openapi: 3.1.0
 info:
   title: MERN Enterprise Starter API
   version: 0.3.0
-  summary: Versioned HTTP API contract for Phase 3.
+  summary: Versioned HTTP API contract for the MERN Enterprise Starter.
   description: |
     This specification defines the initial versioned API contract, including
-    the deterministic in-memory items endpoint and pagination conventions.
+    the persistent items endpoint and pagination conventions.
   license:
     name: MIT
     url: https://opensource.org/license/mit/
@@ -14,20 +14,18 @@ servers:
     description: Local development server
 tags:
   - name: Items
-    description: Example collection used to establish API conventions.
+    description: Example persistent collection used to establish API conventions.
 paths:
   /api/v1/items:
     get:
       operationId: listItems
-      tags:
-        - Items
+      tags: [Items]
       summary: List items
       description: |
-        Returns a deterministic in-memory collection. Pagination defaults to
-        page 1 and 10 records per page. A page beyond the final page returns
-        200 with an empty records array and metadata calculated from the full
-        collection. Invalid explicitly supplied pagination parameters return
-        422. Filtering, sorting, and persistence are outside this contract.
+        Returns persisted items ordered by stable item ID. Pagination defaults
+        to page 1 and 10 records per page. A page beyond the final page returns
+        200 with an empty records array and metadata calculated from MongoDB.
+        Invalid explicitly supplied pagination parameters return 422.
       parameters:
         - name: page
           in: query
@@ -60,40 +58,22 @@ paths:
                   summary: First page
                   value:
                     records:
-                      - id: item-001
-                        name: Example item 1
-                      - id: item-002
-                        name: Example item 2
-                      - id: item-003
-                        name: Example item 3
-                      - id: item-004
-                        name: Example item 4
-                      - id: item-005
-                        name: Example item 5
-                      - id: item-006
-                        name: Example item 6
-                      - id: item-007
-                        name: Example item 7
-                      - id: item-008
-                        name: Example item 8
-                      - id: item-009
-                        name: Example item 9
-                      - id: item-010
-                        name: Example item 10
-                    pagination:
-                      page: 1
-                      perPage: 10
-                      totalItems: 23
-                      totalPages: 3
+                      - { id: item-001, name: Example item 1 }
+                      - { id: item-002, name: Example item 2 }
+                      - { id: item-003, name: Example item 3 }
+                      - { id: item-004, name: Example item 4 }
+                      - { id: item-005, name: Example item 5 }
+                      - { id: item-006, name: Example item 6 }
+                      - { id: item-007, name: Example item 7 }
+                      - { id: item-008, name: Example item 8 }
+                      - { id: item-009, name: Example item 9 }
+                      - { id: item-010, name: Example item 10 }
+                    pagination: { page: 1, perPage: 10, totalItems: 23, totalPages: 3 }
                 outOfRangePage:
                   summary: Out-of-range page
                   value:
                     records: []
-                    pagination:
-                      page: 99
-                      perPage: 10
-                      totalItems: 23
-                      totalPages: 3
+                    pagination: { page: 99, perPage: 10, totalItems: 23, totalPages: 3 }
           headers:
             X-Request-Id:
               $ref: '#/components/headers/RequestId'
@@ -107,29 +87,21 @@ components:
   headers:
     RequestId:
       description: Server-generated identifier for correlating the request and response.
-      schema:
-        type: string
+      schema: { type: string }
   responses:
     MethodNotAllowed:
       description: The endpoint exists but does not support the HTTP method used.
       headers:
         Allow:
           description: Comma-separated list of methods supported by this endpoint.
-          schema:
-            type: string
-            example: GET, HEAD
+          schema: { type: string, example: 'GET, HEAD' }
         X-Request-Id:
           $ref: '#/components/headers/RequestId'
       content:
         application/problem+json:
           schema:
             $ref: '#/components/schemas/ProblemDetails'
-          example:
-            type: about:blank
-            title: Method Not Allowed
-            status: 405
-            code: METHOD_NOT_ALLOWED
-            requestId: 01JEXAMPLE
+          example: { type: about:blank, title: Method Not Allowed, status: 405, code: METHOD_NOT_ALLOWED, requestId: 01JEXAMPLE }
     ValidationFailed:
       description: A supplied query parameter is invalid.
       headers:
@@ -146,8 +118,7 @@ components:
             code: VALIDATION_FAILED
             requestId: 01JEXAMPLE
             errors:
-              - field: page
-                code: INVALID_INTEGER
+              - { field: page, code: INVALID_INTEGER }
     InternalError:
       description: An unexpected server error occurred. Internal details are not exposed.
       headers:
@@ -157,103 +128,52 @@ components:
         application/problem+json:
           schema:
             $ref: '#/components/schemas/ProblemDetails'
-          example:
-            type: about:blank
-            title: Internal Server Error
-            status: 500
-            code: INTERNAL_ERROR
-            requestId: 01JEXAMPLE
+          example: { type: about:blank, title: Internal Server Error, status: 500, code: INTERNAL_ERROR, requestId: 01JEXAMPLE }
   schemas:
     Item:
       type: object
       additionalProperties: false
-      required:
-        - id
-        - name
+      required: [id, name]
       properties:
-        id:
-          type: string
-          minLength: 1
-          example: item-001
-        name:
-          type: string
-          minLength: 1
-          example: Example item
+        id: { type: string, minLength: 1, example: item-001 }
+        name: { type: string, minLength: 1, example: Example item }
     Pagination:
       type: object
       additionalProperties: false
-      required:
-        - page
-        - perPage
-        - totalItems
-        - totalPages
+      required: [page, perPage, totalItems, totalPages]
       properties:
-        page:
-          type: integer
-          minimum: 1
-        perPage:
-          type: integer
-          minimum: 1
-          maximum: 500
-        totalItems:
-          type: integer
-          minimum: 0
-        totalPages:
-          type: integer
-          minimum: 0
+        page: { type: integer, minimum: 1 }
+        perPage: { type: integer, minimum: 1, maximum: 500 }
+        totalItems: { type: integer, minimum: 0 }
+        totalPages: { type: integer, minimum: 0 }
     PaginatedItems:
       type: object
       additionalProperties: false
-      required:
-        - records
-        - pagination
+      required: [records, pagination]
       properties:
         records:
           type: array
-          items:
-            $ref: '#/components/schemas/Item'
-        pagination:
-          $ref: '#/components/schemas/Pagination'
+          items: { $ref: '#/components/schemas/Item' }
+        pagination: { $ref: '#/components/schemas/Pagination' }
     ProblemDetails:
       type: object
       description: RFC 9457 Problem Details with stable application extensions.
-      required:
-        - type
-        - title
-        - status
-        - code
-        - requestId
+      required: [type, title, status, code, requestId]
       properties:
-        type:
-          type: string
-          format: uri-reference
-        title:
-          type: string
-        status:
-          type: integer
-          minimum: 400
-          maximum: 599
-        detail:
-          type: string
-        instance:
-          type: string
-          format: uri-reference
-        code:
-          type: string
-        requestId:
-          type: string
+        type: { type: string, format: uri-reference }
+        title: { type: string }
+        status: { type: integer, minimum: 400, maximum: 599 }
+        detail: { type: string }
+        instance: { type: string, format: uri-reference }
+        code: { type: string }
+        requestId: { type: string }
         errors:
           type: array
           items:
             type: object
-            required:
-              - field
-              - code
+            required: [field, code]
             properties:
-              field:
-                type: string
-              code:
-                type: string
-              message:
-                type: string
+              field: { type: string }
+              code: { type: string }
+              message: { type: string }
       additionalProperties: true

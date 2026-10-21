@@ -97,7 +97,7 @@ Development phases are planned milestones; checkmarks reflect implementation sta
 - [x] Phase 01 — Documentation
 - [x] Phase 02 — Core Backend
 - [x] Phase 03 — API Design (implementation merged; release pending)
-- [ ] Phase 04 — Docker Development Environment
+- [x] Phase 04 — Docker Development Environment (merged)
 - [ ] Phase 05 — Database
 - [ ] Phase 06 — Logging
 - [ ] Phase 07 — Authentication
@@ -245,19 +245,40 @@ Introduce persistent storage with a scalable data access strategy.
 
 ## Deliverables
 
-* Database connection
-* Models
-* Repository structure
-* Index strategy
-* Migration/seeding strategy (if applicable)
-* Data validation foundation
+* Pin Mongoose in the API's independent manifest and lockfile.
+* Validate the MongoDB URI at the configuration boundary.
+* Connect and initialize required indexes before the HTTP listener opens; fail startup if MongoDB is unavailable.
+* Keep Mongoose models and query types inside the persistence adapter.
+* Replace the in-memory items endpoint with an injected repository implementation.
+* Preserve the public response shape, validation codes, page defaults, maximum page size, stable ordering, and empty-collection metadata.
+* Add an explicit repeatable seed command; never seed automatically during API startup.
+* Register database disconnection with graceful shutdown.
+* Add repository integration checks against an isolated MongoDB test database.
+* Document local configuration, seed behavior, index ownership, and testing.
 
 ## Key Architectural Decisions
 
-* Data access organization
-* Repository boundaries
-* Persistence strategy
+* Mongoose is the selected persistence adapter.
+* The public item identifier is distinct from MongoDB's `_id` and has a unique index.
+* MongoDB performs sorting, pagination, and counting; the application does not load the whole collection to paginate in memory.
+* Startup fails closed when MongoDB is unavailable; no in-memory runtime fallback.
+* Seeding is explicit and idempotent, updating sample records while preserving unrelated records.
+* No generic repository framework or migration framework is introduced without a concrete need.
+
+## Acceptance Criteria
+
+- [ ] A clean `npm ci` succeeds using the committed lockfile.
+- [ ] API unit/HTTP tests run without MongoDB by injecting a fake repository.
+- [ ] MongoDB integration tests run in CI against a dedicated test database.
+- [ ] API startup connects to MongoDB and initializes indexes before listening.
+- [ ] A failed connection or index initialization prevents the listener from starting.
+- [ ] Shutdown disconnects MongoDB through lifecycle cleanup.
+- [ ] `GET /api/v1/items` preserves its existing response contract and validation behavior.
+- [ ] Pagination, ordering, and counting execute in MongoDB.
+- [ ] Repeated seed commands are safe and never run automatically at startup.
+- [ ] OpenAPI, README, Docker guide, roadmap, and changelog accurately describe the implementation.
+- [ ] Type-check, build, API tests, integration tests, OpenAPI lint, and Compose validation pass before the `v0.5.0` release review.
 
 ## Learning Outcomes
 
-Learn how to organize persistence for long-term maintainability.
+Learn how to organize persistence behind explicit application contracts, keep database technology out of HTTP/application boundaries, and manage database startup and shutdown as lifecycle-owned infrastructure.

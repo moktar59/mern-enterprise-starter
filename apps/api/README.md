@@ -1,78 +1,83 @@
 # API Application
 
-The API application establishes the Node.js 24, TypeScript, and Express 5 runtime foundation for Phase 2. Phase 3 adds the versioned HTTP contract and interactive API documentation.
+The API is an independently managed Node.js 24, TypeScript, Express 5 application. Phase 5 uses Mongoose for MongoDB persistence while keeping database details behind repository contracts and the composition boundary.
 
 ## Requirements
 
 - Node.js 24
 - npm 10 or later
+- MongoDB for running the API
+- Docker Compose is the recommended local option
 
 ## Commands
 
-Run these commands from this directory (`apps/api`):
+Run these commands from `apps/api`:
 
 | Command | Purpose |
 |---|---|
-| `npm install` | Install API dependencies |
+| `npm ci` | Install exact dependencies from the lockfile |
 | `npm run dev` | Run the API with the development runner |
 | `npm run build` | Compile TypeScript to `dist` |
 | `npm start` | Run the compiled API |
-| `npm test` | Run API tests with the Node.js test runner through `tsx` |
+| `npm test` | Run unit and HTTP contract tests without MongoDB |
+| `npm run test:integration` | Run MongoDB repository integration tests |
+| `npm run seed:items` | Explicitly seed the deterministic sample items |
 | `npm run typecheck` | Type-check the API without emitting files |
 | `npm run validate:openapi` | Lint the OpenAPI specification |
 
 ## Environment Configuration
 
-Configuration is read and validated once at startup. Invalid configuration prevents application construction and listener startup.
+Configuration is read and validated once at startup. The API requires a reachable MongoDB database before it starts listening; connection or index initialization failure aborts startup. There is no degraded mode or in-memory runtime fallback.
 
-| Variable | Default | Accepted values |
+| Variable | Default | Purpose |
 |---|---|---|
-| `NODE_ENV` | `development` | `development`, `test`, `production` |
-| `HOST` | `127.0.0.1` | Any non-empty host value |
-| `PORT` | `3000` | Integer from `1` through `65535` |
+| `NODE_ENV` | `development` | `development`, `test`, or `production` |
+| `HOST` | `127.0.0.1` | HTTP bind host |
+| `PORT` | `3000` | Integer from 1 through 65535 |
+| `MONGODB_URI` | `mongodb://127.0.0.1:27017/mern_enterprise_starter` | MongoDB connection URI |
 
-Environment values are normalized before validation. The resulting configuration object is frozen at runtime. Only the configuration boundary reads `process.env`; application components receive the validated configuration through startup.
+Only the configuration boundary reads runtime `process.env`. Do not put credentials in source code or commit a populated `.env` file. The root Compose setup supplies the MongoDB URI using local-only credentials from the root `.env` file.
 
-Example for Git Bash:
+For a local MongoDB instance, the default URI is sufficient. With Docker Compose, follow [Local Docker Development](../../docker/README.md).
 
-```bash
-NODE_ENV=development HOST=127.0.0.1 PORT=3000 npm run dev
+## Persistence Boundaries
+
+The HTTP route validates pagination and calls an application-owned item service. The service depends on the `ItemRepository` contract; the Mongoose adapter implements that contract. Only the adapter and database infrastructure know about Mongoose models or documents. The composition root injects the repository; importing composition modules does not connect to MongoDB.
+
+The repository performs sorting, skip/limit pagination, and counting in MongoDB. Records are ordered by the stable public `id`, which is unique and separate from MongoDB's internal `_id`. No generic repository framework or cross-module model access is introduced.
+
+## API Contract
+
+`GET /api/v1/items` returns `records` and `pagination`. Pagination defaults to page 1 and 10 records, with `perPage` capped at 500. Invalid supplied values return `422 VALIDATION_FAILED`; an out-of-range page returns 200 with an empty array and accurate metadata. An empty collection reports `totalItems: 0` and `totalPages: 0`. RFC 9457 Problem Details and request-ID behavior remain unchanged.
+
+`GET /health/live` indicates that the HTTP process can serve requests; it does not indicate MongoDB readiness. The listener starts only after MongoDB connection and model index initialization succeed.
+
+## Seed Data
+
+Seeding is an explicit command and never runs during API startup:
+
+```sh
+npm run seed:items
 ```
 
-The starter response is available at `GET /` on `http://127.0.0.1:3000` with the default configuration. `GET /health/live` returns `{ "status": "ok" }` when the HTTP process can serve requests; it does not check database or external-service readiness.
+The command upserts 23 deterministic sample records (`item-001` through `item-023`). Existing records with those IDs have their sample names reset to the deterministic values; unrelated records are not deleted. Re-running the command is safe. Run it from `apps/api` with `MONGODB_URI` set to the intended database. Do not point it at a production database.
 
-## HTTP Error Contract
+There is no migration framework for this initial collection. Schema validation and the unique item-ID index are declared with the Mongoose model and initialized before the API listener opens. Future schema evolution must document compatible changes and any required backfill before release.
 
-Errors use RFC 9457 Problem Details with the `application/problem+json` media type. Every response includes the server-generated `X-Request-Id` header; error bodies repeat that value as `requestId`.
+## Testing
 
-| Situation | Status | Code |
-|---|---:|---|
-| Unknown route | 404 | `ROUTE_NOT_FOUND` |
-| Unsupported method on a recognized endpoint | 405 | `METHOD_NOT_ALLOWED` |
-| Malformed JSON request | 400 | `MALFORMED_REQUEST` |
-| Application validation failure | 422 | `VALIDATION_FAILED` |
-| Unexpected internal failure | 500 | `INTERNAL_ERROR` |
+`npm test` uses a fake repository for HTTP and application unit tests and does not require MongoDB. Set `TEST_MONGODB_URI` to a dedicated disposable test database and run `npm run test:integration` for the repository integration test. The integration test deletes only records with its reserved `item-test-` prefix; never point it at a production database.
 
-The response includes `type`, `title`, `status`, `code`, and `requestId`. Validation errors may also include an `errors` array containing stable field and error codes. The HTTP status and `status` member agree. Unexpected exception messages, stack traces, and internal details are not returned to clients.
+## Docker Development
 
-## API Contract and Documentation
+From the repository root, copy `.env.example` to `.env`, set local-only credentials, and run:
 
-The Phase 3 OpenAPI contract is maintained at `openapi/openapi.yaml`. It defines the versioned API prefix (`/api/v1`), the example paginated collection response, pagination constraints, and the RFC 9457-based error responses.
+```sh
+docker compose up --build
+```
 
-Run `npm run validate:openapi` from this directory to lint the specification with the pinned Redocly CLI version. The API Contract and Runtime GitHub Actions workflow runs this alongside the API tests, type-check, and build.
-
-Swagger UI is exposed at `/api-docs`, with the raw OpenAPI specification served at `/openapi.yaml`. Swagger UI presents the contract interactively; automated specification validation and API tests remain separate checks. The Swagger UI page loads its pinned UI assets from a public CDN.
-
-The initial example contract is implemented by `GET /api/v1/items` with 23 deterministic in-memory records and offset pagination. `page` defaults to 1; `perPage` defaults to 10 and has a maximum of 500. Invalid explicitly supplied values return `422 VALIDATION_FAILED`; an out-of-range page returns 200 with an empty `records` array and accurate pagination metadata. Unsupported methods on this endpoint return `405 METHOD_NOT_ALLOWED` with an `Allow` header. The endpoint does not introduce database integration or business CRUD functionality.
-
-## Local Docker Development
-
-The repository-root Docker Compose configuration runs the API, MongoDB, and Redis as separate development services. See [Local Docker Development](../../docker/README.md) for setup, optional administration tools, health checks, hot reload, data persistence, and cleanup commands. The Docker environment does not connect the API to MongoDB or Redis yet; application-level integration is a later phase.
+Compose waits for MongoDB health before starting the API. The MongoDB data volume persists across container recreation. See [Local Docker Development](../../docker/README.md) for optional tools and cleanup instructions.
 
 ## Graceful Shutdown
 
-The process registers `SIGINT` and `SIGTERM` handlers only after the HTTP listener starts. Shutdown stops accepting new connections, allows in-flight requests up to 10 seconds to complete, and then force-closes remaining connections. Repeated signals share the same shutdown operation, and registered cleanup tasks run at most once. Cleanup tasks run sequentially; a failing task is reported without preventing later tasks from running.
-
-Application-owned resources can register cleanup through the optional `configureLifecycle` callback passed to `startServer`. Register cleanup before startup completes; registration after shutdown begins is rejected. The lifecycle implementation is available through `createApplicationLifecycle` for focused testing. Importing application and composition modules does not start the listener or install process signal handlers.
-
-The API owns its backend implementation, dependencies, database integration, and persistence models. The admin and web applications are independent frontend API consumers; they do not import API internals or access its database directly.
+The process registers `SIGINT` and `SIGTERM` handlers only after the listener starts. Shutdown stops accepting requests, drains in-flight requests within the existing bounded timeout, and disconnects MongoDB through the lifecycle cleanup registry. Cleanup tasks run once and sequentially.

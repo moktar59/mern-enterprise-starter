@@ -1,11 +1,8 @@
 import { Router } from "express";
+import type { ItemRepository } from "../../modules/items/item.repository.js";
 import { createItemsRouter } from "./items.routes.js";
-
-/** Composes the public routes exposed under /api/v1. */
-export function createV1Router(): Router {
+export function createV1Router(itemRepository: ItemRepository): Router {
   const router = Router();
-
-  router.use("/items", createItemsRouter());
-
+  router.use("/items", createItemsRouter(itemRepository));
   return router;
 }

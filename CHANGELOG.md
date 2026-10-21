@@ -14,6 +14,15 @@ Each release represents a stable milestone in the evolution of the repository. P
 
 ## [Unreleased]
 
+### Added
+
+- Added the Phase 5 Mongoose persistence implementation for the items endpoint, including an explicit repository boundary, MongoDB startup readiness, unique item identifiers, and repeatable sample-data seeding.
+- Added a MongoDB repository integration test and a dedicated CI job; release remains pending review and verification.
+
+### Changed
+
+- Updated API and Docker development documentation for MongoDB configuration, seed behavior, and persistence boundaries.
+
 ---
 
 ## [0.2.0] - 2026-10-17
