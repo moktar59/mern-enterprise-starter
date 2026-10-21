@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { after, test } from "node:test";
 import { createServer, type Server } from "node:http";
 import { composeApplication } from "./composition/compose-application.js";
-import { InMemoryItemRepository } from "./modules/items/in-memory-item.repository.js";
+import { InMemoryItemRepository } from "./modules/items/in-memory-item.repository.test.js";
 let server: Server | undefined;
 after(async () => {
   if (!server?.listening) return;
