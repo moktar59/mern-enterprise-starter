@@ -7,6 +7,5 @@ import type { ItemRepository } from "../modules/items/item.repository.js";
 export function composeApplication(itemRepository: ItemRepository): Express {
   const contextFactory = new DefaultExecutionContextFactory();
   const contextScope = new AsyncLocalStorageExecutionContextScope();
-  const middleware = createExecutionContextMiddleware(contextFactory, contextScope);
-  return createApp(middleware, itemRepository);
+  return createApp(createExecutionContextMiddleware(contextFactory, contextScope), itemRepository);
 }
