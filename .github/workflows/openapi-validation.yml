@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - 'apps/api/**'
+      - 'docs/architecture/**'
       - 'docker/**'
       - 'compose.yaml'
       - '.dockerignore'
