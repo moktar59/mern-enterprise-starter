@@ -2,49 +2,23 @@
 
 > **An opinionated, enterprise-grade MERN starter for building production-ready applications.**
 
-MERN Enterprise Starter is an open-source project being developed as both a reusable MERN starter and a practical reference for software architecture and engineering decisions. The documentation foundation and Phase 2 core backend implementation are complete. Phase 3 API contract implementation is merged; its milestone release and Phase 4 Docker environment are being prepared incrementally.
-
-Unlike traditional boilerplates that focus only on project setup, this repository emphasizes **software architecture, engineering decisions, documentation, and long-term maintainability**.
-
----
-
-## Why This Project?
-
-Starting a new MERN application often involves repeating the same setup and making the same architectural decisions.
-
-This project provides a well-structured foundation that enables developers and teams to focus on building features instead of rebuilding infrastructure.
-
-The project is developed incrementally through documented phases, with architectural decisions and implementation scope made explicit before each capability is built.
-
----
+MERN Enterprise Starter is an open-source project developed as both a reusable MERN starter and a practical reference for software architecture and engineering decisions. It emphasizes clear boundaries, explicit contracts, maintainability, documentation, and incremental delivery.
 
 ## Current Status
 
-**Phase 3 — API Design (implementation merged; milestone release pending)**
+**Phase 4 — Docker Development Environment: merged. Phase 5 — Database: implementation under review.**
 
-Currently available:
+The repository includes architecture and ADR documentation, independently managed applications, a Node.js 24/TypeScript/Express 5 API foundation, validated configuration, HTTP execution context, RFC 9457-based errors, versioned API routes, pagination conventions, OpenAPI/Swagger UI, graceful shutdown, and a Docker Compose development environment.
 
-- Project vision, engineering philosophy, design principles, and roadmap
-- Runtime architecture principles and invariants
-- Architecture Decision Records (ADRs) and a decision register
-- Architecture guidance for execution context, module interaction, workflows, eventing, reliability, performance, and observability
-- Contribution, security, and repository governance documentation
-- API configuration validation, explicit composition, HTTP execution context, RFC 9457-based error handling, liveness endpoint, and graceful shutdown
-- Versioned API route, pagination conventions, OpenAPI contract, Swagger UI endpoint, and automated API contract/runtime checks
-
-Phase 2 acceptance checks passed on `main`; Phase 3 implementation is merged. Phase 4 establishes a reproducible Docker development environment before Phase 5 introduces database integration. The API currently uses deterministic in-memory example data and does not connect to MongoDB or Redis.
-
----
+The Phase 5 proposal adds Mongoose persistence for the items endpoint. It requires MongoDB before the API listener starts, preserves the public pagination contract, keeps Mongoose behind a repository adapter, and uses an explicit repeatable seed command. It is not complete until review, CI, and merge.
 
 ## Roadmap
 
-Development is organized into sixteen incremental phases.
-
 - [x] Phase 01 — Documentation
 - [x] Phase 02 — Core Backend
-- [x] Phase 03 — API Design (implementation merged; release pending)
-- [ ] Phase 04 — Docker Development Environment
-- [ ] Phase 05 — Database
+- [x] Phase 03 — API Design (implementation merged; milestone release pending)
+- [x] Phase 04 — Docker Development Environment (merged)
+- [ ] Phase 05 — Database (implementation under review)
 - [ ] Phase 06 — Logging
 - [ ] Phase 07 — Authentication
 - [ ] Phase 08 — Social Authentication & Session Management
@@ -57,64 +31,26 @@ Development is organized into sixteen incremental phases.
 - [ ] Phase 15 — CI/CD
 - [ ] Phase 16 — Monitoring
 
-For detailed milestones, see **ROADMAP.md**.
+See ROADMAP.md for milestones and apps/api/README.md for API operation and database commands.
 
----
+## Architecture and Documentation
 
-## Documentation
+- ARCHITECTURE.md — Runtime architecture and invariants
+- docs/architecture/ — Detailed architecture specifications
+- docs/adr/ — Architecture Decision Records
+- docs/decisions/decision-register.md — Decision register
+- apps/api/ — Backend API, persistence, and API contract
+- apps/admin/ and apps/web/ — Independent frontend API consumers
+- docker/ — Local Docker development guide
+- compose.yaml — Local development services
 
-Project documentation is treated as a first-class deliverable.
-
-### Project
-
-- `README.md` — Project overview and current implementation status
-- `PROJECT.md` — Vision, mission, audience, and scope
-- `PHILOSOPHY.md` — Engineering philosophy and guiding principles
-- `DESIGN.md` — High-level architecture and design decisions
-- `ROADMAP.md` — Development roadmap and milestones
-- `ARCHITECTURE.md` — Authoritative runtime architecture, principles, and invariants
-- `docs/architecture/` — Detailed architecture specifications
-- `docs/adr/` — Architecture Decision Records and ADR template
-- `docs/decisions/decision-register.md` — Index of accepted and proposed decisions
-
-### Community
-
-- `CONTRIBUTING.md` — Contribution guidelines
-- `CHANGELOG.md` — Release history
-- `SECURITY.md` — Security policy
-- `CODE_OF_CONDUCT.md` — Community participation standards
-- `LICENSE` — MIT license
-
-### Technical Documentation
-
-- `apps/api/` — Backend API application
-- `docker/` — Local Docker development documentation
-- `docs/` — Architecture documentation and engineering guides
-
----
-
-## Repository Structure
-
-```text
-apps/
-├── api/                    # Backend API (Express.js + TypeScript)
-├── admin/                  # React admin dashboard (API consumer)
-└── web/                    # Public web application (API consumer)
-
-docker/                     # Local Docker development guide
-docs/                       # Architecture and engineering documentation
-compose.yaml                # Local development services
-```
-
----
+The API owns backend and database access. Frontend applications consume its public HTTP API and must not import its persistence internals.
 
 ## Development Philosophy
-
-This project prioritizes:
 
 - **Explicit architecture** over hidden conventions
 - **Clear module boundaries** over implicit coupling
 - **Incremental delivery** over premature complexity
-- **Documentation and tests** as part of the implementation
+- **Documentation and tests** as part of implementation
 
-Contributions and constructive feedback are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) to get started.
+Contributions and constructive feedback are welcome. See CONTRIBUTING.md.
