@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { createServer, type Server } from "node:http";
 import { after, test } from "node:test";
 import { composeApplication } from "../composition/compose-application.js";
-import { InMemoryItemRepository } from "../modules/items/in-memory-item.repository.js";
+import { InMemoryItemRepository } from "../modules/items/in-memory-item.repository.test.js";
 const servers: Server[] = [];
 after(async () => {
   await Promise.all(servers.map(async (server) => {
