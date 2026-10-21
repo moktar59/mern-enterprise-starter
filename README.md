@@ -36,7 +36,7 @@ See ROADMAP.md for milestones and apps/api/README.md for API operation and datab
 ## Architecture and Documentation
 
 - ARCHITECTURE.md — Runtime architecture and invariants
-- docs/architecture/ — Detailed architecture specifications
+- docs/architecture/ — Detailed architecture specifications, including database persistence boundaries
 - docs/adr/ — Architecture Decision Records
 - docs/decisions/decision-register.md — Decision register
 - apps/api/ — Backend API, persistence, and API contract
