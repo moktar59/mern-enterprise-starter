@@ -1,4 +1,4 @@
-name: API Contract, Runtime, and Docker
+name: API Contract, Runtime, Database, and Docker
 
 on:
   pull_request:
@@ -12,8 +12,7 @@ on:
       - 'ROADMAP.md'
       - '.github/workflows/openapi-validation.yml'
   push:
-    branches:
-      - main
+    branches: [main]
     paths:
       - 'apps/api/**'
       - 'docker/**'
@@ -29,37 +28,60 @@ permissions:
 
 jobs:
   validate-and-test:
-    name: Validate contract and API
+    name: Validate contract, unit tests, and build
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: apps/api
     steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 24
           cache: npm
           cache-dependency-path: apps/api/package-lock.json
-      - name: Install API dependencies
-        run: npm ci
-      - name: Validate OpenAPI specification
-        run: npm run validate:openapi
-      - name: Run API tests
-        run: npm test
-      - name: Type-check API
-        run: npm run typecheck
-      - name: Build API
-        run: npm run build
+      - run: npm ci
+      - run: npm run validate:openapi
+      - run: npm test
+      - run: npm run typecheck
+      - run: npm run build
+
+  database-integration:
+    name: MongoDB repository integration
+    runs-on: ubuntu-latest
+    services:
+      mongodb:
+        image: mongo:8.0.16
+        ports:
+          - 27017:27017
+        env:
+          MONGO_INITDB_ROOT_USERNAME: devadmin
+          MONGO_INITDB_ROOT_PASSWORD: integration-only-password
+        options: >-
+          --health-cmd "mongosh --quiet --eval 'db.adminCommand({ ping: 1 }).ok'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+    defaults:
+      run:
+        working-directory: apps/api
+    env:
+      TEST_MONGODB_URI: mongodb://devadmin:integration-only-password@127.0.0.1:27017/mern_enterprise_starter_test?authSource=admin
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: apps/api/package-lock.json
+      - run: npm ci
+      - run: npm run test:integration
 
   validate-docker:
     name: Validate Compose and build API image
     runs-on: ubuntu-latest
     steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
       - name: Prepare local environment file
         run: cp .env.example .env
       - name: Validate core Compose configuration
