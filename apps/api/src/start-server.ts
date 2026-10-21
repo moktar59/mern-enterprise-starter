@@ -1,48 +1,36 @@
 import { createServer, type Server } from "node:http";
 import { composeApplication } from "./composition/compose-application.js";
 import { loadConfig } from "./config.js";
-import {
-  createApplicationLifecycle,
-  registerShutdownSignals,
-  type ApplicationLifecycle
-} from "./lifecycle/graceful-shutdown.js";
-
+import { connectDatabase } from "./infrastructure/database/connect-database.js";
+import { MongooseItemRepository } from "./infrastructure/items/mongoose-item.repository.js";
+import { createApplicationLifecycle, registerShutdownSignals, type ApplicationLifecycle } from "./lifecycle/graceful-shutdown.js";
 export type ConfigureApplicationLifecycle = (lifecycle: ApplicationLifecycle) => void;
 
-/** Validates configuration and lifecycle resources before opening the listener. */
-export function startServer(
-  env?: NodeJS.ProcessEnv,
-  configureLifecycle?: ConfigureApplicationLifecycle
-): Server {
+/** Database readiness is a startup prerequisite; the listener opens only after connection succeeds. */
+export async function startServer(env?: NodeJS.ProcessEnv, configureLifecycle?: ConfigureApplicationLifecycle): Promise<Server> {
   const config = loadConfig(env);
-  const app = composeApplication();
-  const server = createServer(app);
+  const database = await connectDatabase(config.mongoUri);
+  const server = createServer(composeApplication(new MongooseItemRepository()));
   const lifecycle = createApplicationLifecycle(server);
-
-  try {
-    configureLifecycle?.(lifecycle);
-  } catch (error) {
-    void lifecycle.shutdown();
-    throw error;
-  }
+  lifecycle.registerCleanup(() => database.disconnect());
+  try { configureLifecycle?.(lifecycle); }
+  catch (error) { await lifecycle.shutdown(); throw error; }
 
   server.once("listening", () => {
     console.info(`API listening at http://${config.host}:${config.port}`);
     registerShutdownSignals(lifecycle);
   });
-
-  server.on("error", (error: NodeJS.ErrnoException) => {
-    console.error("API failed to start or encountered a server error.", error.message);
-    process.exitCode = 1;
-    void lifecycle.shutdown();
-  });
-
   try {
-    server.listen(config.port, config.host);
+    await new Promise<void>((resolve, reject) => {
+      const onError = (error: Error) => { server.removeListener("listening", onListening); reject(error); };
+      const onListening = () => { server.removeListener("error", onError); resolve(); };
+      server.once("error", onError);
+      server.once("listening", onListening);
+      server.listen(config.port, config.host);
+    });
   } catch (error) {
-    void lifecycle.shutdown();
+    await lifecycle.shutdown();
     throw error;
   }
-
   return server;
 }
