@@ -58,7 +58,7 @@ jobs:
           MONGO_INITDB_ROOT_USERNAME: devadmin
           MONGO_INITDB_ROOT_PASSWORD: integration-only-password
         options: >-
-          --health-cmd "mongosh --quiet --eval 'db.adminCommand({ ping: 1 }).ok'"
+          --health-cmd "mongosh --username devadmin --password integration-only-password --authenticationDatabase admin --quiet --eval 'db.adminCommand({ ping: 1 }).ok'"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 10
