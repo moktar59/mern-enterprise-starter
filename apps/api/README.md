@@ -1,6 +1,6 @@
 # API Application
 
-The API application establishes the Node.js 24, TypeScript, and Express 5 runtime foundation for Phase 2.
+The API application establishes the Node.js 24, TypeScript, and Express 5 runtime foundation for Phase 2. Phase 3 adds the versioned HTTP contract and interactive API documentation.
 
 ## Requirements
 
@@ -19,6 +19,7 @@ Run these commands from this directory (`apps/api`):
 | `npm start` | Run the compiled API |
 | `npm test` | Run API tests with the Node.js test runner through `tsx` |
 | `npm run typecheck` | Type-check the API without emitting files |
+| `npm run validate:openapi` | Lint the OpenAPI specification |
 
 ## Environment Configuration
 
@@ -58,11 +59,15 @@ The response includes `type`, `title`, `status`, `code`, and `requestId`. Valida
 
 The Phase 3 OpenAPI contract is maintained at `openapi/openapi.yaml`. It defines the versioned API prefix (`/api/v1`), the example paginated collection response, pagination constraints, and the RFC 9457-based error responses.
 
-Run `npm run validate:openapi` from this directory to lint the specification with the pinned Redocly CLI version. The same command runs in the dedicated OpenAPI GitHub Actions workflow when contract files change.
+Run `npm run validate:openapi` from this directory to lint the specification with the pinned Redocly CLI version. The API Contract and Runtime GitHub Actions workflow runs this alongside the API tests, type-check, and build.
 
 Swagger UI is exposed at `/api-docs`, with the raw OpenAPI specification served at `/openapi.yaml`. Swagger UI presents the contract interactively; automated specification validation and API tests remain separate checks. The Swagger UI page loads its pinned UI assets from a public CDN.
 
 The initial example contract is implemented by `GET /api/v1/items` with 23 deterministic in-memory records and offset pagination. `page` defaults to 1; `perPage` defaults to 10 and has a maximum of 500. Invalid explicitly supplied values return `422 VALIDATION_FAILED`; an out-of-range page returns 200 with an empty `records` array and accurate pagination metadata. Unsupported methods on this endpoint return `405 METHOD_NOT_ALLOWED` with an `Allow` header. The endpoint does not introduce database integration or business CRUD functionality.
+
+## Local Docker Development
+
+The repository-root Docker Compose configuration runs the API, MongoDB, and Redis as separate development services. See [Local Docker Development](../../docker/README.md) for setup, optional administration tools, health checks, hot reload, data persistence, and cleanup commands. The Docker environment does not connect the API to MongoDB or Redis yet; application-level integration is a later phase.
 
 ## Graceful Shutdown
 
@@ -71,5 +76,3 @@ The process registers `SIGINT` and `SIGTERM` handlers only after the HTTP listen
 Application-owned resources can register cleanup through the optional `configureLifecycle` callback passed to `startServer`. Register cleanup before startup completes; registration after shutdown begins is rejected. The lifecycle implementation is available through `createApplicationLifecycle` for focused testing. Importing application and composition modules does not start the listener or install process signal handlers.
 
 The API owns its backend implementation, dependencies, database integration, and persistence models. The admin and web applications are independent frontend API consumers; they do not import API internals or access its database directly.
-
-The configuration, composition, execution-context, HTTP error-contract, liveness, and graceful-shutdown slices are implemented for Phase 2. Acceptance criteria have been verified on `main`; `v0.2.0` remains unpublished pending final documentation review and release approval.
