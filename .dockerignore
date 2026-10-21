@@ -1,0 +1,22 @@
+# Version control and GitHub metadata
+.git
+.github
+
+# Dependencies and generated output
+**/node_modules
+**/dist
+**/build
+**/.next
+**/coverage
+
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+
+# Local tooling and operating-system files
+.vscode
+.idea
+.DS_Store
+Thumbs.db
+*.log

@@ -2,7 +2,7 @@
 
 > **An opinionated, enterprise-grade MERN starter for building production-ready applications.**
 
-MERN Enterprise Starter is an open-source project being developed as both a reusable MERN starter and a practical reference for software architecture and engineering decisions. The documentation foundation and Phase 2 core backend implementation are complete. Phase 2 acceptance checks have passed; publication of `v0.2.0` is pending final release documentation review.
+MERN Enterprise Starter is an open-source project being developed as both a reusable MERN starter and a practical reference for software architecture and engineering decisions. The documentation foundation and Phase 2 core backend implementation are complete. Phase 3 API contract implementation is merged; its milestone release and Phase 4 Docker environment are being prepared incrementally.
 
 Unlike traditional boilerplates that focus only on project setup, this repository emphasizes **software architecture, engineering decisions, documentation, and long-term maintainability**.
 
@@ -20,7 +20,7 @@ The project is developed incrementally through documented phases, with architect
 
 ## Current Status
 
-**Phase 2 — Core Backend (acceptance complete; `v0.2.0` release pending)**
+**Phase 3 — API Design (implementation merged; milestone release pending)**
 
 Currently available:
 
@@ -30,8 +30,9 @@ Currently available:
 - Architecture guidance for execution context, module interaction, workflows, eventing, reliability, performance, and observability
 - Contribution, security, and repository governance documentation
 - API configuration validation, explicit composition, HTTP execution context, RFC 9457-based error handling, liveness endpoint, and graceful shutdown
+- Versioned API route, pagination conventions, OpenAPI contract, Swagger UI endpoint, and automated API contract/runtime checks
 
-Phase 2 acceptance checks have passed on `main`: a clean dependency installation, 37 passing automated tests, successful type checking and production build, HTTP smoke tests, and manual graceful-shutdown verification. The `v0.2.0` release remains unpublished pending final documentation review and publication. See [Core Backend Scope and Acceptance Criteria](docs/architecture/core-backend-foundation.md). Docker, database integration, authentication, caching, jobs, uploads, CI/CD, and monitoring remain later roadmap items.
+Phase 2 acceptance checks passed on `main`; Phase 3 implementation is merged. Phase 4 establishes a reproducible Docker development environment before Phase 5 introduces database integration. The API currently uses deterministic in-memory example data and does not connect to MongoDB or Redis.
 
 ---
 
@@ -40,8 +41,8 @@ Phase 2 acceptance checks have passed on `main`: a clean dependency installation
 Development is organized into sixteen incremental phases.
 
 - [x] Phase 01 — Documentation
-- [x] Phase 02 — Core Backend (accepted; `v0.2.0` release pending)
-- [ ] Phase 03 — API Design
+- [x] Phase 02 — Core Backend
+- [x] Phase 03 — API Design (implementation merged; release pending)
 - [ ] Phase 04 — Docker Development Environment
 - [ ] Phase 05 — Database
 - [ ] Phase 06 — Logging
@@ -86,10 +87,9 @@ Project documentation is treated as a first-class deliverable.
 
 ### Technical Documentation
 
-- `docs/` — Architecture documentation
-- `docs/adr/` — Architecture Decision Records (ADRs)
-- `docs/handbook/` — Engineering handbook
-- `docs/guides/` — Feature and implementation guides
+- `apps/api/` — Backend API application
+- `docker/` — Local Docker development documentation
+- `docs/` — Architecture documentation and engineering guides
 
 ---
 
@@ -101,29 +101,20 @@ apps/
 ├── admin/                  # React admin dashboard (API consumer)
 └── web/                    # Public web application (API consumer)
 
-docker/                     # Docker development environment
-
-docs/                       # Project documentation
-
-scripts/                    # Automation and utility scripts
-
-.github/                    # GitHub repository configuration and templates
+docker/                     # Local Docker development guide
+docs/                       # Architecture and engineering documentation
+compose.yaml                # Local development services
 ```
 
-Each application is independently managed with its own dependencies, scripts, and lockfile. There is no root npm workspace or shared runtime package. The API exclusively owns backend and database access; the admin and web applications consume its public API contract.
-
-Additional directories will be introduced throughout the roadmap as the project evolves.
-
 ---
 
-## Contributing
+## Development Philosophy
 
-Contributions, discussions, suggestions, and reviews are welcome.
+This project prioritizes:
 
-Please read **CONTRIBUTING.md** before submitting issues or pull requests.
+- **Explicit architecture** over hidden conventions
+- **Clear module boundaries** over implicit coupling
+- **Incremental delivery** over premature complexity
+- **Documentation and tests** as part of the implementation
 
----
-
-## License
-
-This project is licensed under the MIT License. See the LICENSE file for details.
+Contributions and constructive feedback are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) to get started.

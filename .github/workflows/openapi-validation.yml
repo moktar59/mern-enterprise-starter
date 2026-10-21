@@ -1,15 +1,27 @@
-name: API Contract and Runtime
+name: API Contract, Runtime, and Docker
 
 on:
   pull_request:
     paths:
       - 'apps/api/**'
+      - 'docker/**'
+      - 'compose.yaml'
+      - '.dockerignore'
+      - '.env.example'
+      - 'README.md'
+      - 'ROADMAP.md'
       - '.github/workflows/openapi-validation.yml'
   push:
     branches:
       - main
     paths:
       - 'apps/api/**'
+      - 'docker/**'
+      - 'compose.yaml'
+      - '.dockerignore'
+      - '.env.example'
+      - 'README.md'
+      - 'ROADMAP.md'
       - '.github/workflows/openapi-validation.yml'
 
 permissions:
@@ -41,3 +53,18 @@ jobs:
         run: npm run typecheck
       - name: Build API
         run: npm run build
+
+  validate-docker:
+    name: Validate Compose and build API image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Prepare local environment file
+        run: cp .env.example .env
+      - name: Validate core Compose configuration
+        run: docker compose config --quiet
+      - name: Validate optional tools configuration
+        run: docker compose --profile tools config --quiet
+      - name: Build API development image
+        run: docker compose build api
