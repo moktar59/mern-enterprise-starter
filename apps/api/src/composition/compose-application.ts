@@ -9,10 +9,9 @@ import type { Logger } from "../logging/logger.js";
 import type { ItemRepository } from "../modules/items/item.repository.js";
 
 export function composeApplication(itemRepository: ItemRepository, logger?: Logger): Express {
-  const config = loadConfig();
   const contextFactory = new DefaultExecutionContextFactory();
   const contextScope = new AsyncLocalStorageExecutionContextScope();
-  const applicationLogger = logger ?? createPinoLogger(config.logLevel);
+  const applicationLogger = logger ?? createPinoLogger(loadConfig().logLevel);
   return createApp(
     createExecutionContextMiddleware(contextFactory, contextScope),
     itemRepository,
