@@ -1,6 +1,8 @@
 import { STATUS_CODES } from "node:http";
 import type { ErrorRequestHandler, RequestHandler, Response } from "express";
 import { ApplicationError } from "../../errors/application-error.js";
+import type { Logger } from "../../logging/logger.js";
+import type { ExecutionContextScope } from "../../execution-context/execution-context-scope.js";
 
 interface ProblemDetails {
   readonly type: "about:blank";
@@ -27,11 +29,7 @@ function sendProblem(
     requestId,
     ...(errors?.length ? { errors } : {})
   };
-
-  response
-    .status(status)
-    .type("application/problem+json")
-    .json(problem);
+  response.status(status).type("application/problem+json").json(problem);
 }
 
 /** Handles requests that do not match a registered route. */
@@ -46,25 +44,39 @@ export const methodNotAllowedHandler: RequestHandler = (_request, response) => {
 };
 
 /** Final HTTP boundary: translate known failures and sanitize all unknown errors. */
-export const httpErrorHandler: ErrorRequestHandler = (error: unknown, _request, response, _next) => {
-  if (response.headersSent) {
-    // Delegate to Express's default handler so it can close a partially-written response.
-    return _next(error);
-  }
+export function createHttpErrorHandler(logger?: Logger, contextScope?: ExecutionContextScope): ErrorRequestHandler {
+  return (error: unknown, _request, response, next) => {
+    if (response.headersSent) return next(error);
 
-  if (error instanceof ApplicationError && error.code === "VALIDATION_FAILED") {
-    sendProblem(response, 422, "VALIDATION_FAILED", error.errors);
-    return;
-  }
+    if (error instanceof ApplicationError && error.code === "VALIDATION_FAILED") {
+      sendProblem(response, 422, "VALIDATION_FAILED", error.errors);
+      return;
+    }
+    if (isMalformedRequest(error)) {
+      sendProblem(response, 400, "MALFORMED_REQUEST");
+      return;
+    }
 
-  if (isMalformedRequest(error)) {
-    sendProblem(response, 400, "MALFORMED_REQUEST");
-    return;
-  }
+    if (logger) {
+      const context = contextScope?.current();
+      try {
+        logger.error({
+          requestId: context?.requestId ?? response.getHeader("X-Request-Id"),
+          correlationId: context?.correlationId,
+          errorName: error instanceof Error ? error.name : "UnknownError",
+          ...(error instanceof Error && error.stack ? { stack: error.stack.split("\n").slice(1).join("\n") } : {})
+        }, "Unhandled HTTP error");
+      } catch {
+        // Logging must never interfere with the public error boundary.
+      }
+    }
+    // Never serialize exception messages, stack traces, or arbitrary error properties.
+    sendProblem(response, 500, "INTERNAL_ERROR");
+  };
+}
 
-  // Never serialize exception messages, stack traces, or arbitrary error properties.
-  sendProblem(response, 500, "INTERNAL_ERROR");
-};
+/** Backward-compatible default handler for isolated tests and consumers. */
+export const httpErrorHandler: ErrorRequestHandler = createHttpErrorHandler();
 
 function isMalformedRequest(error: unknown): boolean {
   if (typeof error !== "object" || error === null) return false;

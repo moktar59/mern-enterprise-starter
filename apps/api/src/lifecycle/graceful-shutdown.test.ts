@@ -83,3 +83,19 @@ test("repeated process signals invoke shutdown once and remove handlers", async 
   assert.equal(signals.listenerCount("SIGINT"), 0);
   assert.equal(signals.listenerCount("SIGTERM"), 0);
 });
+
+test("lifecycle emits start and completion notifications without risking cleanup", async () => {
+  const server = createServer((_request, response) => response.end("ok"));
+  await listen(server);
+  const events: string[] = [];
+  let cleanupRan = false;
+  const lifecycle = createApplicationLifecycle(server, {
+    timeoutMs: 100,
+    onStart: () => { events.push("start"); throw new Error("observer failure"); },
+    onComplete: () => { events.push("complete"); }
+  });
+  lifecycle.registerCleanup(() => { cleanupRan = true; });
+  await lifecycle.shutdown();
+  assert.deepEqual(events, ["start", "complete"]);
+  assert.equal(cleanupRan, true);
+});

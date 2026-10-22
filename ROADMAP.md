@@ -282,3 +282,56 @@ Introduce persistent storage with a scalable data access strategy.
 ## Learning Outcomes
 
 Learn how to organize persistence behind explicit application contracts, keep database technology out of HTTP/application boundaries, and manage database startup and shutdown as lifecycle-owned infrastructure.
+
+
+---
+
+# Phase 6 — Logging
+
+## Objective
+
+Establish a structured application logging foundation with clear ownership, execution context, safe diagnostic output, and reliable lifecycle integration. This phase does not attempt to deliver the full observability platform.
+
+## Deliverables
+
+* An application-owned `Logger` contract that keeps vendor types out of application and business modules.
+* A Pino infrastructure adapter created at the composition/startup boundary; no global logger singleton.
+* Validated `LOG_LEVEL` configuration with environment-specific defaults: development `debug`, test `silent`, production `info`.
+* One structured completion event per HTTP request with server-generated request/correlation IDs, method, route template where available, status, and duration.
+* Liveness requests logged at debug level; 4xx and 5xx responses logged at warning and error levels respectively.
+* Structured diagnostics for unexpected HTTP errors, database readiness, startup, shutdown, and cleanup failures.
+* Redaction of common credential fields and a documented prohibition on logging raw URLs/query strings, request/response bodies, cookies, and authorization headers.
+* Tests for configuration, redaction, request logging, public error compatibility, and non-blocking lifecycle diagnostics.
+
+## Key Architectural Decisions
+
+* Application code depends on the project-owned logger contract, not Pino.
+* The logger is constructed once at the composition/startup boundary and injected.
+* The existing execution context remains the source of request and correlation identifiers; no second correlation mechanism is introduced.
+* Public RFC 9457 error responses remain sanitized and compatible.
+* Logging failures must not replace original failures, prevent cleanup, or recursively trigger logging failures.
+
+## Acceptance Criteria
+
+- [ ] A clean `npm ci` succeeds with the committed manifest and lockfile.
+- [ ] `LOG_LEVEL` accepts only supported values and invalid configuration fails before database connection or listener startup.
+- [ ] Development, test, and production defaults are `debug`, `silent`, and `info`.
+- [ ] Pino is confined to the infrastructure adapter; business modules and app-owned interfaces expose no Pino types.
+- [ ] HTTP completion events include request ID, correlation ID, method, route template when available, status code, and duration.
+- [ ] Liveness events are debug-level; successful requests are info-level; 4xx and 5xx responses use warning and error severity.
+- [ ] Raw URLs/query strings, request/response bodies, cookies, authorization values, and common secret fields are not emitted by default.
+- [ ] Unexpected errors are logged internally without changing the public RFC 9457 response contract.
+- [ ] Startup, database readiness, shutdown, and cleanup failures are logged without interrupting cleanup or replacing the original error.
+- [ ] Unit/HTTP tests, type-check, production build, OpenAPI lint, MongoDB integration tests, and Docker Compose validation pass before the `v0.6.0` release review.
+
+## Out of Scope
+
+Metrics, dashboards, distributed tracing/OpenTelemetry, alerting, log aggregation, vendor integrations, Nginx, deployment automation, and Docker optimization remain outside this phase.
+
+## Learning Outcomes
+
+Understand how to introduce structured logging through explicit application-owned contracts, propagate execution context into diagnostics, and preserve security and lifecycle guarantees while instrumenting an HTTP service.
+
+## Release
+
+**Git Tag:** `v0.6.0`

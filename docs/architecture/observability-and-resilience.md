@@ -17,7 +17,7 @@ The objectives are to:
 - Keep observability and resilience mechanisms separate from business rules.
 - Avoid introducing operational complexity without a justified requirement.
 
-This document defines architectural principles and responsibilities. It does not mandate a specific logging library, metrics backend, tracing platform, monitoring service, or resilience framework.
+This document defines architectural principles and responsibilities rather than mandating a universal vendor. The API logging implementation uses an application-owned `Logger` contract with a Pino infrastructure adapter; metrics backends, tracing platforms, monitoring services, and resilience frameworks remain separate choices.
 
 ## Core Concepts
 

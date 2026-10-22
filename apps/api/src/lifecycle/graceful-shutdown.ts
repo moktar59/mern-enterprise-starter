@@ -19,6 +19,8 @@ export interface ShutdownSignalSource {
 export interface ApplicationLifecycleOptions {
   readonly timeoutMs?: number;
   readonly onError?: (error: unknown) => void;
+  readonly onStart?: () => void;
+  readonly onComplete?: () => void;
 }
 
 /**
@@ -35,6 +37,10 @@ export function createApplicationLifecycle(
   });
   const cleanupTasks: CleanupTask[] = [];
   let shutdownPromise: Promise<void> | undefined;
+
+  function safelyNotify(callback: (() => void) | undefined): void {
+    try { callback?.(); } catch { /* Observability must not interrupt lifecycle work. */ }
+  }
 
   function reportError(error: unknown): void {
     try {
@@ -53,13 +59,9 @@ export function createApplicationLifecycle(
 
   function closeServer(): Promise<void> {
     if (!server.listening) return Promise.resolve();
-
     return new Promise<void>((resolve, reject) => {
-      const timer = setTimeout(() => {
-        server.closeAllConnections();
-      }, timeoutMs);
+      const timer = setTimeout(() => { server.closeAllConnections(); }, timeoutMs);
       timer.unref();
-
       try {
         server.close((error) => {
           clearTimeout(timer);
@@ -74,19 +76,17 @@ export function createApplicationLifecycle(
   }
 
   async function performShutdown(): Promise<void> {
+    safelyNotify(options.onStart);
     try {
       await closeServer();
     } catch (error) {
       reportError(error);
     }
-
     for (const cleanup of cleanupTasks) {
-      try {
-        await cleanup();
-      } catch (error) {
-        reportError(error);
-      }
+      try { await cleanup(); }
+      catch (error) { reportError(error); }
     }
+    safelyNotify(options.onComplete);
   }
 
   function shutdown(): Promise<void> {
@@ -106,23 +106,18 @@ export function registerShutdownSignals(
   }
 ): () => void {
   let signalReceived = false;
-
   const removeHandlers = (): void => {
     signalSource.removeListener("SIGINT", handleSignal);
     signalSource.removeListener("SIGTERM", handleSignal);
   };
-
   const handleSignal = (): void => {
     if (signalReceived) return;
     signalReceived = true;
-
-    void lifecycle.shutdown()
-      .catch(onError)
-      .finally(removeHandlers);
+    void lifecycle.shutdown().catch((error: unknown) => {
+      try { onError(error); } catch { /* Never allow logging failure to escape the signal handler. */ }
+    }).finally(removeHandlers);
   };
-
   signalSource.on("SIGINT", handleSignal);
   signalSource.on("SIGTERM", handleSignal);
-
   return removeHandlers;
 }
