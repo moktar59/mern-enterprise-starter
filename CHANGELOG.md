@@ -14,7 +14,12 @@ Each release represents a stable milestone in the evolution of the repository. P
 
 ## [Unreleased]
 
-_No changes recorded yet._
+### Phase 7 — Authentication (implementation under review)
+
+- Added local email/password registration, login, and current-user endpoints with safe public profiles.
+- Added Argon2id password hashing, MongoDB user persistence with normalized unique email, and short-lived JWT access tokens.
+- Added strict token verification, execution-context principal propagation, standardized authentication errors, and updated OpenAPI/architecture documentation.
+- Refresh tokens, sessions/revocation, social authentication, password recovery, MFA, and authorization remain out of scope.
 
 ---
 

@@ -126,3 +126,8 @@ Do not mark a proposal as accepted before the decision has been approved.
 ## ADR-0007 — Local Authentication and Access Tokens
 
 Defines local email/password authentication, Argon2id password hashing, short-lived JWTs, MongoDB uniqueness, execution-context principal propagation, and Phase 7 exclusions.
+
+
+## ADR-0007 — Local Authentication and Access Tokens
+
+Defines local email/password authentication, Argon2id password hashing, short-lived JWTs, MongoDB uniqueness, execution-context principal propagation, and Phase 7 exclusions.
