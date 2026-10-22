@@ -6,20 +6,20 @@ MERN Enterprise Starter is an open-source project developed as both a reusable M
 
 ## Current Status
 
-**Phase 4 — Docker Development Environment: merged. Phase 5 — Database: implementation under review.**
+**Phase 6 — Structured Logging: implementation merged; consolidated `v0.6.0` release preparation in progress.**
 
-The repository includes architecture and ADR documentation, independently managed applications, a Node.js 24/TypeScript/Express 5 API foundation, validated configuration, HTTP execution context, RFC 9457-based errors, versioned API routes, pagination conventions, OpenAPI/Swagger UI, graceful shutdown, and a Docker Compose development environment.
+The repository includes architecture and ADR documentation, independently managed applications, a Node.js 24/TypeScript/Express 5 API foundation, validated configuration, HTTP execution context, RFC 9457-based errors, versioned API routes, pagination conventions, OpenAPI/Swagger UI, graceful shutdown, a Docker Compose development environment, MongoDB persistence, and structured logging.
 
-The Phase 5 proposal adds Mongoose persistence for the items endpoint. It requires MongoDB before the API listener starts, preserves the public pagination contract, keeps Mongoose behind a repository adapter, and uses an explicit repeatable seed command. It is not complete until review, CI, and merge.
+Phases 3–6 are merged. The planned `v0.3.0`, `v0.4.0`, and `v0.5.0` tags were not published; their merged scope is being documented together in the consolidated `v0.6.0` release. This release preparation does not claim that intermediate tags exist.
 
 ## Roadmap
 
 - [x] Phase 01 — Documentation
 - [x] Phase 02 — Core Backend
-- [x] Phase 03 — API Design (implementation merged; milestone release pending)
-- [x] Phase 04 — Docker Development Environment (merged)
-- [ ] Phase 05 — Database (implementation under review)
-- [ ] Phase 06 — Logging
+- [x] Phase 03 — API Design (included in consolidated `v0.6.0` release)
+- [x] Phase 04 — Docker Development Environment (included in consolidated `v0.6.0` release)
+- [x] Phase 05 — Database (merged; included in consolidated `v0.6.0` release)
+- [x] Phase 06 — Logging (merged; included in consolidated `v0.6.0` release)
 - [ ] Phase 07 — Authentication
 - [ ] Phase 08 — Social Authentication & Session Management
 - [ ] Phase 09 — Authorization

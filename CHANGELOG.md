@@ -14,15 +14,47 @@ Each release represents a stable milestone in the evolution of the repository. P
 
 ## [Unreleased]
 
+_No changes recorded yet._
+
+---
+
+## [0.6.0] - 2026-10-22
+
+> Consolidated milestone release covering the merged Phase 3–6 implementation. The intermediate Phase 3, Phase 4, and Phase 5 milestone tags were not published; this release does not imply that those versions exist.
+
 ### Added
 
-- Added the Phase 6 structured logging foundation with an application-owned logger contract, Pino infrastructure adapter, validated `LOG_LEVEL`, HTTP completion events, safe error diagnostics, and lifecycle logging. CI verification passes on PR #63; merge and release remain pending review.
-- Added the Phase 5 Mongoose persistence implementation for the items endpoint, including an explicit repository boundary, MongoDB startup readiness, unique item identifiers, and repeatable sample-data seeding.
-- Added a MongoDB repository integration test and a dedicated CI job; release remains pending review and verification.
+#### Phase 3 — API Design
+- Added versioned API routes, resource response conventions, validation behavior, collection pagination, and an OpenAPI contract with automated validation.
+- Documented API design standards and aligned contract examples with runtime behavior.
+
+#### Phase 4 — Docker Development Environment
+- Added a reproducible Docker Compose environment for the API, MongoDB, and Redis.
+- Added optional Mongo Express and Redis Insight tools profiles, health checks, local development configuration, and API image validation.
+
+#### Phase 5 — Database
+- Added Mongoose persistence for the items endpoint behind an explicit repository boundary.
+- Required MongoDB readiness and index initialization before the API listener starts; startup fails if the database is unavailable.
+- Added stable database-side sorting, pagination, and counting, plus an explicit repeatable seed command that never runs automatically at startup.
+- Added MongoDB repository integration tests in CI and graceful database shutdown.
+
+#### Phase 6 — Structured Logging
+- Added an application-owned logger contract and Pino infrastructure adapter with validated `LOG_LEVEL` configuration.
+- Added structured HTTP completion events using server-generated request context IDs, sensitive-field redaction, sanitized error diagnostics, and startup/shutdown lifecycle logging.
+- Preserved the public RFC 9457 error response contract and isolated logging failures from request handling and cleanup.
 
 ### Changed
 
-- Updated API and Docker development documentation for MongoDB configuration, seed behavior, and persistence boundaries.
+- Updated API, Docker, database, logging, and architecture documentation to reflect the implemented behavior and boundaries.
+- Kept API, admin, and web applications independently managed, with backend and database access owned by the API.
+
+### Verification
+
+- CI for the Phase 6 merge passed dependency installation, API tests, type checking, production build, OpenAPI validation, Docker Compose validation, API image build, and MongoDB integration tests.
+
+### Scope Notes
+
+This is a consolidated release of the current repository snapshot, not a claim that the skipped intermediate version tags were published. The project remains under active development; future roadmap phases, including authentication, authorization, caching, background jobs, file uploads, security hardening, CI/CD, and monitoring, are not included in this release.
 
 ---
 

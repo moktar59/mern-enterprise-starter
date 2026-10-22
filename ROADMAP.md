@@ -44,7 +44,7 @@ Each completed phase results in:
 * A GitHub Release for that exact tagged snapshot.
 * A stable foundation for the following phase.
 
-Version numbers progress incrementally until the first stable release. The phase table defines the planned milestone versions; it does not prohibit patch releases between milestones.
+Version numbers progress incrementally until the first stable release. The phase table defines planned milestone versions; a consolidated release may intentionally include multiple merged phases when explicitly documented. It does not prohibit patch releases between milestones.
 
 ## Release and Tagging Rules
 
@@ -61,7 +61,7 @@ The existing `v0.1.0` tag is retained as a historical snapshot. Documentation ch
 | -------- | ------------------------- |
 | Phase 1  | v0.1.0                    |
 | Phase 2  | v0.2.0                    |
-| Phase 3  | v0.3.0                    |
+| Phase 3  | v0.6.0 (consolidated)      |
 | ...      | ...                       |
 | Phase 16 | v1.0.0                    |
 
@@ -73,10 +73,10 @@ The existing `v0.1.0` tag is retained as a historical snapshot. Documentation ch
 | ----- | ------------------------------------------ | ------- |
 | 1     | Documentation                              | v0.1.0  |
 | 2     | Core Backend                               | v0.2.0  |
-| 3     | API Design                                 | v0.3.0  |
-| 4     | Docker Development Environment             | v0.4.0  |
-| 5     | Database                                   | v0.5.0  |
-| 6     | Logging                                    | v0.6.0  |
+| 3     | API Design                                 | v0.6.0* |
+| 4     | Docker Development Environment             | v0.6.0* |
+| 5     | Database                                   | v0.6.0* |
+| 6     | Logging                                    | v0.6.0* |
 | 7     | Authentication                             | v0.7.0  |
 | 8     | Social Authentication & Session Management | v0.8.0  |
 | 9     | Authorization                              | v0.9.0  |
@@ -92,14 +92,14 @@ The existing `v0.1.0` tag is retained as a historical snapshot. Documentation ch
 
 # Phase Overview
 
-Development phases are planned milestones; checkmarks reflect implementation status on the current main branch.
+Development phases are planned milestones; checkmarks reflect implementation status on the current main branch. Phases 3–6 are included in the planned consolidated `v0.6.0` release; the intermediate `v0.3.0`, `v0.4.0`, and `v0.5.0` tags were not published.
 
 - [x] Phase 01 — Documentation
 - [x] Phase 02 — Core Backend
-- [x] Phase 03 — API Design (implementation merged; release pending)
-- [x] Phase 04 — Docker Development Environment (merged)
-- [ ] Phase 05 — Database
-- [ ] Phase 06 — Logging
+- [x] Phase 03 — API Design (merged; included in consolidated `v0.6.0` release)
+- [x] Phase 04 — Docker Development Environment (merged; included in consolidated `v0.6.0` release)
+- [x] Phase 05 — Database (merged; included in consolidated `v0.6.0` release)
+- [x] Phase 06 — Logging (merged; included in consolidated `v0.6.0` release)
 - [ ] Phase 07 — Authentication
 - [ ] Phase 08 — Social Authentication & Session Management
 - [ ] Phase 09 — Authorization
@@ -195,7 +195,7 @@ Learn how well-designed APIs improve maintainability and developer experience.
 
 ## Release
 
-**Git Tag:** `v0.3.0`
+**Release:** Included in consolidated `v0.6.0`; the intermediate `v0.3.0` tag was not published.
 
 ---
 
@@ -233,7 +233,7 @@ Understand how containerization supports consistent onboarding and isolated deve
 
 ## Release
 
-**Git Tag:** `v0.4.0`
+**Release:** Included in consolidated `v0.6.0`; the intermediate `v0.4.0` tag was not published.
 
 ---
 
@@ -277,7 +277,7 @@ Introduce persistent storage with a scalable data access strategy.
 - [ ] Pagination, ordering, and counting execute in MongoDB.
 - [ ] Repeated seed commands are safe and never run automatically at startup.
 - [ ] OpenAPI, README, Docker guide, roadmap, and changelog accurately describe the implementation.
-- [ ] Type-check, build, API tests, integration tests, OpenAPI lint, and Compose validation pass before the `v0.5.0` release review.
+- [ ] Type-check, build, API tests, integration tests, OpenAPI lint, and Compose validation pass before the consolidated `v0.6.0` release review.
 
 ## Learning Outcomes
 
@@ -322,7 +322,7 @@ Establish a structured application logging foundation with clear ownership, exec
 - [ ] Raw URLs/query strings, request/response bodies, cookies, authorization values, and common secret fields are not emitted by default.
 - [ ] Unexpected errors are logged internally without changing the public RFC 9457 response contract.
 - [ ] Startup, database readiness, shutdown, and cleanup failures are logged without interrupting cleanup or replacing the original error.
-- [ ] Unit/HTTP tests, type-check, production build, OpenAPI lint, MongoDB integration tests, and Docker Compose validation pass before the `v0.6.0` release review.
+- [ ] Unit/HTTP tests, type-check, production build, OpenAPI lint, MongoDB integration tests, and Docker Compose validation pass before the consolidated `v0.6.0` release review.
 
 ## Out of Scope
 
