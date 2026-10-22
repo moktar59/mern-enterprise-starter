@@ -7,15 +7,19 @@ import { MongooseItemRepository } from "./infrastructure/items/mongoose-item.rep
 import { createApplicationLifecycle, registerShutdownSignals, type ApplicationLifecycle } from "./lifecycle/graceful-shutdown.js";
 export type ConfigureApplicationLifecycle = (lifecycle: ApplicationLifecycle) => void;
 
+function safelyLog(operation: () => void): void {
+  try { operation(); } catch { /* Logging must not change application behavior. */ }
+}
+
 /** Database readiness is a startup prerequisite; the listener opens only after connection succeeds. */
 export async function startServer(env?: NodeJS.ProcessEnv, configureLifecycle?: ConfigureApplicationLifecycle): Promise<Server> {
   const config = loadConfig(env);
   const logger = createPinoLogger(config.logLevel);
   let database: Awaited<ReturnType<typeof connectDatabase>>;
   try {
-    logger.info({ event: "startup.started", nodeEnv: config.nodeEnv }, "Application startup started");
+    safelyLog(() => logger.info({ event: "startup.started", nodeEnv: config.nodeEnv }, "Application startup started"));
     database = await connectDatabase(config.mongoUri);
-    logger.info({}, "Database connection ready");
+    safelyLog(() => logger.info({}, "Database connection ready"));
   } catch (error) {
     try {
       logger.error({ event: "startup.database_failed", errorName: error instanceof Error ? error.name : "UnknownError" }, "Application startup failed during database readiness");
@@ -34,15 +38,15 @@ export async function startServer(env?: NodeJS.ProcessEnv, configureLifecycle?: 
         }, "Application lifecycle cleanup failed");
       } catch { /* A logger failure must not interrupt remaining cleanup. */ }
     },
-    onStart: () => logger.info({ event: "shutdown.started" }, "Application shutdown started"),
-    onComplete: () => logger.info({ event: "shutdown.completed" }, "Application shutdown completed")
+    onStart: () => safelyLog(() => logger.info({ event: "shutdown.started" }, "Application shutdown started")),
+    onComplete: () => safelyLog(() => logger.info({ event: "shutdown.completed" }, "Application shutdown completed"))
   });
   lifecycle.registerCleanup(() => database.disconnect());
   try { configureLifecycle?.(lifecycle); }
   catch (error) { await lifecycle.shutdown(); throw error; }
 
   server.once("listening", () => {
-    logger.info({ event: "startup.listening", host: config.host, port: config.port }, "API listening");
+    safelyLog(() => logger.info({ event: "startup.listening", host: config.host, port: config.port }, "API listening"));
     registerShutdownSignals(lifecycle, process, (error) => {
       try {
         logger.error({
