@@ -16,6 +16,7 @@ Each release represents a stable milestone in the evolution of the repository. P
 
 ### Added
 
+- Added the Phase 6 structured logging foundation with an application-owned logger contract, Pino infrastructure adapter, validated `LOG_LEVEL`, HTTP completion events, safe error diagnostics, and lifecycle logging. Implementation and verification are pending review.
 - Added the Phase 5 Mongoose persistence implementation for the items endpoint, including an explicit repository boundary, MongoDB startup readiness, unique item identifiers, and repeatable sample-data seeding.
 - Added a MongoDB repository integration test and a dedicated CI job; release remains pending review and verification.
 
