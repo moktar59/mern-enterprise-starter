@@ -3,7 +3,7 @@ import express from "express";
 import { createServer, type Server } from "node:http";
 import { after, test } from "node:test";
 import { ValidationFailedError } from "../../errors/application-error.js";
-import { httpErrorHandler } from "./http-error-middleware.js";
+import { createHttpErrorHandler, httpErrorHandler } from "./http-error-middleware.js";
 
 const servers: Server[] = [];
 
@@ -69,4 +69,37 @@ test("unexpected errors return a sanitized internal error", async () => {
     requestId: "test-request-id"
   });
   assert.doesNotMatch(body, /secret database credentials/);
+});
+
+test("unexpected errors are logged internally without leaking messages into logs or responses", async () => {
+  const records: { fields: Record<string, unknown>; message: string }[] = [];
+  const logger = {
+    trace: () => undefined, debug: () => undefined, info: () => undefined,
+    warn: () => undefined,
+    error: (fields: Record<string, unknown>, message: string) => { records.push({ fields, message }); },
+    fatal: () => undefined
+  };
+  const app = express();
+  app.use((_request, response, next) => {
+    response.setHeader("X-Request-Id", "server-request-id");
+    next(new Error("sensitive database credential"));
+  });
+  app.use(createHttpErrorHandler(logger));
+  const server = createServer(app);
+  servers.push(server);
+  const baseUrl = await new Promise<string>((resolve, reject) => {
+    server.once("error", reject);
+    server.listen(0, "127.0.0.1", () => {
+      const address = server.address();
+      if (!address || typeof address === "string") { reject(new Error("Expected TCP address")); return; }
+      resolve(`http://127.0.0.1:${address.port}`);
+    });
+  });
+  const response = await fetch(baseUrl);
+  const body = await response.text();
+  assert.equal(response.status, 500);
+  assert.doesNotMatch(body, /sensitive database credential/);
+  assert.equal(records.length, 1);
+  assert.equal(records[0].fields.requestId, "server-request-id");
+  assert.doesNotMatch(JSON.stringify(records), /sensitive database credential/);
 });
