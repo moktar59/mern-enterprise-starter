@@ -92,14 +92,14 @@ The existing `v0.1.0` tag is retained as a historical snapshot. Documentation ch
 
 # Phase Overview
 
-Development phases are planned milestones; checkmarks reflect implementation status on the current main branch.
+Development phases are planned milestones; checkmarks reflect implementation status on the current main branch. Phases 3–6 are included in the planned consolidated `v0.6.0` release; the intermediate `v0.3.0`, `v0.4.0`, and `v0.5.0` tags were not published.
 
 - [x] Phase 01 — Documentation
 - [x] Phase 02 — Core Backend
-- [x] Phase 03 — API Design (implementation merged; release pending)
-- [x] Phase 04 — Docker Development Environment (merged)
-- [ ] Phase 05 — Database
-- [ ] Phase 06 — Logging
+- [x] Phase 03 — API Design (merged; included in consolidated `v0.6.0` release)
+- [x] Phase 04 — Docker Development Environment (merged; included in consolidated `v0.6.0` release)
+- [x] Phase 05 — Database (merged; included in consolidated `v0.6.0` release)
+- [x] Phase 06 — Logging (merged; included in consolidated `v0.6.0` release)
 - [ ] Phase 07 — Authentication
 - [ ] Phase 08 — Social Authentication & Session Management
 - [ ] Phase 09 — Authorization
