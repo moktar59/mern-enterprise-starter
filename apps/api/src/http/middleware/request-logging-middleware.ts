@@ -23,14 +23,18 @@ export function createRequestLoggingMiddleware(logger: Logger, contextScope: Exe
         durationMs: Math.round((performance.now() - startedAt) * 100) / 100
       };
       const message = "HTTP request completed";
-      if (route === "/health/live" || request.path === "/health/live") {
-        logger.debug(fields, message);
-      } else if (statusCode >= 500) {
-        logger.error(fields, message);
-      } else if (statusCode >= 400) {
-        logger.warn(fields, message);
-      } else {
-        logger.info(fields, message);
+      try {
+        if (route === "/health/live" || request.path === "/health/live") {
+          logger.debug(fields, message);
+        } else if (statusCode >= 500) {
+          logger.error(fields, message);
+        } else if (statusCode >= 400) {
+          logger.warn(fields, message);
+        } else {
+          logger.info(fields, message);
+        }
+      } catch {
+        // Request completion must not be disrupted by a logging failure.
       }
     });
     next();
