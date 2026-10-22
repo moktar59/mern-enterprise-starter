@@ -335,3 +335,38 @@ Understand how to introduce structured logging through explicit application-owne
 ## Release
 
 **Git Tag:** `v0.6.0`
+
+
+---
+
+# Phase 7 — Authentication
+
+## Objective
+
+Establish local email/password authentication without coupling authentication to authorization.
+
+## Deliverables
+
+- Registration, login, and protected current-user endpoints.
+- Argon2id password hashing, MongoDB user persistence, and unique normalized email.
+- Short-lived JWTs with strict algorithm, issuer, audience, subject, and expiration validation.
+- Verified principal propagation through the existing execution context.
+- Explicit application contracts, infrastructure adapters, tests, OpenAPI, and architecture documentation.
+
+## Acceptance Criteria
+
+- [ ] Registration returns only a public profile and does not issue a token automatically.
+- [ ] Invalid login responses do not disclose whether an email exists.
+- [ ] Current-user endpoint rejects missing, malformed, expired, tampered, wrong-issuer, and wrong-audience tokens.
+- [ ] MongoDB enforces unique normalized email; indexes initialize before listening.
+- [ ] Production fails startup if the JWT secret is missing or shorter than 32 bytes.
+- [ ] Verified token subjects, not client identity headers, populate execution context.
+- [ ] RFC 9457 errors, request IDs, log redaction, tests, typecheck, build, OpenAPI lint, Mongo integration, Docker Compose, and CI remain valid.
+
+## Out of Scope
+
+Refresh tokens, sessions/revocation, social login, email verification, password reset, MFA, authorization, frontend screens, and deployment/Nginx. Valid tokens remain usable until expiry.
+
+## Release
+
+Planned milestone: `v0.7.0`, subject to review, merge, verification, and separate release approval.

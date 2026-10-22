@@ -10,17 +10,19 @@
     "dev": "tsx watch src/server.ts",
     "build": "tsc -p tsconfig.build.json",
     "start": "node dist/server.js",
-    "test": "tsx --test src/app.test.ts src/config.test.ts src/composition/compose-application.test.ts src/start-server.test.ts src/execution-context/execution-context-factory.test.ts src/infrastructure/execution-context/async-local-storage-execution-context-scope.test.ts src/http/middleware/execution-context-middleware.test.ts src/http/middleware/http-error-middleware.test.ts src/http/http-app-errors.test.ts src/routes/v1/items.routes.test.ts src/lifecycle/graceful-shutdown.test.ts src/modules/items/item.service.test.ts src/http/middleware/request-logging-middleware.test.ts src/infrastructure/logging/pino-logger.test.ts",
+    "test": "tsx --test src/app.test.ts src/config.test.ts src/composition/compose-application.test.ts src/start-server.test.ts src/execution-context/execution-context-factory.test.ts src/infrastructure/execution-context/async-local-storage-execution-context-scope.test.ts src/http/middleware/execution-context-middleware.test.ts src/http/middleware/http-error-middleware.test.ts src/http/http-app-errors.test.ts src/routes/v1/items.routes.test.ts src/lifecycle/graceful-shutdown.test.ts src/modules/items/item.service.test.ts src/http/middleware/request-logging-middleware.test.ts src/infrastructure/logging/pino-logger.test.ts src/modules/auth/auth.service.test.ts src/infrastructure/auth/argon2-password-hasher.test.ts src/infrastructure/auth/jose-access-token.service.test.ts src/routes/v1/auth.routes.test.ts",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "validate:openapi": "npx --yes @redocly/cli@1.34.5 lint --extends minimal openapi/openapi.yaml",
-    "test:integration": "tsx --test src/infrastructure/items/mongoose-item.repository.integration.test.ts",
+    "test:integration": "tsx --test src/infrastructure/items/mongoose-item.repository.integration.test.ts src/infrastructure/auth/mongoose-user.repository.integration.test.ts",
     "seed:items": "tsx scripts/seed-items.ts"
   },
   "dependencies": {
     "express": "5.1.0",
     "zod": "4.1.12",
     "mongoose": "8.19.1",
-    "pino": "10.3.1"
+    "pino": "10.3.1",
+    "argon2": "0.41.1",
+    "jose": "6.2.12"
   },
   "devDependencies": {
     "@types/express": "5.0.3",
@@ -29,6 +31,7 @@
     "typescript": "5.9.3"
   },
   "allowScripts": {
-    "esbuild@0.25.12": true
+    "esbuild@0.25.12": true,
+    "argon2@0.41.1": true
   }
 }
