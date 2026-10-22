@@ -1,51 +1,6 @@
-import { z } from "zod";
-
-const logLevels = ["trace", "debug", "info", "warn", "error", "fatal", "silent"] as const;
-
-const environmentSchema = z.object({
-  NODE_ENV: z.string().trim().pipe(z.enum(["development", "test", "production"])).optional(),
-  HOST: z.string().trim().min(1, { error: "must not be empty" }).optional(),
-  PORT: z.string().trim().regex(/^\d+$/, { error: "must be an integer from 1 through 65535" })
-    .transform(Number).pipe(z.number().int().min(1).max(65535)).optional(),
-  MONGODB_URI: z.string().trim().min(1, { error: "must not be empty" })
-    .default("mongodb://127.0.0.1:27017/mern_enterprise_starter"),
-  LOG_LEVEL: z.string().trim().pipe(z.enum(logLevels)).optional()
-}).transform(({ NODE_ENV, HOST, PORT, MONGODB_URI, LOG_LEVEL }) => {
-  const nodeEnv = NODE_ENV ?? "development";
-  return {
-    nodeEnv,
-    host: HOST ?? "127.0.0.1",
-    port: PORT ?? 3000,
-    mongoUri: MONGODB_URI,
-    logLevel: LOG_LEVEL ?? (nodeEnv === "production" ? "info" : nodeEnv === "test" ? "silent" : "debug")
-  };
-});
-
-export type AppConfig = Readonly<z.output<typeof environmentSchema>>;
-
-export class ConfigurationError extends Error {
-  constructor(details: readonly string[]) {
-    super(`Invalid configuration: ${details.join("; ")}`);
-    this.name = "ConfigurationError";
-  }
-}
-
-/** Loads, normalizes, validates, and freezes application configuration. */
-export function loadConfig(env?: NodeJS.ProcessEnv): AppConfig {
-  const source = env ?? process.env;
-  const result = environmentSchema.safeParse({
-    NODE_ENV: source.NODE_ENV,
-    HOST: source.HOST,
-    PORT: source.PORT,
-    MONGODB_URI: source.MONGODB_URI,
-    LOG_LEVEL: source.LOG_LEVEL
-  });
-  if (!result.success) {
-    const details = result.error.issues.map((issue) => {
-      const field = issue.path.map(String).join(".") || "configuration";
-      return `${field}: ${issue.message}`;
-    });
-    throw new ConfigurationError(details);
-  }
-  return Object.freeze(result.data);
-}
+import {randomBytes} from "node:crypto";import {z} from "zod";
+const levels=["trace","debug","info","warn","error","fatal","silent"] as const;
+const schema=z.object({NODE_ENV:z.string().trim().pipe(z.enum(["development","test","production"])).optional(),HOST:z.string().trim().min(1).optional(),PORT:z.string().trim().regex(/^\d+$/).transform(Number).pipe(z.number().int().min(1).max(65535)).optional(),MONGODB_URI:z.string().trim().min(1).default("mongodb://127.0.0.1:27017/mern_enterprise_starter"),LOG_LEVEL:z.string().trim().pipe(z.enum(levels)).optional(),AUTH_JWT_SECRET:z.string().optional(),AUTH_JWT_ISSUER:z.string().trim().min(1).default("mern-enterprise-starter-api"),AUTH_JWT_AUDIENCE:z.string().trim().min(1).default("mern-enterprise-starter-clients"),AUTH_ACCESS_TOKEN_TTL_SECONDS:z.string().trim().regex(/^\d+$/).transform(Number).pipe(z.number().int().min(60).max(3600)).default("900")});
+export type AppConfig=Readonly<{nodeEnv:"development"|"test"|"production";host:string;port:number;mongoUri:string;logLevel:typeof levels[number];authJwtSecret:string;authJwtIssuer:string;authJwtAudience:string;authAccessTokenTtlSeconds:number}>;
+export class ConfigurationError extends Error{constructor(d:readonly string[]){super(`Invalid configuration: ${d.join("; ")}`);this.name="ConfigurationError";}}
+export function loadConfig(env?:NodeJS.ProcessEnv):AppConfig{const s=env??process.env,r=schema.safeParse({NODE_ENV:s.NODE_ENV,HOST:s.HOST,PORT:s.PORT,MONGODB_URI:s.MONGODB_URI,LOG_LEVEL:s.LOG_LEVEL,AUTH_JWT_SECRET:s.AUTH_JWT_SECRET,AUTH_JWT_ISSUER:s.AUTH_JWT_ISSUER,AUTH_JWT_AUDIENCE:s.AUTH_JWT_AUDIENCE,AUTH_ACCESS_TOKEN_TTL_SECONDS:s.AUTH_ACCESS_TOKEN_TTL_SECONDS});if(!r.success)throw new ConfigurationError(r.error.issues.map(i=>`${i.path.join(".")||"configuration"}: ${i.message}`));const v=r.data,nodeEnv=v.NODE_ENV??"development",secret=v.AUTH_JWT_SECRET??(nodeEnv==="production"?"":randomBytes(32).toString("base64url"));if(Buffer.byteLength(secret)<32)throw new ConfigurationError(["AUTH_JWT_SECRET: must contain at least 32 bytes and is required in production"]);return Object.freeze({nodeEnv,host:v.HOST??"127.0.0.1",port:v.PORT??3000,mongoUri:v.MONGODB_URI,logLevel:v.LOG_LEVEL??(nodeEnv==="production"?"info":nodeEnv==="test"?"silent":"debug"),authJwtSecret:secret,authJwtIssuer:v.AUTH_JWT_ISSUER,authJwtAudience:v.AUTH_JWT_AUDIENCE,authAccessTokenTtlSeconds:v.AUTH_ACCESS_TOKEN_TTL_SECONDS});}

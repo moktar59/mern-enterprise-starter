@@ -121,3 +121,8 @@ Do not mark a proposal as accepted before the decision has been approved.
 - [Architecture Overview](../../ARCHITECTURE.md)
 - [Decision Register](../decisions/decision-register.md)
 - [ADR Template](ADR-0000-template.md)
+
+
+## ADR-0007 — Local Authentication and Access Tokens
+
+Defines local email/password authentication, Argon2id password hashing, short-lived JWTs, MongoDB uniqueness, execution-context principal propagation, and Phase 7 exclusions.
