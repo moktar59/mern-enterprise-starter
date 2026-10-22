@@ -5,5 +5,5 @@ export interface Argon2Parameters { readonly timeCost:number; readonly memoryCos
 export class Argon2PasswordHasher implements PasswordHasher {
  constructor(private readonly parameters:Argon2Parameters={timeCost:2,memoryCostKiB:19456,parallelism:1}) {}
  hash(password:string):Promise<string>{return argon2.hash(password,{type:argon2.argon2id,timeCost:this.parameters.timeCost,memoryCost:this.parameters.memoryCostKiB,parallelism:this.parameters.parallelism});}
- async verify(hash:string,password:string):Promise<boolean>{try{return await argon2.verify(hash,password,{type:argon2.argon2id});}catch{return false;}}
+ async verify(hash:string,password:string):Promise<boolean>{try{return await argon2.verify(hash,password);}catch{return false;}}
 }
