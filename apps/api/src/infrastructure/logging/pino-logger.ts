@@ -9,14 +9,14 @@ const redactionPaths = [
 ];
 
 /** Pino is confined to infrastructure; application modules receive only Logger. */
-export function createPinoLogger(level: LogLevel): Logger {
+export function createPinoLogger(level: LogLevel, destination?: pino.DestinationStream): Logger {
   const instance: PinoLogger = pino({
     level,
     redact: { paths: redactionPaths, censor: "[REDACTED]" },
     base: undefined,
     messageKey: "message",
     timestamp: pino.stdTimeFunctions.isoTime
-  });
+  }, destination);
   return {
     trace: (fields, message) => instance.trace(fields, message),
     debug: (fields, message) => instance.debug(fields, message),
