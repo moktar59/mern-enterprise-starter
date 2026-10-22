@@ -12,6 +12,7 @@ info:
 servers:
   - url: http://127.0.0.1:3000
     description: Local development server
+security: []
 tags:
   - name: Authentication
     description: Local email/password authentication.
@@ -56,7 +57,7 @@ paths:
       security: [{ bearerAuth: [] }]
       responses:
         '200': { description: Authenticated profile returned. }
-        '401': { description: Missing, invalid, or expired token. }
+        '401': { description: "Missing, invalid, or expired token." }
         '500': { $ref: '#/components/responses/InternalError' }
   /api/v1/items:
     get:
