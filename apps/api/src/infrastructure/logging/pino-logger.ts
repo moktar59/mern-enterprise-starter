@@ -2,7 +2,7 @@ import pino, { type Logger as PinoLogger } from "pino";
 import type { LogLevel, Logger } from "../../logging/logger.js";
 
 const redactionPaths = [
-  "authorization", "cookie", "set-cookie",
+  "authorization", "cookie", "set-cookie", "password", "token", "accessToken", "refreshToken", "secret",
   "req.headers.authorization", "req.headers.cookie",
   "headers.authorization", "headers.cookie",
   "*.password", "*.accessToken", "*.refreshToken", "*.secret", "*.token"
