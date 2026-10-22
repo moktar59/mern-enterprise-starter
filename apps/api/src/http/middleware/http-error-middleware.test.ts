@@ -3,6 +3,7 @@ import express from "express";
 import { createServer, type Server } from "node:http";
 import { after, test } from "node:test";
 import { ValidationFailedError } from "../../errors/application-error.js";
+import type { LogFields, Logger } from "../../logging/logger.js";
 import { createHttpErrorHandler, httpErrorHandler } from "./http-error-middleware.js";
 
 const servers: Server[] = [];
@@ -72,11 +73,11 @@ test("unexpected errors return a sanitized internal error", async () => {
 });
 
 test("unexpected errors are logged internally without leaking messages into logs or responses", async () => {
-  const records: { fields: Record<string, unknown>; message: string }[] = [];
-  const logger = {
+  const records: { fields: LogFields; message: string }[] = [];
+  const logger: Logger = {
     trace: () => undefined, debug: () => undefined, info: () => undefined,
     warn: () => undefined,
-    error: (fields: Record<string, unknown>, message: string) => { records.push({ fields, message }); },
+    error: (fields: LogFields, message: string) => { records.push({ fields, message }); },
     fatal: () => undefined
   };
   const app = express();
