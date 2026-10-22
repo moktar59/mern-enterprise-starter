@@ -19,8 +19,7 @@ test("normalizes and accepts valid environment overrides", () => {
 });
 test("rejects unsupported NODE_ENV values", () => assert.throws(() => loadConfig({ NODE_ENV: "staging" }), ConfigurationError));
 test("rejects invalid log levels", () => {
-  for (const LOG_LEVEL of ["", "verbose", "INFO", "trace "]) {
-    if (LOG_LEVEL === "trace ") continue;
+  for (const LOG_LEVEL of ["", "verbose", "INFO"]) {
     assert.throws(() => loadConfig({ LOG_LEVEL }), ConfigurationError);
   }
 });
