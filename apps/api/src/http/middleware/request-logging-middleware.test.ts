@@ -44,7 +44,7 @@ test("logs route template, server request context, status and duration without r
     });
   });
 
-  const response = await fetch(`${baseUrl}/things/secret-id?token=do-not-log`);
+  const response = await fetch(`${baseUrl}/things/secret-id?token=do-not-log`, { headers: { "X-Request-Id": "client-request-id" } });
   assert.equal(response.status, 201);
   await response.arrayBuffer();
   assert.equal(records.length, 1);
@@ -54,6 +54,8 @@ test("logs route template, server request context, status and duration without r
   assert.equal(records[0].fields.statusCode, 201);
   assert.equal(typeof records[0].fields.durationMs, "number");
   assert.ok(records[0].fields.requestId);
+  assert.notEqual(records[0].fields.requestId, "client-request-id");
+  assert.equal(records[0].fields.requestId, response.headers.get("x-request-id"));
   assert.ok(records[0].fields.correlationId);
   assert.doesNotMatch(JSON.stringify(records[0]), /secret-id|do-not-log/);
 });
