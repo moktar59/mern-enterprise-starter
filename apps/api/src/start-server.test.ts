@@ -15,3 +15,7 @@ test("MongoDB connection failure rejects startup before an HTTP listener is crea
     /MongoDB connection or index initialization failed/
   );
 });
+
+test("invalid LOG_LEVEL rejects startup before connecting to MongoDB", async () => {
+  await assert.rejects(startServer({ LOG_LEVEL: "verbose" }), ConfigurationError);
+});
