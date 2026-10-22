@@ -28,7 +28,7 @@ test("rejects empty HOST and MONGODB_URI", () => {
   assert.throws(() => loadConfig({ MONGODB_URI: " " }), ConfigurationError);
 });
 for (const port of ["", "abc", "1.5", "0", "65536", "-1", "  "]) {
-  test(`rejects invalid PORT value ${JSON.stringify(port)}`, () => assert.throws(() => loadConfig({ PORT }), ConfigurationError));
+  test(`rejects invalid PORT value ${JSON.stringify(port)}`, () => assert.throws(() => loadConfig({ PORT: port }), ConfigurationError));
 }
 test("returns configuration frozen at runtime", () => {
   const config = loadConfig({});
