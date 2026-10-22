@@ -30,7 +30,7 @@ export async function startServer(env?: NodeJS.ProcessEnv, configureLifecycle?: 
         logger.error({
           event: "lifecycle.cleanup_failed",
           errorName: error instanceof Error ? error.name : "UnknownError",
-          ...(error instanceof Error && error.stack ? { stack: error.stack } : {})
+          ...(error instanceof Error && error.stack ? { stack: error.stack.split("\n").slice(1).join("\n") } : {})
         }, "Application lifecycle cleanup failed");
       } catch { /* A logger failure must not interrupt remaining cleanup. */ }
     },
@@ -48,7 +48,7 @@ export async function startServer(env?: NodeJS.ProcessEnv, configureLifecycle?: 
         logger.error({
           event: "shutdown.failed",
           errorName: error instanceof Error ? error.name : "UnknownError",
-          ...(error instanceof Error && error.stack ? { stack: error.stack } : {})
+          ...(error instanceof Error && error.stack ? { stack: error.stack.split("\n").slice(1).join("\n") } : {})
         }, "Graceful shutdown failed");
       } catch { /* Avoid recursive logging failures. */ }
     });
