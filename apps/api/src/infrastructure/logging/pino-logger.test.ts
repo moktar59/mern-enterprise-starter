@@ -19,7 +19,7 @@ test("Pino logger emits structured JSON and redacts common sensitive fields", ()
   const event = JSON.parse(output.trim()) as Record<string, unknown>;
   assert.equal(event.level, 30);
   assert.equal(event.requestId, "request-123");
-  assert.equal(event.msg, "test event");
+  assert.equal(event.message, "test event");
   assert.equal(event.password, "[REDACTED]");
   assert.equal(event.authorization, "[REDACTED]");
   assert.equal((event.user as Record<string, unknown>).token, "[REDACTED]");
