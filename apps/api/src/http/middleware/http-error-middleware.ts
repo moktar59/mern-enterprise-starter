@@ -64,7 +64,7 @@ export function createHttpErrorHandler(logger?: Logger, contextScope?: Execution
           requestId: context?.requestId ?? response.getHeader("X-Request-Id"),
           correlationId: context?.correlationId,
           errorName: error instanceof Error ? error.name : "UnknownError",
-          ...(error instanceof Error && error.stack ? { stack: error.stack } : {})
+          ...(error instanceof Error && error.stack ? { stack: error.stack.split("\n").slice(1).join("\n") } : {})
         }, "Unhandled HTTP error");
       } catch {
         // Logging must never interfere with the public error boundary.
