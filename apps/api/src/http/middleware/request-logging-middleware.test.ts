@@ -10,18 +10,26 @@ import { createRequestLoggingMiddleware } from "./request-logging-middleware.js"
 
 const servers: Server[] = [];
 after(async () => {
-  await Promise.all(servers.map(async (server) => {
-    if (!server.listening) return;
-    await new Promise<void>((resolve) => server.close(() => resolve()));
-  }));
+  await Promise.all(
+    servers.map(async (server) => {
+      if (!server.listening) return;
+      await new Promise<void>((resolve) => server.close(() => resolve()));
+    }),
+  );
 });
 
 function createCaptureLogger() {
   const records: { level: string; fields: LogFields; message: string }[] = [];
-  const capture = (level: string) => (fields: LogFields, message: string) => { records.push({ level, fields, message }); };
+  const capture = (level: string) => (fields: LogFields, message: string) => {
+    records.push({ level, fields, message });
+  };
   const logger: Logger = {
-    trace: capture("trace"), debug: capture("debug"), info: capture("info"),
-    warn: capture("warn"), error: capture("error"), fatal: capture("fatal")
+    trace: capture("trace"),
+    debug: capture("debug"),
+    info: capture("info"),
+    warn: capture("warn"),
+    error: capture("error"),
+    fatal: capture("fatal"),
   };
   return { logger, records };
 }
@@ -39,12 +47,17 @@ test("logs route template, server request context, status and duration without r
     server.once("error", reject);
     server.listen(0, "127.0.0.1", () => {
       const address = server.address();
-      if (!address || typeof address === "string") { reject(new Error("Expected TCP address")); return; }
+      if (!address || typeof address === "string") {
+        reject(new Error("Expected TCP address"));
+        return;
+      }
       resolve(`http://127.0.0.1:${address.port}`);
     });
   });
 
-  const response = await fetch(`${baseUrl}/things/secret-id?token=do-not-log`, { headers: { "X-Request-Id": "client-request-id" } });
+  const response = await fetch(`${baseUrl}/things/secret-id?token=do-not-log`, {
+    headers: { "X-Request-Id": "client-request-id" },
+  });
   assert.equal(response.status, 201);
   await response.arrayBuffer();
   assert.equal(records.length, 1);
@@ -73,7 +86,10 @@ test("logs liveness requests at debug level", async () => {
     server.once("error", reject);
     server.listen(0, "127.0.0.1", () => {
       const address = server.address();
-      if (!address || typeof address === "string") { reject(new Error("Expected TCP address")); return; }
+      if (!address || typeof address === "string") {
+        reject(new Error("Expected TCP address"));
+        return;
+      }
       resolve(`http://127.0.0.1:${address.port}`);
     });
   });

@@ -24,7 +24,7 @@ test("MongoDB repository filters, orders, paginates and counts in the database",
   await ItemModel.deleteMany({ id: /^item-test-/ });
   await ItemModel.insertMany([
     { id: "item-test-b", name: "B" },
-    { id: "item-test-a", name: "A" }
+    { id: "item-test-a", name: "A" },
   ]);
   const result = await new MongooseItemRepository().list({ page: 1, perPage: 1 });
   assert.deepEqual(result.records, [{ id: "item-test-a", name: "A" }]);

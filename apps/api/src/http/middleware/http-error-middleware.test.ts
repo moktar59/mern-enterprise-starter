@@ -9,12 +9,14 @@ import { createHttpErrorHandler, httpErrorHandler } from "./http-error-middlewar
 const servers: Server[] = [];
 
 after(async () => {
-  await Promise.all(servers.map(async (server) => {
-    if (!server.listening) return;
-    await new Promise<void>((resolve, reject) => {
-      server.close((error) => error ? reject(error) : resolve());
-    });
-  }));
+  await Promise.all(
+    servers.map(async (server) => {
+      if (!server.listening) return;
+      await new Promise<void>((resolve, reject) => {
+        server.close((error) => (error ? reject(error) : resolve()));
+      });
+    }),
+  );
 });
 
 async function requestFor(error: Error): Promise<Response> {
@@ -43,9 +45,12 @@ async function requestFor(error: Error): Promise<Response> {
 }
 
 test("validation errors return RFC 9457 details without sensitive input", async () => {
-  const response = await requestFor(new ValidationFailedError([
-    { field: "email", code: "INVALID_FORMAT" }
-  ], "private input must not appear"));
+  const response = await requestFor(
+    new ValidationFailedError(
+      [{ field: "email", code: "INVALID_FORMAT" }],
+      "private input must not appear",
+    ),
+  );
   assert.equal(response.status, 422);
   assert.match(response.headers.get("content-type") ?? "", /^application\/problem\+json/);
   assert.deepEqual(await response.json(), {
@@ -54,7 +59,7 @@ test("validation errors return RFC 9457 details without sensitive input", async 
     status: 422,
     code: "VALIDATION_FAILED",
     requestId: "test-request-id",
-    errors: [{ field: "email", code: "INVALID_FORMAT" }]
+    errors: [{ field: "email", code: "INVALID_FORMAT" }],
   });
 });
 
@@ -67,7 +72,7 @@ test("unexpected errors return a sanitized internal error", async () => {
     title: "Internal Server Error",
     status: 500,
     code: "INTERNAL_ERROR",
-    requestId: "test-request-id"
+    requestId: "test-request-id",
   });
   assert.doesNotMatch(body, /secret database credentials/);
 });
@@ -75,10 +80,14 @@ test("unexpected errors return a sanitized internal error", async () => {
 test("unexpected errors are logged internally without leaking messages into logs or responses", async () => {
   const records: { fields: LogFields; message: string }[] = [];
   const logger: Logger = {
-    trace: () => undefined, debug: () => undefined, info: () => undefined,
+    trace: () => undefined,
+    debug: () => undefined,
+    info: () => undefined,
     warn: () => undefined,
-    error: (fields: LogFields, message: string) => { records.push({ fields, message }); },
-    fatal: () => undefined
+    error: (fields: LogFields, message: string) => {
+      records.push({ fields, message });
+    },
+    fatal: () => undefined,
   };
   const app = express();
   app.use((_request, response, next) => {
@@ -92,7 +101,10 @@ test("unexpected errors are logged internally without leaking messages into logs
     server.once("error", reject);
     server.listen(0, "127.0.0.1", () => {
       const address = server.address();
-      if (!address || typeof address === "string") { reject(new Error("Expected TCP address")); return; }
+      if (!address || typeof address === "string") {
+        reject(new Error("Expected TCP address"));
+        return;
+      }
       resolve(`http://127.0.0.1:${address.port}`);
     });
   });

@@ -4,15 +4,17 @@ import type { Logger } from "../../logging/logger.js";
 import type { ExecutionContextScope } from "../../execution-context/execution-context-scope.js";
 
 /** Emits one completion event per request without recording URLs, payloads, or credentials. */
-export function createRequestLoggingMiddleware(logger: Logger, contextScope: ExecutionContextScope): RequestHandler {
+export function createRequestLoggingMiddleware(
+  logger: Logger,
+  contextScope: ExecutionContextScope,
+): RequestHandler {
   return (request, response, next) => {
     const startedAt = performance.now();
     response.once("finish", () => {
       const context = contextScope.current();
       const routePath = request.route?.path;
-      const route = typeof routePath === "string"
-        ? `${request.baseUrl}${routePath}` || "/"
-        : undefined;
+      const route =
+        typeof routePath === "string" ? `${request.baseUrl}${routePath}` || "/" : undefined;
       const statusCode = response.statusCode;
       const fields = {
         requestId: context?.requestId ?? response.getHeader("X-Request-Id"),
@@ -20,7 +22,7 @@ export function createRequestLoggingMiddleware(logger: Logger, contextScope: Exe
         method: request.method,
         ...(route ? { route } : {}),
         statusCode,
-        durationMs: Math.round((performance.now() - startedAt) * 100) / 100
+        durationMs: Math.round((performance.now() - startedAt) * 100) / 100,
       };
       const message = "HTTP request completed";
       try {

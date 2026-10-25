@@ -13,18 +13,23 @@ async function main(): Promise<void> {
         updateOne: {
           filter: { id },
           update: { $set: { name: `Example item ${number}` } },
-          upsert: true
-        }
+          upsert: true,
+        },
       };
     });
     const result = await ItemModel.bulkWrite(operations, { ordered: true });
-    console.info(`Seed complete: ${result.upsertedCount} inserted, ${result.modifiedCount} updated; existing non-seed records were left unchanged.`);
+    console.info(
+      `Seed complete: ${result.upsertedCount} inserted, ${result.modifiedCount} updated; existing non-seed records were left unchanged.`,
+    );
   } finally {
     await connection.disconnect();
   }
 }
 
 main().catch((error: unknown) => {
-  console.error("Item seed command failed.", error instanceof Error ? error.message : "Unknown error");
+  console.error(
+    "Item seed command failed.",
+    error instanceof Error ? error.message : "Unknown error",
+  );
   process.exitCode = 1;
 });

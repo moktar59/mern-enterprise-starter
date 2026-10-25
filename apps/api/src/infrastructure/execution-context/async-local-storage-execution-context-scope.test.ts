@@ -40,10 +40,13 @@ test("nested scopes restore their parent after success and failure", async () =>
     });
     assert.equal(scope.require(), parent);
 
-    await assert.rejects(scope.run(child, async () => {
-      await delay(1);
-      throw new Error("expected test failure");
-    }), /expected test failure/);
+    await assert.rejects(
+      scope.run(child, async () => {
+        await delay(1);
+        throw new Error("expected test failure");
+      }),
+      /expected test failure/,
+    );
     assert.equal(scope.require(), parent);
   });
 
@@ -62,7 +65,7 @@ test("isolates concurrent asynchronous executions", async () => {
     scope.run(second, async () => {
       await delay(5);
       return scope.require().executionId;
-    })
+    }),
   ]);
 
   assert.equal(firstId, first.executionId);

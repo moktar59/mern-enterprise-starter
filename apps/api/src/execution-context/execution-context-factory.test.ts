@@ -1,9 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import {
-  ExecutionContextConflictError,
-  type ExecutionContext
-} from "./execution-context.js";
+import { ExecutionContextConflictError, type ExecutionContext } from "./execution-context.js";
 import { DefaultExecutionContextFactory } from "./execution-context-factory.js";
 
 const factory = new DefaultExecutionContextFactory();
@@ -28,7 +25,7 @@ test("creates immutable contexts and immutable derived metadata", () => {
   const context = createContext();
   const derived = factory.withPrincipal(context, {
     principalId: "user-1",
-    principalType: "human"
+    principalType: "human",
   });
 
   assert.equal(Object.isFrozen(context), true);
@@ -41,25 +38,35 @@ test("creates immutable contexts and immutable derived metadata", () => {
 test("allows the same principal and rejects conflicting principal identity", () => {
   const context = factory.withPrincipal(createContext(), {
     principalId: "user-1",
-    principalType: "human"
+    principalType: "human",
   });
 
-  assert.equal(factory.withPrincipal(context, {
-    principalId: "user-1",
-    principalType: "human"
-  }), context);
+  assert.equal(
+    factory.withPrincipal(context, {
+      principalId: "user-1",
+      principalType: "human",
+    }),
+    context,
+  );
 
-  assert.throws(() => factory.withPrincipal(context, {
-    principalId: "user-2",
-    principalType: "human"
-  }), ExecutionContextConflictError);
+  assert.throws(
+    () =>
+      factory.withPrincipal(context, {
+        principalId: "user-2",
+        principalType: "human",
+      }),
+    ExecutionContextConflictError,
+  );
 });
 
 test("allows the same tenant and rejects conflicting tenant identity", () => {
   const context = factory.withTenant(createContext(), { id: "tenant-1" });
 
   assert.equal(factory.withTenant(context, { id: "tenant-1" }), context);
-  assert.throws(() => factory.withTenant(context, { id: "tenant-2" }), ExecutionContextConflictError);
+  assert.throws(
+    () => factory.withTenant(context, { id: "tenant-2" }),
+    ExecutionContextConflictError,
+  );
 });
 
 test("does not silently replace an established locale", () => {

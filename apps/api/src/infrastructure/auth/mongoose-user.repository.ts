@@ -1,1 +1,49 @@
-import {UserEmailConflictError,UserPersistenceError,type UserRepository,type CreateAuthUserInput} from "../../modules/auth/user.repository.js";import type {AuthUser} from "../../modules/auth/user.js";import {UserModel} from "./mongoose-user.model.js";const map=(u:{id:string;email:string;passwordHash:string}):AuthUser=>({id:u.id,email:u.email,passwordHash:u.passwordHash});function duplicate(e:unknown){if(typeof e!=="object"||!e)return false;const x=e as {code?:unknown;keyPattern?:Record<string,unknown>;keyValue?:Record<string,unknown>};return x.code===11000&&(x.keyPattern?.email===1||x.keyValue?.email!==undefined);}export class MongooseUserRepository implements UserRepository{async findByEmail(email:string){try{const u=await UserModel.findOne({email}).select("+passwordHash").lean().exec();return u?map(u):null;}catch{throw new UserPersistenceError();}}async findById(id:string){try{const u=await UserModel.findOne({id}).select("+passwordHash").lean().exec();return u?map(u):null;}catch{throw new UserPersistenceError();}}async create(i:CreateAuthUserInput){try{const u=await UserModel.create(i);return map({id:u.id,email:u.email,passwordHash:i.passwordHash});}catch(e){if(duplicate(e))throw new UserEmailConflictError();throw new UserPersistenceError();}}}
+import {
+  UserEmailConflictError,
+  UserPersistenceError,
+  type UserRepository,
+  type CreateAuthUserInput,
+} from "../../modules/auth/user.repository.js";
+import type { AuthUser } from "../../modules/auth/user.js";
+import { UserModel } from "./mongoose-user.model.js";
+const map = (u: { id: string; email: string; passwordHash: string }): AuthUser => ({
+  id: u.id,
+  email: u.email,
+  passwordHash: u.passwordHash,
+});
+function duplicate(e: unknown) {
+  if (typeof e !== "object" || !e) return false;
+  const x = e as {
+    code?: unknown;
+    keyPattern?: Record<string, unknown>;
+    keyValue?: Record<string, unknown>;
+  };
+  return x.code === 11000 && (x.keyPattern?.email === 1 || x.keyValue?.email !== undefined);
+}
+export class MongooseUserRepository implements UserRepository {
+  async findByEmail(email: string) {
+    try {
+      const u = await UserModel.findOne({ email }).select("+passwordHash").lean().exec();
+      return u ? map(u) : null;
+    } catch {
+      throw new UserPersistenceError();
+    }
+  }
+  async findById(id: string) {
+    try {
+      const u = await UserModel.findOne({ id }).select("+passwordHash").lean().exec();
+      return u ? map(u) : null;
+    } catch {
+      throw new UserPersistenceError();
+    }
+  }
+  async create(i: CreateAuthUserInput) {
+    try {
+      const u = await UserModel.create(i);
+      return map({ id: u.id, email: u.email, passwordHash: i.passwordHash });
+    } catch (e) {
+      if (duplicate(e)) throw new UserEmailConflictError();
+      throw new UserPersistenceError();
+    }
+  }
+}

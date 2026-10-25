@@ -1,6 +1,59 @@
-import assert from "node:assert/strict";import {test} from "node:test";import {ConfigurationError,loadConfig} from "./config.js";
-test("defaults include ephemeral secret and 15-minute token lifetime",()=>{const c=loadConfig({});assert.equal(c.nodeEnv,"development");assert.equal(c.host,"127.0.0.1");assert.equal(c.port,3000);assert.equal(c.mongoUri,"mongodb://127.0.0.1:27017/mern_enterprise_starter");assert.equal(c.logLevel,"debug");assert.ok(c.authJwtSecret.length>=32);assert.equal(c.authAccessTokenTtlSeconds,900);assert.equal(c.authArgon2TimeCost,2);assert.equal(c.authArgon2MemoryCostKiB,19456);assert.equal(c.authArgon2Parallelism,1);});
-test("log levels vary by environment and production requires secret",()=>{assert.equal(loadConfig({NODE_ENV:"test"}).logLevel,"silent");assert.equal(loadConfig({NODE_ENV:"production",AUTH_JWT_SECRET:"production-secret-with-at-least-32-bytes"}).logLevel,"info");assert.throws(()=>loadConfig({NODE_ENV:"production"}),ConfigurationError);});
-test("valid overrides are normalized",()=>{const c=loadConfig({NODE_ENV:" test ",HOST:" 0.0.0.0 ",PORT:"8080",MONGODB_URI:" mongodb://localhost/test ",LOG_LEVEL:" warn ",AUTH_JWT_SECRET:"a-test-secret-that-has-at-least-32-bytes"});assert.equal(c.host,"0.0.0.0");assert.equal(c.port,8080);assert.equal(c.mongoUri,"mongodb://localhost/test");assert.equal(c.logLevel,"warn");});
-test("invalid settings fail validation",()=>{for(const NODE_ENV of ["staging"])assert.throws(()=>loadConfig({NODE_ENV}),ConfigurationError);for(const PORT of ["","abc","0","65536"])assert.throws(()=>loadConfig({PORT}),ConfigurationError);assert.throws(()=>loadConfig({HOST:" "}),ConfigurationError);assert.throws(()=>loadConfig({MONGODB_URI:" "}),ConfigurationError);assert.throws(()=>loadConfig({AUTH_JWT_SECRET:"short"}),ConfigurationError);assert.throws(()=>loadConfig({AUTH_ACCESS_TOKEN_TTL_SECONDS:"30"}),ConfigurationError);assert.throws(()=>loadConfig({AUTH_ARGON2_TIME_COST:"1"}),ConfigurationError);assert.throws(()=>loadConfig({AUTH_ARGON2_MEMORY_COST_KIB:"1000"}),ConfigurationError);assert.throws(()=>loadConfig({AUTH_ARGON2_PARALLELISM:"5"}),ConfigurationError);});
-test("configuration is frozen",()=>{const c=loadConfig({});assert.equal(Object.isFrozen(c),true);assert.equal(Reflect.set(c,"port",4000),false);});
+import assert from "node:assert/strict";
+import { test } from "node:test";
+import { ConfigurationError, loadConfig } from "./config.js";
+test("defaults include ephemeral secret and 15-minute token lifetime", () => {
+  const c = loadConfig({});
+  assert.equal(c.nodeEnv, "development");
+  assert.equal(c.host, "127.0.0.1");
+  assert.equal(c.port, 3000);
+  assert.equal(c.mongoUri, "mongodb://127.0.0.1:27017/mern_enterprise_starter");
+  assert.equal(c.logLevel, "debug");
+  assert.ok(c.authJwtSecret.length >= 32);
+  assert.equal(c.authAccessTokenTtlSeconds, 900);
+  assert.equal(c.authArgon2TimeCost, 2);
+  assert.equal(c.authArgon2MemoryCostKiB, 19456);
+  assert.equal(c.authArgon2Parallelism, 1);
+});
+test("log levels vary by environment and production requires secret", () => {
+  assert.equal(loadConfig({ NODE_ENV: "test" }).logLevel, "silent");
+  assert.equal(
+    loadConfig({
+      NODE_ENV: "production",
+      AUTH_JWT_SECRET: "production-secret-with-at-least-32-bytes",
+    }).logLevel,
+    "info",
+  );
+  assert.throws(() => loadConfig({ NODE_ENV: "production" }), ConfigurationError);
+});
+test("valid overrides are normalized", () => {
+  const c = loadConfig({
+    NODE_ENV: " test ",
+    HOST: " 0.0.0.0 ",
+    PORT: "8080",
+    MONGODB_URI: " mongodb://localhost/test ",
+    LOG_LEVEL: " warn ",
+    AUTH_JWT_SECRET: "a-test-secret-that-has-at-least-32-bytes",
+  });
+  assert.equal(c.host, "0.0.0.0");
+  assert.equal(c.port, 8080);
+  assert.equal(c.mongoUri, "mongodb://localhost/test");
+  assert.equal(c.logLevel, "warn");
+});
+test("invalid settings fail validation", () => {
+  for (const NODE_ENV of ["staging"])
+    assert.throws(() => loadConfig({ NODE_ENV }), ConfigurationError);
+  for (const PORT of ["", "abc", "0", "65536"])
+    assert.throws(() => loadConfig({ PORT }), ConfigurationError);
+  assert.throws(() => loadConfig({ HOST: " " }), ConfigurationError);
+  assert.throws(() => loadConfig({ MONGODB_URI: " " }), ConfigurationError);
+  assert.throws(() => loadConfig({ AUTH_JWT_SECRET: "short" }), ConfigurationError);
+  assert.throws(() => loadConfig({ AUTH_ACCESS_TOKEN_TTL_SECONDS: "30" }), ConfigurationError);
+  assert.throws(() => loadConfig({ AUTH_ARGON2_TIME_COST: "1" }), ConfigurationError);
+  assert.throws(() => loadConfig({ AUTH_ARGON2_MEMORY_COST_KIB: "1000" }), ConfigurationError);
+  assert.throws(() => loadConfig({ AUTH_ARGON2_PARALLELISM: "5" }), ConfigurationError);
+});
+test("configuration is frozen", () => {
+  const c = loadConfig({});
+  assert.equal(Object.isFrozen(c), true);
+  assert.equal(Reflect.set(c, "port", 4000), false);
+});

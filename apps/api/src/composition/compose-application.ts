@@ -1,1 +1,49 @@
-import type {Express} from "express";import {loadConfig,type AppConfig} from "../config.js";import {DefaultExecutionContextFactory} from "../execution-context/execution-context-factory.js";import {AsyncLocalStorageExecutionContextScope} from "../infrastructure/execution-context/async-local-storage-execution-context-scope.js";import {createPinoLogger} from "../infrastructure/logging/pino-logger.js";import {Argon2PasswordHasher} from "../infrastructure/auth/argon2-password-hasher.js";import {JoseAccessTokenService} from "../infrastructure/auth/jose-access-token.service.js";import {MongooseUserRepository} from "../infrastructure/auth/mongoose-user.repository.js";import {createExecutionContextMiddleware} from "../http/middleware/execution-context-middleware.js";import {createApp} from "../app.js";import {createAuthService} from "../modules/auth/auth.service.js";import type {UserRepository} from "../modules/auth/user.repository.js";import type {Logger} from "../logging/logger.js";import type {ItemRepository} from "../modules/items/item.repository.js";import {createAuthRouter} from "../routes/v1/auth.routes.js";export function composeApplication(items:ItemRepository,logger?:Logger,cfg?:AppConfig,users:UserRepository=new MongooseUserRepository()):Express{const c=cfg??loadConfig(),f=new DefaultExecutionContextFactory(),s=new AsyncLocalStorageExecutionContextScope(),l=logger??createPinoLogger(c.logLevel),t=new JoseAccessTokenService(c.authJwtSecret,c.authJwtIssuer,c.authJwtAudience,c.authAccessTokenTtlSeconds),a=createAuthService(users,new Argon2PasswordHasher({timeCost:c.authArgon2TimeCost,memoryCostKiB:c.authArgon2MemoryCostKiB,parallelism:c.authArgon2Parallelism}),t,c.authAccessTokenTtlSeconds);return createApp(createExecutionContextMiddleware(f,s),items,l,s,createAuthRouter(a,t,f,s));}
+import type { Express } from "express";
+import { loadConfig, type AppConfig } from "../config.js";
+import { DefaultExecutionContextFactory } from "../execution-context/execution-context-factory.js";
+import { AsyncLocalStorageExecutionContextScope } from "../infrastructure/execution-context/async-local-storage-execution-context-scope.js";
+import { createPinoLogger } from "../infrastructure/logging/pino-logger.js";
+import { Argon2PasswordHasher } from "../infrastructure/auth/argon2-password-hasher.js";
+import { JoseAccessTokenService } from "../infrastructure/auth/jose-access-token.service.js";
+import { MongooseUserRepository } from "../infrastructure/auth/mongoose-user.repository.js";
+import { createExecutionContextMiddleware } from "../http/middleware/execution-context-middleware.js";
+import { createApp } from "../app.js";
+import { createAuthService } from "../modules/auth/auth.service.js";
+import type { UserRepository } from "../modules/auth/user.repository.js";
+import type { Logger } from "../logging/logger.js";
+import type { ItemRepository } from "../modules/items/item.repository.js";
+import { createAuthRouter } from "../routes/v1/auth.routes.js";
+export function composeApplication(
+  items: ItemRepository,
+  logger?: Logger,
+  cfg?: AppConfig,
+  users: UserRepository = new MongooseUserRepository(),
+): Express {
+  const c = cfg ?? loadConfig(),
+    f = new DefaultExecutionContextFactory(),
+    s = new AsyncLocalStorageExecutionContextScope(),
+    l = logger ?? createPinoLogger(c.logLevel),
+    t = new JoseAccessTokenService(
+      c.authJwtSecret,
+      c.authJwtIssuer,
+      c.authJwtAudience,
+      c.authAccessTokenTtlSeconds,
+    ),
+    a = createAuthService(
+      users,
+      new Argon2PasswordHasher({
+        timeCost: c.authArgon2TimeCost,
+        memoryCostKiB: c.authArgon2MemoryCostKiB,
+        parallelism: c.authArgon2Parallelism,
+      }),
+      t,
+      c.authAccessTokenTtlSeconds,
+    );
+  return createApp(
+    createExecutionContextMiddleware(f, s),
+    items,
+    l,
+    s,
+    createAuthRouter(a, t, f, s),
+  );
+}

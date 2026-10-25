@@ -11,7 +11,7 @@ let server: Server | undefined;
 after(async () => {
   if (!server?.listening) return;
   await new Promise<void>((resolve, reject) => {
-    server?.close((error) => error ? reject(error) : resolve());
+    server?.close((error) => (error ? reject(error) : resolve()));
   });
 });
 
@@ -30,7 +30,7 @@ test("isolates concurrent HTTP requests and returns each request ID", async () =
       executionId: after.executionId,
       requestId: after.requestId,
       correlationId: after.correlationId,
-      contextPreserved: before.executionId === after.executionId
+      contextPreserved: before.executionId === after.executionId,
     });
   });
 
@@ -48,7 +48,7 @@ test("isolates concurrent HTTP requests and returns each request ID", async () =
 
   const [firstResponse, secondResponse] = await Promise.all([
     fetch(baseUrl, { headers: { "X-Request-Id": "client-supplied-id" } }),
-    fetch(baseUrl)
+    fetch(baseUrl),
   ]);
   const [first, second] = await Promise.all([
     firstResponse.json() as Promise<{
@@ -62,7 +62,7 @@ test("isolates concurrent HTTP requests and returns each request ID", async () =
       requestId: string;
       correlationId: string;
       contextPreserved: boolean;
-    }>
+    }>,
   ]);
 
   assert.equal(firstResponse.status, 200);

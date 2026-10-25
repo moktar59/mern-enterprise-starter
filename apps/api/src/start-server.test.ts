@@ -12,7 +12,7 @@ test("startServer rejects invalid port configuration before connecting to MongoD
 test("MongoDB connection failure rejects startup before an HTTP listener is created", async () => {
   await assert.rejects(
     startServer({ MONGODB_URI: "mongodb://127.0.0.1:1/mern_enterprise_starter_test" }),
-    /MongoDB connection or index initialization failed/
+    /MongoDB connection or index initialization failed/,
   );
 });
 
