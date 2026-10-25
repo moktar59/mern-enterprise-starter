@@ -6,11 +6,13 @@ import { createApplicationLifecycle, registerShutdownSignals } from "./graceful-
 
 const servers: Server[] = [];
 after(async () => {
-  await Promise.all(servers.map(async (server) => {
-    if (!server.listening) return;
-    await new Promise<void>((resolve) => server.close(() => resolve()));
-    server.closeAllConnections();
-  }));
+  await Promise.all(
+    servers.map(async (server) => {
+      if (!server.listening) return;
+      await new Promise<void>((resolve) => server.close(() => resolve()));
+      server.closeAllConnections();
+    }),
+  );
 });
 
 function listen(server: Server): Promise<void> {
@@ -26,7 +28,9 @@ test("repeated shutdown calls share one promise and run cleanup once", async () 
   await listen(server);
   let cleanupCount = 0;
   const lifecycle = createApplicationLifecycle(server, { timeoutMs: 100 });
-  lifecycle.registerCleanup(() => { cleanupCount += 1; });
+  lifecycle.registerCleanup(() => {
+    cleanupCount += 1;
+  });
   const first = lifecycle.shutdown();
   const second = lifecycle.shutdown();
   assert.equal(first, second);
@@ -54,10 +58,15 @@ test("cleanup continues when one cleanup task fails", async () => {
   const errors: unknown[] = [];
   let secondCleanupRan = false;
   const lifecycle = createApplicationLifecycle(server, {
-    timeoutMs: 100, onError: (error) => errors.push(error)
+    timeoutMs: 100,
+    onError: (error) => errors.push(error),
   });
-  lifecycle.registerCleanup(() => { throw new Error("cleanup failure"); });
-  lifecycle.registerCleanup(() => { secondCleanupRan = true; });
+  lifecycle.registerCleanup(() => {
+    throw new Error("cleanup failure");
+  });
+  lifecycle.registerCleanup(() => {
+    secondCleanupRan = true;
+  });
   await lifecycle.shutdown();
   assert.equal(errors.length, 1);
   assert.equal(secondCleanupRan, true);
@@ -75,7 +84,14 @@ test("cleanup cannot be registered after shutdown begins", async () => {
 test("repeated process signals invoke shutdown once and remove handlers", async () => {
   const signals = new EventEmitter();
   let shutdownCount = 0;
-  registerShutdownSignals({ shutdown: async () => { shutdownCount += 1; } }, signals);
+  registerShutdownSignals(
+    {
+      shutdown: async () => {
+        shutdownCount += 1;
+      },
+    },
+    signals,
+  );
   signals.emit("SIGTERM");
   signals.emit("SIGINT");
   await new Promise((resolve) => setImmediate(resolve));
@@ -91,10 +107,17 @@ test("lifecycle emits start and completion notifications without risking cleanup
   let cleanupRan = false;
   const lifecycle = createApplicationLifecycle(server, {
     timeoutMs: 100,
-    onStart: () => { events.push("start"); throw new Error("observer failure"); },
-    onComplete: () => { events.push("complete"); }
+    onStart: () => {
+      events.push("start");
+      throw new Error("observer failure");
+    },
+    onComplete: () => {
+      events.push("complete");
+    },
   });
-  lifecycle.registerCleanup(() => { cleanupRan = true; });
+  lifecycle.registerCleanup(() => {
+    cleanupRan = true;
+  });
   await lifecycle.shutdown();
   assert.deepEqual(events, ["start", "complete"]);
   assert.equal(cleanupRan, true);

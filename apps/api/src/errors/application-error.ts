@@ -8,15 +8,13 @@ export class ApplicationError extends Error {
   readonly code: string;
   readonly errors?: readonly ApplicationFieldError[];
 
-  constructor(
-    code: string,
-    message: string,
-    errors?: readonly ApplicationFieldError[]
-  ) {
+  constructor(code: string, message: string, errors?: readonly ApplicationFieldError[]) {
     super(message);
     this.name = "ApplicationError";
     this.code = code;
-    this.errors = errors ? Object.freeze(errors.map((item) => Object.freeze({ ...item }))) : undefined;
+    this.errors = errors
+      ? Object.freeze(errors.map((item) => Object.freeze({ ...item })))
+      : undefined;
   }
 }
 

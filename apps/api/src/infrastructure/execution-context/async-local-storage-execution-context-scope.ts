@@ -1,7 +1,7 @@
 import { AsyncLocalStorage } from "node:async_hooks";
 import {
   ExecutionContextRequiredError,
-  type ExecutionContext
+  type ExecutionContext,
 } from "../../execution-context/execution-context.js";
 import type { ExecutionContextScope } from "../../execution-context/execution-context-scope.js";
 

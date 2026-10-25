@@ -13,11 +13,11 @@ export class MongooseItemRepository implements ItemRepository {
           .limit(query.perPage)
           .lean()
           .exec(),
-        ItemModel.countDocuments({}).exec()
+        ItemModel.countDocuments({}).exec(),
       ]);
       const records: Item[] = documents.map((document) => ({
         id: document.id,
-        name: document.name
+        name: document.name,
       }));
       return {
         records,
@@ -25,8 +25,8 @@ export class MongooseItemRepository implements ItemRepository {
           page: query.page,
           perPage: query.perPage,
           totalItems,
-          totalPages: totalItems === 0 ? 0 : Math.ceil(totalItems / query.perPage)
-        }
+          totalPages: totalItems === 0 ? 0 : Math.ceil(totalItems / query.perPage),
+        },
       };
     } catch {
       throw new ItemPersistenceError();

@@ -6,7 +6,7 @@ import type { ExecutionContextScope } from "../../execution-context/execution-co
 /** Establishes a server-owned execution context for each HTTP request. */
 export function createExecutionContextMiddleware(
   factory: ExecutionContextFactory,
-  scope: ExecutionContextScope
+  scope: ExecutionContextScope,
 ): RequestHandler {
   return (_request, response, next) => {
     const requestId = randomUUID();
@@ -17,7 +17,7 @@ export function createExecutionContextMiddleware(
     const context = factory.create({
       source: "HTTP",
       requestId,
-      correlationId
+      correlationId,
     });
 
     scope.run(context, () => next());

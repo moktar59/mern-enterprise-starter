@@ -6,7 +6,7 @@ import {
   type ExecutionContextCreationInput,
   type Locale,
   type Principal,
-  type TenantContext
+  type TenantContext,
 } from "./execution-context.js";
 
 export interface ExecutionContextFactory {
@@ -20,7 +20,7 @@ function freezeContext(context: ExecutionContext): ExecutionContext {
   return Object.freeze({
     ...context,
     ...(context.principal ? { principal: Object.freeze({ ...context.principal }) } : {}),
-    ...(context.tenant ? { tenant: Object.freeze({ ...context.tenant }) } : {})
+    ...(context.tenant ? { tenant: Object.freeze({ ...context.tenant }) } : {}),
   });
 }
 
@@ -32,7 +32,7 @@ export class DefaultExecutionContextFactory implements ExecutionContextFactory {
       source: input.source,
       startedAt: new Date().toISOString(),
       ...(input.requestId === undefined ? {} : { requestId: input.requestId }),
-      ...(input.correlationId === undefined ? {} : { correlationId: input.correlationId })
+      ...(input.correlationId === undefined ? {} : { correlationId: input.correlationId }),
     });
   }
 
@@ -46,7 +46,9 @@ export class DefaultExecutionContextFactory implements ExecutionContextFactory {
         context.principal.principalId !== principal.principalId ||
         context.principal.principalType !== principal.principalType
       ) {
-        throw new ExecutionContextConflictError("Execution context already has a different principal.");
+        throw new ExecutionContextConflictError(
+          "Execution context already has a different principal.",
+        );
       }
       return context;
     }
@@ -61,7 +63,9 @@ export class DefaultExecutionContextFactory implements ExecutionContextFactory {
 
     if (context.tenant) {
       if (context.tenant.id !== tenant.id) {
-        throw new ExecutionContextConflictError("Execution context already has a different tenant.");
+        throw new ExecutionContextConflictError(
+          "Execution context already has a different tenant.",
+        );
       }
       return context;
     }
@@ -76,7 +80,9 @@ export class DefaultExecutionContextFactory implements ExecutionContextFactory {
 
     if (context.locale !== undefined) {
       if (context.locale !== locale) {
-        throw new ExecutionContextConflictError("Execution context already has a different locale.");
+        throw new ExecutionContextConflictError(
+          "Execution context already has a different locale.",
+        );
       }
       return context;
     }

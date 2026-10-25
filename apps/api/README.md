@@ -13,32 +13,32 @@ The API is an independently managed Node.js 24, TypeScript, Express 5 applicatio
 
 Run these commands from `apps/api`:
 
-| Command | Purpose |
-|---|---|
-| `npm ci` | Install exact dependencies from the lockfile |
-| `npm run dev` | Run the API with the development runner |
-| `npm run build` | Compile TypeScript to `dist` |
-| `npm start` | Run the compiled API |
-| `npm test` | Run unit and HTTP contract tests without MongoDB |
-| `npm run test:integration` | Run MongoDB repository integration tests |
-| `npm run seed:items` | Explicitly seed the deterministic sample items |
-| `npm run typecheck` | Type-check the API without emitting files |
-| `npm run validate:openapi` | Lint the OpenAPI specification |
+| Command                    | Purpose                                          |
+| -------------------------- | ------------------------------------------------ |
+| `npm ci`                   | Install exact dependencies from the lockfile     |
+| `npm run dev`              | Run the API with the development runner          |
+| `npm run build`            | Compile TypeScript to `dist`                     |
+| `npm start`                | Run the compiled API                             |
+| `npm test`                 | Run unit and HTTP contract tests without MongoDB |
+| `npm run test:integration` | Run MongoDB repository integration tests         |
+| `npm run seed:items`       | Explicitly seed the deterministic sample items   |
+| `npm run typecheck`        | Type-check the API without emitting files        |
+| `npm run validate:openapi` | Lint the OpenAPI specification                   |
 
 ## Environment Configuration
 
 Configuration is read and validated once at startup. The API requires a reachable MongoDB database before it starts listening; connection or index initialization failure aborts startup. There is no degraded mode or in-memory runtime fallback.
 
-| Variable | Default | Purpose |
-|---|---|---|
-| `NODE_ENV` | `development` | `development`, `test`, or `production` |
-| `HOST` | `127.0.0.1` | HTTP bind host |
-| `PORT` | `3000` | Integer from 1 through 65535 |
-| `MONGODB_URI` | `mongodb://127.0.0.1:27017/mern_enterprise_starter` | MongoDB connection URI |
-| `AUTH_JWT_SECRET` | Required in production | Signing key, at least 32 bytes; Compose requires explicit configuration |
-| `AUTH_JWT_ISSUER` | `mern-enterprise-starter-api` | JWT issuer |
-| `AUTH_JWT_AUDIENCE` | `mern-enterprise-starter-clients` | JWT audience |
-| `AUTH_ACCESS_TOKEN_TTL_SECONDS` | `900` | Token lifetime from 60 through 3600 seconds |
+| Variable                        | Default                                             | Purpose                                                                 |
+| ------------------------------- | --------------------------------------------------- | ----------------------------------------------------------------------- |
+| `NODE_ENV`                      | `development`                                       | `development`, `test`, or `production`                                  |
+| `HOST`                          | `127.0.0.1`                                         | HTTP bind host                                                          |
+| `PORT`                          | `3000`                                              | Integer from 1 through 65535                                            |
+| `MONGODB_URI`                   | `mongodb://127.0.0.1:27017/mern_enterprise_starter` | MongoDB connection URI                                                  |
+| `AUTH_JWT_SECRET`               | Required in production                              | Signing key, at least 32 bytes; Compose requires explicit configuration |
+| `AUTH_JWT_ISSUER`               | `mern-enterprise-starter-api`                       | JWT issuer                                                              |
+| `AUTH_JWT_AUDIENCE`             | `mern-enterprise-starter-clients`                   | JWT audience                                                            |
+| `AUTH_ACCESS_TOKEN_TTL_SECONDS` | `900`                                               | Token lifetime from 60 through 3600 seconds                             |
 
 Only the configuration boundary reads runtime `process.env`. Do not put credentials in source code or commit a populated `.env` file. The root Compose setup supplies the MongoDB URI using local-only credentials from the root `.env` file.
 
@@ -85,7 +85,6 @@ Compose waits for MongoDB health before starting the API. The MongoDB data volum
 ## Graceful Shutdown
 
 The process registers `SIGINT` and `SIGTERM` handlers only after the listener starts. Shutdown stops accepting requests, drains in-flight requests within the existing bounded timeout, and disconnects MongoDB through the lifecycle cleanup registry. Cleanup tasks run once and sequentially.
-
 
 ## Authentication
 

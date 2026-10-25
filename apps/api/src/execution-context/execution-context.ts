@@ -3,13 +3,7 @@ export type RequestId = string;
 export type CorrelationId = string;
 export type Locale = string;
 
-export type ExecutionSource =
-  | "HTTP"
-  | "QUEUE"
-  | "EVENT"
-  | "SCHEDULE"
-  | "CLI"
-  | "INTERNAL";
+export type ExecutionSource = "HTTP" | "QUEUE" | "EVENT" | "SCHEDULE" | "CLI" | "INTERNAL";
 
 export type PrincipalType = "human" | "service" | "system" | "anonymous";
 

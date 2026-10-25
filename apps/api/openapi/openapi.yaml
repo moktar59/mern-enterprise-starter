@@ -28,12 +28,12 @@ paths:
         required: true
         content:
           application/json:
-            schema: { $ref: '#/components/schemas/RegisterRequest' }
+            schema: { $ref: "#/components/schemas/RegisterRequest" }
       responses:
-        '201': { description: Account created. }
-        '409': { description: Email already registered. }
-        '422': { $ref: '#/components/responses/ValidationFailed' }
-        '500': { $ref: '#/components/responses/InternalError' }
+        "201": { description: Account created. }
+        "409": { description: Email already registered. }
+        "422": { $ref: "#/components/responses/ValidationFailed" }
+        "500": { $ref: "#/components/responses/InternalError" }
   /api/v1/auth/login:
     post:
       operationId: loginLocalUser
@@ -43,12 +43,19 @@ paths:
         required: true
         content:
           application/json:
-            schema: { $ref: '#/components/schemas/LoginRequest' }
+            schema: { $ref: "#/components/schemas/LoginRequest" }
       responses:
-        '200': { description: Credentials verified., content: { application/json: { schema: { $ref: '#/components/schemas/AccessTokenResponse' } } } }
-        '401': { description: Generic invalid-credentials response. }
-        '422': { $ref: '#/components/responses/ValidationFailed' }
-        '500': { $ref: '#/components/responses/InternalError' }
+        "200":
+          {
+            description: Credentials verified.,
+            content:
+              {
+                application/json: { schema: { $ref: "#/components/schemas/AccessTokenResponse" } },
+              },
+          }
+        "401": { description: Generic invalid-credentials response. }
+        "422": { $ref: "#/components/responses/ValidationFailed" }
+        "500": { $ref: "#/components/responses/InternalError" }
   /api/v1/auth/me:
     get:
       operationId: getCurrentUser
@@ -56,9 +63,9 @@ paths:
       summary: Get authenticated profile
       security: [{ bearerAuth: [] }]
       responses:
-        '200': { description: Authenticated profile returned. }
-        '401': { description: "Missing, invalid, or expired token." }
-        '500': { $ref: '#/components/responses/InternalError' }
+        "200": { description: Authenticated profile returned. }
+        "401": { description: "Missing, invalid, or expired token." }
+        "500": { $ref: "#/components/responses/InternalError" }
   /api/v1/items:
     get:
       operationId: listItems
@@ -90,12 +97,12 @@ paths:
             default: 10
           example: 5
       responses:
-        '200':
+        "200":
           description: Collection returned successfully, including an empty page when page is out of range.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PaginatedItems'
+                $ref: "#/components/schemas/PaginatedItems"
               examples:
                 firstPage:
                   summary: First page
@@ -119,13 +126,13 @@ paths:
                     pagination: { page: 99, perPage: 10, totalItems: 23, totalPages: 3 }
           headers:
             X-Request-Id:
-              $ref: '#/components/headers/RequestId'
-        '405':
-          $ref: '#/components/responses/MethodNotAllowed'
-        '422':
-          $ref: '#/components/responses/ValidationFailed'
-        '500':
-          $ref: '#/components/responses/InternalError'
+              $ref: "#/components/headers/RequestId"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+        "500":
+          $ref: "#/components/responses/InternalError"
 components:
   securitySchemes:
     bearerAuth:
@@ -142,23 +149,30 @@ components:
       headers:
         Allow:
           description: Comma-separated list of methods supported by this endpoint.
-          schema: { type: string, example: 'GET, HEAD' }
+          schema: { type: string, example: "GET, HEAD" }
         X-Request-Id:
-          $ref: '#/components/headers/RequestId'
+          $ref: "#/components/headers/RequestId"
       content:
         application/problem+json:
           schema:
-            $ref: '#/components/schemas/ProblemDetails'
-          example: { type: about:blank, title: Method Not Allowed, status: 405, code: METHOD_NOT_ALLOWED, requestId: 01JEXAMPLE }
+            $ref: "#/components/schemas/ProblemDetails"
+          example:
+            {
+              type: about:blank,
+              title: Method Not Allowed,
+              status: 405,
+              code: METHOD_NOT_ALLOWED,
+              requestId: 01JEXAMPLE,
+            }
     ValidationFailed:
       description: A supplied query parameter is invalid.
       headers:
         X-Request-Id:
-          $ref: '#/components/headers/RequestId'
+          $ref: "#/components/headers/RequestId"
       content:
         application/problem+json:
           schema:
-            $ref: '#/components/schemas/ProblemDetails'
+            $ref: "#/components/schemas/ProblemDetails"
           example:
             type: about:blank
             title: Unprocessable Content
@@ -171,12 +185,19 @@ components:
       description: An unexpected server error occurred. Internal details are not exposed.
       headers:
         X-Request-Id:
-          $ref: '#/components/headers/RequestId'
+          $ref: "#/components/headers/RequestId"
       content:
         application/problem+json:
           schema:
-            $ref: '#/components/schemas/ProblemDetails'
-          example: { type: about:blank, title: Internal Server Error, status: 500, code: INTERNAL_ERROR, requestId: 01JEXAMPLE }
+            $ref: "#/components/schemas/ProblemDetails"
+          example:
+            {
+              type: about:blank,
+              title: Internal Server Error,
+              status: 500,
+              code: INTERNAL_ERROR,
+              requestId: 01JEXAMPLE,
+            }
   schemas:
     RegisterRequest:
       type: object
@@ -207,7 +228,7 @@ components:
         accessToken: { type: string }
         tokenType: { type: string, enum: [Bearer] }
         expiresIn: { type: integer, minimum: 60, maximum: 3600 }
-        user: { $ref: '#/components/schemas/PublicUser' }
+        user: { $ref: "#/components/schemas/PublicUser" }
     Item:
       type: object
       additionalProperties: false
@@ -231,8 +252,8 @@ components:
       properties:
         records:
           type: array
-          items: { $ref: '#/components/schemas/Item' }
-        pagination: { $ref: '#/components/schemas/Pagination' }
+          items: { $ref: "#/components/schemas/Item" }
+        pagination: { $ref: "#/components/schemas/Pagination" }
     ProblemDetails:
       type: object
       description: RFC 9457 Problem Details with stable application extensions.

@@ -29,17 +29,23 @@ export interface ApplicationLifecycleOptions {
  */
 export function createApplicationLifecycle(
   server: Server,
-  options: ApplicationLifecycleOptions = {}
+  options: ApplicationLifecycleOptions = {},
 ): ApplicationLifecycle {
   const timeoutMs = options.timeoutMs ?? DEFAULT_SHUTDOWN_TIMEOUT_MS;
-  const onError = options.onError ?? ((error: unknown) => {
-    console.error("Application shutdown encountered an error.", error);
-  });
+  const onError =
+    options.onError ??
+    ((error: unknown) => {
+      console.error("Application shutdown encountered an error.", error);
+    });
   const cleanupTasks: CleanupTask[] = [];
   let shutdownPromise: Promise<void> | undefined;
 
   function safelyNotify(callback: (() => void) | undefined): void {
-    try { callback?.(); } catch { /* Observability must not interrupt lifecycle work. */ }
+    try {
+      callback?.();
+    } catch {
+      /* Observability must not interrupt lifecycle work. */
+    }
   }
 
   function reportError(error: unknown): void {
@@ -60,7 +66,9 @@ export function createApplicationLifecycle(
   function closeServer(): Promise<void> {
     if (!server.listening) return Promise.resolve();
     return new Promise<void>((resolve, reject) => {
-      const timer = setTimeout(() => { server.closeAllConnections(); }, timeoutMs);
+      const timer = setTimeout(() => {
+        server.closeAllConnections();
+      }, timeoutMs);
       timer.unref();
       try {
         server.close((error) => {
@@ -83,8 +91,11 @@ export function createApplicationLifecycle(
       reportError(error);
     }
     for (const cleanup of cleanupTasks) {
-      try { await cleanup(); }
-      catch (error) { reportError(error); }
+      try {
+        await cleanup();
+      } catch (error) {
+        reportError(error);
+      }
     }
     safelyNotify(options.onComplete);
   }
@@ -103,7 +114,7 @@ export function registerShutdownSignals(
   signalSource: ShutdownSignalSource = process,
   onError: (error: unknown) => void = (error) => {
     console.error("Graceful shutdown failed.", error);
-  }
+  },
 ): () => void {
   let signalReceived = false;
   const removeHandlers = (): void => {
@@ -113,9 +124,16 @@ export function registerShutdownSignals(
   const handleSignal = (): void => {
     if (signalReceived) return;
     signalReceived = true;
-    void lifecycle.shutdown().catch((error: unknown) => {
-      try { onError(error); } catch { /* Never allow logging failure to escape the signal handler. */ }
-    }).finally(removeHandlers);
+    void lifecycle
+      .shutdown()
+      .catch((error: unknown) => {
+        try {
+          onError(error);
+        } catch {
+          /* Never allow logging failure to escape the signal handler. */
+        }
+      })
+      .finally(removeHandlers);
   };
   signalSource.on("SIGINT", handleSignal);
   signalSource.on("SIGTERM", handleSignal);

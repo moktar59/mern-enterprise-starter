@@ -1,1 +1,40 @@
-import {readFile} from "node:fs/promises";import express,{type Express,type RequestHandler,type Router} from "express";import type {Logger} from "./logging/logger.js";import type {ExecutionContextScope} from "./execution-context/execution-context-scope.js";import type {ItemRepository} from "./modules/items/item.repository.js";import {createV1Router} from "./routes/v1/index.js";import {createHttpErrorHandler,notFoundHandler} from "./http/middleware/http-error-middleware.js";import {createRequestLoggingMiddleware} from "./http/middleware/request-logging-middleware.js";const openApiUrl=new URL("../openapi/openapi.yaml",import.meta.url);const docs=`<!doctype html><html><head><title>API docs</title><link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@5.18.2/swagger-ui.css"></head><body><div id="swagger-ui"></div><script src="https://unpkg.com/swagger-ui-dist@5.18.2/swagger-ui-bundle.js"></script><script>window.onload=()=>SwaggerUIBundle({url:"/openapi.yaml",dom_id:"#swagger-ui"});</script></body></html>`;export function createApp(m:RequestHandler,items:ItemRepository,l:Logger,s:ExecutionContextScope,auth:Router=express.Router()):Express{const app=express();app.disable("x-powered-by");app.use(m);app.use(createRequestLoggingMiddleware(l,s));app.use(express.json());app.get("/",(_q,p)=>p.status(200).json({message:"MERN Enterprise Starter API"}));app.get("/health/live",(_q,p)=>p.status(200).json({status:"ok"}));app.get("/openapi.yaml",async(_q,p,n)=>{try{p.type("application/yaml").send(await readFile(openApiUrl,"utf8"));}catch(e){n(e);}});app.get("/api-docs",(_q,p)=>p.type("html").send(docs));app.use("/api/v1",createV1Router(items,auth));app.use(notFoundHandler);app.use(createHttpErrorHandler(l,s));return app;}
+import { readFile } from "node:fs/promises";
+import express, { type Express, type RequestHandler, type Router } from "express";
+import type { Logger } from "./logging/logger.js";
+import type { ExecutionContextScope } from "./execution-context/execution-context-scope.js";
+import type { ItemRepository } from "./modules/items/item.repository.js";
+import { createV1Router } from "./routes/v1/index.js";
+import {
+  createHttpErrorHandler,
+  notFoundHandler,
+} from "./http/middleware/http-error-middleware.js";
+import { createRequestLoggingMiddleware } from "./http/middleware/request-logging-middleware.js";
+const openApiUrl = new URL("../openapi/openapi.yaml", import.meta.url);
+const docs = `<!doctype html><html><head><title>API docs</title><link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@5.18.2/swagger-ui.css"></head><body><div id="swagger-ui"></div><script src="https://unpkg.com/swagger-ui-dist@5.18.2/swagger-ui-bundle.js"></script><script>window.onload=()=>SwaggerUIBundle({url:"/openapi.yaml",dom_id:"#swagger-ui"});</script></body></html>`;
+export function createApp(
+  m: RequestHandler,
+  items: ItemRepository,
+  l: Logger,
+  s: ExecutionContextScope,
+  auth: Router = express.Router(),
+): Express {
+  const app = express();
+  app.disable("x-powered-by");
+  app.use(m);
+  app.use(createRequestLoggingMiddleware(l, s));
+  app.use(express.json());
+  app.get("/", (_q, p) => p.status(200).json({ message: "MERN Enterprise Starter API" }));
+  app.get("/health/live", (_q, p) => p.status(200).json({ status: "ok" }));
+  app.get("/openapi.yaml", async (_q, p, n) => {
+    try {
+      p.type("application/yaml").send(await readFile(openApiUrl, "utf8"));
+    } catch (e) {
+      n(e);
+    }
+  });
+  app.get("/api-docs", (_q, p) => p.type("html").send(docs));
+  app.use("/api/v1", createV1Router(items, auth));
+  app.use(notFoundHandler);
+  app.use(createHttpErrorHandler(l, s));
+  return app;
+}

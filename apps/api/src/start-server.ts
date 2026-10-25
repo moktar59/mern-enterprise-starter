@@ -1,1 +1,93 @@
-import {createServer,type Server} from "node:http";import {composeApplication} from "./composition/compose-application.js";import {loadConfig} from "./config.js";import {createPinoLogger} from "./infrastructure/logging/pino-logger.js";import {connectDatabase} from "./infrastructure/database/connect-database.js";import {MongooseItemRepository} from "./infrastructure/items/mongoose-item.repository.js";import {createApplicationLifecycle,registerShutdownSignals,type ApplicationLifecycle} from "./lifecycle/graceful-shutdown.js";export type ConfigureApplicationLifecycle=(l:ApplicationLifecycle)=>void;function safe(op:()=>void){try{op();}catch{}}export async function startServer(env?:NodeJS.ProcessEnv,configureLifecycle?:ConfigureApplicationLifecycle):Promise<Server>{const c=loadConfig(env),l=createPinoLogger(c.logLevel);let db:Awaited<ReturnType<typeof connectDatabase>>;try{safe(()=>l.info({event:"startup.started",nodeEnv:c.nodeEnv},"Startup started"));db=await connectDatabase(c.mongoUri);}catch(e){try{l.error({event:"startup.database_failed",errorName:e instanceof Error?e.name:"UnknownError"},"Database startup failed");}catch{}throw e;}const server=createServer(composeApplication(new MongooseItemRepository(),l,c));const lifecycle=createApplicationLifecycle(server,{onError:e=>{try{l.error({event:"lifecycle.cleanup_failed",errorName:e instanceof Error?e.name:"UnknownError"},"Cleanup failed");}catch{}},onStart:()=>safe(()=>l.info({event:"shutdown.started"},"Shutdown started")),onComplete:()=>safe(()=>l.info({event:"shutdown.completed"},"Shutdown complete"))});lifecycle.registerCleanup(()=>db.disconnect());try{configureLifecycle?.(lifecycle);}catch(e){await lifecycle.shutdown();throw e;}server.once("listening",()=>{safe(()=>l.info({event:"startup.listening",host:c.host,port:c.port},"API listening"));registerShutdownSignals(lifecycle,process,e=>{try{l.error({event:"shutdown.failed",errorName:e instanceof Error?e.name:"UnknownError"},"Shutdown failed");}catch{}});});try{await new Promise<void>((resolve,reject)=>{const error=(e:Error)=>{server.removeListener("listening",listening);reject(e);},listening=()=>{server.removeListener("error",error);resolve();};server.once("error",error);server.once("listening",listening);server.listen(c.port,c.host);});}catch(e){await lifecycle.shutdown();throw e;}return server;}
+import { createServer, type Server } from "node:http";
+import { composeApplication } from "./composition/compose-application.js";
+import { loadConfig } from "./config.js";
+import { createPinoLogger } from "./infrastructure/logging/pino-logger.js";
+import { connectDatabase } from "./infrastructure/database/connect-database.js";
+import { MongooseItemRepository } from "./infrastructure/items/mongoose-item.repository.js";
+import {
+  createApplicationLifecycle,
+  registerShutdownSignals,
+  type ApplicationLifecycle,
+} from "./lifecycle/graceful-shutdown.js";
+export type ConfigureApplicationLifecycle = (l: ApplicationLifecycle) => void;
+function safe(op: () => void) {
+  try {
+    op();
+  } catch {}
+}
+export async function startServer(
+  env?: NodeJS.ProcessEnv,
+  configureLifecycle?: ConfigureApplicationLifecycle,
+): Promise<Server> {
+  const c = loadConfig(env),
+    l = createPinoLogger(c.logLevel);
+  let db: Awaited<ReturnType<typeof connectDatabase>>;
+  try {
+    safe(() => l.info({ event: "startup.started", nodeEnv: c.nodeEnv }, "Startup started"));
+    db = await connectDatabase(c.mongoUri);
+  } catch (e) {
+    try {
+      l.error(
+        {
+          event: "startup.database_failed",
+          errorName: e instanceof Error ? e.name : "UnknownError",
+        },
+        "Database startup failed",
+      );
+    } catch {}
+    throw e;
+  }
+  const server = createServer(composeApplication(new MongooseItemRepository(), l, c));
+  const lifecycle = createApplicationLifecycle(server, {
+    onError: (e) => {
+      try {
+        l.error(
+          {
+            event: "lifecycle.cleanup_failed",
+            errorName: e instanceof Error ? e.name : "UnknownError",
+          },
+          "Cleanup failed",
+        );
+      } catch {}
+    },
+    onStart: () => safe(() => l.info({ event: "shutdown.started" }, "Shutdown started")),
+    onComplete: () => safe(() => l.info({ event: "shutdown.completed" }, "Shutdown complete")),
+  });
+  lifecycle.registerCleanup(() => db.disconnect());
+  try {
+    configureLifecycle?.(lifecycle);
+  } catch (e) {
+    await lifecycle.shutdown();
+    throw e;
+  }
+  server.once("listening", () => {
+    safe(() => l.info({ event: "startup.listening", host: c.host, port: c.port }, "API listening"));
+    registerShutdownSignals(lifecycle, process, (e) => {
+      try {
+        l.error(
+          { event: "shutdown.failed", errorName: e instanceof Error ? e.name : "UnknownError" },
+          "Shutdown failed",
+        );
+      } catch {}
+    });
+  });
+  try {
+    await new Promise<void>((resolve, reject) => {
+      const error = (e: Error) => {
+          server.removeListener("listening", listening);
+          reject(e);
+        },
+        listening = () => {
+          server.removeListener("error", error);
+          resolve();
+        };
+      server.once("error", error);
+      server.once("listening", listening);
+      server.listen(c.port, c.host);
+    });
+  } catch (e) {
+    await lifecycle.shutdown();
+    throw e;
+  }
+  return server;
+}

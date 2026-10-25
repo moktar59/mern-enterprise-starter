@@ -6,15 +6,21 @@ import { createPinoLogger } from "./pino-logger.js";
 test("Pino logger emits structured JSON and redacts common sensitive fields", () => {
   let output = "";
   const destination = new Writable({
-    write(chunk, _encoding, callback) { output += chunk.toString(); callback(); }
+    write(chunk, _encoding, callback) {
+      output += chunk.toString();
+      callback();
+    },
   });
   const logger = createPinoLogger("info", destination);
-  logger.info({
-    requestId: "request-123",
-    password: "dont-log-this-password",
-    authorization: "Bearer dont-log-this-token",
-    user: { token: "nested-secret-token" }
-  }, "test event");
+  logger.info(
+    {
+      requestId: "request-123",
+      password: "dont-log-this-password",
+      authorization: "Bearer dont-log-this-token",
+      user: { token: "nested-secret-token" },
+    },
+    "test event",
+  );
 
   const event = JSON.parse(output.trim()) as Record<string, unknown>;
   assert.equal(event.level, 30);
@@ -29,7 +35,10 @@ test("Pino logger emits structured JSON and redacts common sensitive fields", ()
 test("silent logger does not emit records", () => {
   let output = "";
   const destination = new Writable({
-    write(chunk, _encoding, callback) { output += chunk.toString(); callback(); }
+    write(chunk, _encoding, callback) {
+      output += chunk.toString();
+      callback();
+    },
   });
   createPinoLogger("silent", destination).error({}, "must be suppressed");
   assert.equal(output, "");
