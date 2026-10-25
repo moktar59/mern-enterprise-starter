@@ -1,0 +1,1 @@
+export interface AuthUser{readonly id:string;readonly email:string;readonly passwordHash:string;}export interface PublicUser{readonly id:string;readonly email:string;}

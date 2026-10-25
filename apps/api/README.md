@@ -35,6 +35,10 @@ Configuration is read and validated once at startup. The API requires a reachabl
 | `HOST` | `127.0.0.1` | HTTP bind host |
 | `PORT` | `3000` | Integer from 1 through 65535 |
 | `MONGODB_URI` | `mongodb://127.0.0.1:27017/mern_enterprise_starter` | MongoDB connection URI |
+| `AUTH_JWT_SECRET` | Required in production | Signing key, at least 32 bytes; Compose requires explicit configuration |
+| `AUTH_JWT_ISSUER` | `mern-enterprise-starter-api` | JWT issuer |
+| `AUTH_JWT_AUDIENCE` | `mern-enterprise-starter-clients` | JWT audience |
+| `AUTH_ACCESS_TOKEN_TTL_SECONDS` | `900` | Token lifetime from 60 through 3600 seconds |
 
 Only the configuration boundary reads runtime `process.env`. Do not put credentials in source code or commit a populated `.env` file. The root Compose setup supplies the MongoDB URI using local-only credentials from the root `.env` file.
 
@@ -81,3 +85,13 @@ Compose waits for MongoDB health before starting the API. The MongoDB data volum
 ## Graceful Shutdown
 
 The process registers `SIGINT` and `SIGTERM` handlers only after the listener starts. Shutdown stops accepting requests, drains in-flight requests within the existing bounded timeout, and disconnects MongoDB through the lifecycle cleanup registry. Cleanup tasks run once and sequentially.
+
+
+## Authentication
+
+- `POST /api/v1/auth/register` returns a public profile and does not issue a token.
+- `POST /api/v1/auth/login` returns a 15-minute JWT access token and profile.
+- `GET /api/v1/auth/me` requires `Authorization: Bearer <access-token>`.
+- Passwords use Argon2id (time cost 2, memory 19,456 KiB, parallelism 1); password length is 12–128 characters. Emails are trimmed and lowercased; MongoDB enforces uniqueness. Login failures are generic.
+- Configure `AUTH_JWT_SECRET` (at least 32 bytes; required in production and Compose), `AUTH_JWT_ISSUER` (default `mern-enterprise-starter-api`), `AUTH_JWT_AUDIENCE` (default `mern-enterprise-starter-clients`), and `AUTH_ACCESS_TOKEN_TTL_SECONDS` (default `900`, range 60–3600). Argon2id resource tuning is configurable with `AUTH_ARGON2_TIME_COST` (default 2, range 2–10), `AUTH_ARGON2_MEMORY_COST_KIB` (default 19456 KiB, range 19456–262144), and `AUTH_ARGON2_PARALLELISM` (default 1, range 1–4). Replace the `.env.example` placeholder with a unique random secret; never commit real secrets. Non-production uses an ephemeral key when omitted. JWT verification restricts HS256 and validates issuer, audience, subject, expiry, and access-token use. The verified subject populates the execution context as a human principal; client identity headers are ignored.
+- Refresh tokens, sessions/revocation, social login, recovery, MFA, roles, authorization, and frontend screens remain out of scope. Valid tokens remain usable until expiry.

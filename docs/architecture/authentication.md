@@ -1,0 +1,5 @@
+# Authentication Architecture
+
+Phase 7 implements local email/password registration, login, and a protected current-user endpoint. The application service depends on user-repository, password-hasher, and token-service contracts; MongoDB, Argon2, and jose implementations remain infrastructure adapters. Email is trimmed and lowercased; MongoDB enforces uniqueness. Passwords use Argon2id with configurable time cost (default 2, range 2–10), memory cost (default 19,456 KiB, range 19,456–262,144 KiB), and parallelism (default 1, range 1–4). JWTs use HS256 with an explicit algorithm allow-list, issuer, audience, subject, issued-at, expiration, and access-token-use claims. Production requires a 32-byte-or-longer secret. Verified subjects populate the existing execution context as a human principal; client identity headers are not trusted.
+
+Refresh tokens, sessions/revocation, recovery, email verification, social login, MFA, and authorization policies are out of scope. Valid tokens remain usable until expiry.

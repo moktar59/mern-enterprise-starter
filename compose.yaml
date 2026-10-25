@@ -8,6 +8,7 @@ services:
       NODE_ENV: development
       HOST: 0.0.0.0
       PORT: "3000"
+      AUTH_JWT_SECRET: ${AUTH_JWT_SECRET:?Set AUTH_JWT_SECRET in .env}
       MONGODB_URI: mongodb://${MONGO_INITDB_ROOT_USERNAME:?Set MONGO_INITDB_ROOT_USERNAME in .env}:${MONGO_INITDB_ROOT_PASSWORD:?Set MONGO_INITDB_ROOT_PASSWORD in .env}@mongodb:27017/mern_enterprise_starter?authSource=admin
     depends_on:
       mongodb:
